@@ -63,4 +63,29 @@ describe('HomePage', () => {
     expect(screen.queryByText('Скоро в Москве')).not.toBeInTheDocument();
     expect(window.localStorage.getItem('marketplace-city')).toBe('moscow');
   });
+
+  it('selects and resets an excursion date', () => {
+    render(<HomePage />, { wrapper: TestProviders });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Любая дата' }));
+    expect(
+      screen.getByRole('heading', { name: 'Выберите дату' }),
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Или выберите день в календаре'), {
+      target: { value: '2027-05-16' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Показать варианты' }));
+
+    expect(
+      screen.getByRole('button', { name: /16 мая 2027/ }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /16 мая 2027/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Любая дата' }));
+
+    expect(
+      screen.getByRole('button', { name: 'Любая дата' }),
+    ).toBeInTheDocument();
+  });
 });

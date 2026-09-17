@@ -429,6 +429,163 @@ main {
   transform: translateY(1px);
 }
 
+.date-button--selected {
+  background: var(--accent-dark);
+}
+
+.date-dialog-backdrop {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  background: rgb(14 18 31 / 46%);
+  backdrop-filter: blur(4px);
+  animation: backdrop-in 160ms ease-out;
+}
+
+.date-dialog {
+  width: min(100%, 520px);
+  padding: 10px 16px max(18px, env(safe-area-inset-bottom));
+  border-radius: 28px 28px 22px 22px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(13 19 39 / 28%);
+  animation: sheet-in 220ms ease-out;
+}
+
+.date-dialog__handle {
+  width: 42px;
+  height: 4px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: #d7dae2;
+}
+
+.date-dialog > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 2px 4px 16px;
+}
+
+.date-dialog h2 {
+  margin: 0;
+  font-size: 27px;
+  letter-spacing: -0.035em;
+}
+
+.date-dialog__close {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 0;
+  border-radius: 50%;
+  color: #555d6c;
+  background: #f0f1f5;
+  font-size: 27px;
+  line-height: 1;
+  place-items: center;
+}
+
+.date-quick-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.date-quick-options button {
+  min-height: 70px;
+  padding: 10px 6px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.date-quick-options button.is-selected {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  background: #f3f4ff;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.date-quick-options strong,
+.date-quick-options span {
+  display: block;
+}
+
+.date-quick-options strong {
+  font-size: 12px;
+}
+
+.date-quick-options span {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.date-input-field {
+  display: block;
+  margin-top: 16px;
+}
+
+.date-input-field > span {
+  display: block;
+  margin: 0 2px 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.date-input-field input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  color: var(--ink);
+  background: #f8f9fb;
+  font: inherit;
+}
+
+.date-input-field input:focus {
+  border-color: rgb(71 88 214 / 60%);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgb(71 88 214 / 10%);
+}
+
+.date-dialog__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.date-dialog__actions button {
+  min-height: 48px;
+  border-radius: 15px;
+  font-weight: 750;
+}
+
+.date-dialog__reset {
+  color: var(--accent-dark);
+  background: #eef0ff;
+}
+
+.date-dialog__apply {
+  color: #fff;
+  background: var(--accent);
+}
+
+.date-dialog__apply:disabled {
+  color: #a0a5af;
+  background: #eceef2;
+}
+
 .content-section {
   padding: 34px 18px 0;
 }
@@ -1276,12 +1433,25 @@ main {
     align-items: center;
   }
 
+  .date-dialog-backdrop {
+    align-items: center;
+  }
+
   .city-dialog {
     padding: 18px;
     border-radius: 28px;
   }
 
+  .date-dialog {
+    padding: 18px;
+    border-radius: 28px;
+  }
+
   .city-dialog__handle {
+    display: none;
+  }
+
+  .date-dialog__handle {
     display: none;
   }
 

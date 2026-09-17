@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { AppLayout } from '../components/AppLayout';
 import { CitySelector } from '../components/CitySelector';
+import { DateSelector } from '../components/DateSelector';
 import { ExperienceCard } from '../components/ExperienceCard';
 import { Icon } from '../components/Icon';
 import { categories, getExperiencesForCity } from '../data/experiences';
@@ -10,6 +11,7 @@ import { useCity } from '../features/city/CityContext';
 
 export function HomePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const { city } = useCity();
 
@@ -66,10 +68,7 @@ export function HomePage() {
               value={query}
             />
           </label>
-          <button className="date-button" type="button">
-            <Icon name="calendar" />
-            Любая дата
-          </button>
+          <DateSelector onChange={setSelectedDate} value={selectedDate} />
         </section>
 
         <section className="content-section categories-section">
