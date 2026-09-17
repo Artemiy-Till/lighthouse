@@ -51,6 +51,14 @@ describe('HomePage', () => {
   it('selects a city and shows its experiences', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
+    expect(
+      screen.getByRole('button', {
+        name: 'Выбрать город. Сейчас Санкт-Петербург',
+      }),
+    ).toContainElement(
+      document.querySelector('img[src="/images/saint-petersburg-hero.webp"]'),
+    );
+
     fireEvent.click(
       screen.getByRole('button', {
         name: 'Выбрать город. Сейчас Санкт-Петербург',
@@ -62,6 +70,11 @@ describe('HomePage', () => {
     expect(screen.getByText('Москва: первое знакомство')).toBeInTheDocument();
     expect(screen.queryByText('Скоро в Москве')).not.toBeInTheDocument();
     expect(window.localStorage.getItem('marketplace-city')).toBe('moscow');
+    expect(
+      screen.getByRole('button', { name: 'Выбрать город. Сейчас Москва' }),
+    ).toContainElement(
+      document.querySelector('img[src="/images/moscow-kremlin.webp"]'),
+    );
   });
 
   it('selects and resets an excursion date', () => {

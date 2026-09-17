@@ -40,7 +40,13 @@ export function CitySelector() {
         onClick={() => setIsOpen(true)}
         type="button"
       >
-        <span className="brand-mark">В</span>
+        <img
+          alt=""
+          className="city-thumbnail"
+          height="40"
+          src={city.heroImage}
+          width="40"
+        />
         <span>
           <small>Ваш город</small>
           <strong>{city.name}</strong>
@@ -92,8 +98,17 @@ export function CitySelector() {
                         onClick={() => handleSelect(item.id)}
                         type="button"
                       >
-                        <span className="city-options__mark">
-                          {isSelected ? '✓' : item.name.slice(0, 1)}
+                        <span className="city-options__thumbnail">
+                          <img
+                            alt=""
+                            height="48"
+                            loading="lazy"
+                            src={item.heroImage}
+                            width="48"
+                          />
+                          {isSelected ? (
+                            <span aria-hidden="true">✓</span>
+                          ) : null}
                         </span>
                         <span>
                           <strong>{item.name}</strong>
