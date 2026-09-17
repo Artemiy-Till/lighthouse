@@ -1,7 +1,8 @@
+import { Link } from 'react-router-dom';
+
 import { AppLayout } from '../components/AppLayout';
 
 const profileMenu = [
-  { icon: '🎟️', label: 'Мои бронирования', meta: '1 предстоящее' },
   { icon: '💬', label: 'Поддержка', meta: 'Ответим в чате' },
   { icon: '⚙️', label: 'Настройки', meta: 'Язык и уведомления' },
 ] as const;
@@ -37,10 +38,24 @@ export function ProfilePage() {
               <strong>2 взрослых</strong>
             </div>
           </div>
-          <button type="button">Открыть бронирование</button>
+          <Link className="booking-card__action" to="/orders">
+            Открыть заказ
+          </Link>
         </section>
 
         <section aria-label="Разделы профиля" className="profile-menu">
+          <Link to="/orders">
+            <span aria-hidden="true" className="profile-menu__icon">
+              🎟️
+            </span>
+            <span>
+              <strong>Мои заказы</strong>
+              <small>1 предстоящий</small>
+            </span>
+            <span aria-hidden="true" className="profile-menu__arrow">
+              ›
+            </span>
+          </Link>
           {profileMenu.map((item) => (
             <button key={item.label} type="button">
               <span aria-hidden="true" className="profile-menu__icon">

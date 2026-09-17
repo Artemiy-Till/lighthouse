@@ -12,6 +12,7 @@ const navigation: readonly {
   { icon: 'home', label: 'Главная', to: '/' },
   { icon: 'map', label: 'Каталог', to: '/catalog' },
   { icon: 'heart', label: 'Избранное', to: '/favorites' },
+  { icon: 'orders', label: 'Заказы', to: '/orders' },
   { icon: 'profile', label: 'Профиль', to: '/profile' },
 ];
 

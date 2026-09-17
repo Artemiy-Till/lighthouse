@@ -5,6 +5,7 @@ import { FavoritesProvider } from '../features/favorites/FavoritesContext';
 import { CatalogPage } from '../pages/CatalogPage';
 import { FavoritesPage } from '../pages/FavoritesPage';
 import { HomePage } from '../pages/HomePage';
+import { OrdersPage } from '../pages/OrdersPage';
 import { ProfilePage } from '../pages/ProfilePage';
 
 export function App() {
@@ -15,6 +16,7 @@ export function App() {
           <Route element={<HomePage />} path="/" />
           <Route element={<CatalogPage />} path="/catalog" />
           <Route element={<FavoritesPage />} path="/favorites" />
+          <Route element={<OrdersPage />} path="/orders" />
           <Route element={<ProfilePage />} path="/profile" />
           <Route element={<Navigate replace to="/" />} path="*" />
         </Routes>
