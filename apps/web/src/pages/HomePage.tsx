@@ -2,16 +2,22 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { AppLayout } from '../components/AppLayout';
+import { CitySelector } from '../components/CitySelector';
 import { ExperienceCard } from '../components/ExperienceCard';
 import { Icon } from '../components/Icon';
 import { categories, experiences } from '../data/experiences';
+import { useCity } from '../features/city/CityContext';
 
 export function HomePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const { city, selectCity } = useCity();
+  const hasExperiences = city.id === 'saint-petersburg';
 
   const filteredExperiences = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('ru');
+
+    if (!hasExperiences) return [];
 
     return experiences.filter((experience) => {
       const matchesCategory =
@@ -24,40 +30,35 @@ export function HomePage() {
 
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, hasExperiences, query]);
 
   return (
     <AppLayout>
       <header className="topbar">
-        <button
-          aria-label="Выбрать город"
-          className="location-button"
-          type="button"
-        >
-          <span className="brand-mark">В</span>
-          <span>
-            <small>Ваш город</small>
-            <strong>Санкт-Петербург</strong>
-          </span>
-          <span aria-hidden="true" className="chevron">
-            ⌄
-          </span>
-        </button>
+        <CitySelector />
         <Link aria-label="Избранное" className="topbar-action" to="/favorites">
           <Icon name="heart" />
         </Link>
       </header>
 
       <main>
-        <section className="hero">
-          <img
-            alt="Канал в центре Санкт-Петербурга в утреннем свете"
-            className="hero__image"
-            fetchPriority="high"
-            height="739"
-            src="/images/saint-petersburg-hero.webp"
-            width="1600"
-          />
+        <section
+          className={`hero${hasExperiences ? '' : ' hero--city-preview'}`}
+        >
+          {hasExperiences ? (
+            <img
+              alt="Канал в центре Санкт-Петербурга в утреннем свете"
+              className="hero__image"
+              fetchPriority="high"
+              height="739"
+              src="/images/saint-petersburg-hero.webp"
+              width="1600"
+            />
+          ) : (
+            <div aria-hidden="true" className="hero__city-art">
+              <span>{city.name}</span>
+            </div>
+          )}
           <div className="hero__scrim" />
           <div className="hero__content">
             <p className="hero__eyebrow">Впечатления рядом</p>
@@ -115,7 +116,7 @@ export function HomePage() {
           <div className="section-heading">
             <div>
               <p className="section-kicker">Выбор путешественников</p>
-              <h2>Популярное в Петербурге</h2>
+              <h2>Популярное в {city.prepositionalName}</h2>
             </div>
             <Link className="text-button" to="/catalog">
               Все
@@ -128,7 +129,7 @@ export function HomePage() {
                 <ExperienceCard experience={experience} key={experience.id} />
               ))}
             </div>
-          ) : (
+          ) : hasExperiences ? (
             <div className="empty-state">
               <span aria-hidden="true">🧭</span>
               <h3>Пока ничего не нашли</h3>
@@ -141,6 +142,21 @@ export function HomePage() {
                 type="button"
               >
                 Сбросить фильтры
+              </button>
+            </div>
+          ) : (
+            <div className="empty-state city-coming-soon">
+              <span aria-hidden="true">📍</span>
+              <h3>Скоро в {city.prepositionalName}</h3>
+              <p>
+                Мы уже собираем лучшие прогулки и экскурсии. Пока можно
+                посмотреть подборку для Петербурга.
+              </p>
+              <button
+                onClick={() => selectCity('saint-petersburg')}
+                type="button"
+              >
+                Посмотреть Петербург
               </button>
             </div>
           )}

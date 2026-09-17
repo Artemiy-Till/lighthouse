@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import { CityProvider } from '../features/city/CityContext';
 import { FavoritesProvider } from '../features/favorites/FavoritesContext';
 import { CatalogPage } from '../pages/CatalogPage';
 import { FavoritesPage } from '../pages/FavoritesPage';
@@ -8,14 +9,16 @@ import { ProfilePage } from '../pages/ProfilePage';
 
 export function App() {
   return (
-    <FavoritesProvider>
-      <Routes>
-        <Route element={<HomePage />} path="/" />
-        <Route element={<CatalogPage />} path="/catalog" />
-        <Route element={<FavoritesPage />} path="/favorites" />
-        <Route element={<ProfilePage />} path="/profile" />
-        <Route element={<Navigate replace to="/" />} path="*" />
-      </Routes>
-    </FavoritesProvider>
+    <CityProvider>
+      <FavoritesProvider>
+        <Routes>
+          <Route element={<HomePage />} path="/" />
+          <Route element={<CatalogPage />} path="/catalog" />
+          <Route element={<FavoritesPage />} path="/favorites" />
+          <Route element={<ProfilePage />} path="/profile" />
+          <Route element={<Navigate replace to="/" />} path="*" />
+        </Routes>
+      </FavoritesProvider>
+    </CityProvider>
   );
 }

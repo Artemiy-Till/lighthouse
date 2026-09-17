@@ -3,13 +3,16 @@ import { type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { CityProvider } from '../features/city/CityContext';
 import { FavoritesProvider } from '../features/favorites/FavoritesContext';
 import { HomePage } from './HomePage';
 
 function TestProviders({ children }: { readonly children: ReactNode }) {
   return (
     <MemoryRouter>
-      <FavoritesProvider>{children}</FavoritesProvider>
+      <CityProvider>
+        <FavoritesProvider>{children}</FavoritesProvider>
+      </CityProvider>
     </MemoryRouter>
   );
 }
@@ -43,5 +46,20 @@ describe('HomePage', () => {
     expect(
       screen.getByText('Петербург: первое знакомство'),
     ).toBeInTheDocument();
+  });
+
+  it('selects a city and shows its upcoming collection state', () => {
+    render(<HomePage />, { wrapper: TestProviders });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Выбрать город. Сейчас Санкт-Петербург',
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Москва/ }));
+
+    expect(screen.getByText('Популярное в Москве')).toBeInTheDocument();
+    expect(screen.getByText('Скоро в Москве')).toBeInTheDocument();
+    expect(window.localStorage.getItem('marketplace-city')).toBe('moscow');
   });
 });
