@@ -1,0 +1,30 @@
+import { z } from 'zod';
+
+const environmentSchema = z.object({
+  CORS_ORIGINS: z
+    .string()
+    .optional()
+    .transform((value) =>
+      value
+        ? value
+            .split(',')
+            .map((origin) => origin.trim())
+            .filter(Boolean)
+        : [],
+    ),
+  DATABASE_URL: z.url().startsWith('postgresql://'),
+  LOG_LEVEL: z
+    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+    .default('info'),
+  MAX_BOT_TOKEN: z.string().min(1).optional(),
+  NODE_ENV: z
+    .enum(['development', 'test', 'production'])
+    .default('development'),
+  PORT: z.coerce.number().int().min(1).max(65_535).default(3000),
+});
+
+export type Environment = z.infer<typeof environmentSchema>;
+
+export function parseEnvironment(environment: NodeJS.ProcessEnv): Environment {
+  return environmentSchema.parse(environment);
+}
