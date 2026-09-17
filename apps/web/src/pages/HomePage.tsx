@@ -5,21 +5,18 @@ import { AppLayout } from '../components/AppLayout';
 import { CitySelector } from '../components/CitySelector';
 import { ExperienceCard } from '../components/ExperienceCard';
 import { Icon } from '../components/Icon';
-import { categories, experiences } from '../data/experiences';
+import { categories, getExperiencesForCity } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
 
 export function HomePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const { city, selectCity } = useCity();
-  const hasExperiences = city.id === 'saint-petersburg';
+  const { city } = useCity();
 
   const filteredExperiences = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('ru');
 
-    if (!hasExperiences) return [];
-
-    return experiences.filter((experience) => {
+    return getExperiencesForCity(city.id).filter((experience) => {
       const matchesCategory =
         activeCategory === null || experience.category === activeCategory;
       const matchesQuery =
@@ -30,7 +27,7 @@ export function HomePage() {
 
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, hasExperiences, query]);
+  }, [activeCategory, city.id, query]);
 
   return (
     <AppLayout>
@@ -42,23 +39,15 @@ export function HomePage() {
       </header>
 
       <main>
-        <section
-          className={`hero${hasExperiences ? '' : ' hero--city-preview'}`}
-        >
-          {hasExperiences ? (
-            <img
-              alt="Канал в центре Санкт-Петербурга в утреннем свете"
-              className="hero__image"
-              fetchPriority="high"
-              height="739"
-              src="/images/saint-petersburg-hero.webp"
-              width="1600"
-            />
-          ) : (
-            <div aria-hidden="true" className="hero__city-art">
-              <span>{city.name}</span>
-            </div>
-          )}
+        <section className="hero">
+          <img
+            alt={`Панорама города ${city.name}`}
+            className="hero__image"
+            fetchPriority="high"
+            height="1024"
+            src={city.heroImage}
+            width="1456"
+          />
           <div className="hero__scrim" />
           <div className="hero__content">
             <p className="hero__eyebrow">Впечатления рядом</p>
@@ -129,7 +118,7 @@ export function HomePage() {
                 <ExperienceCard experience={experience} key={experience.id} />
               ))}
             </div>
-          ) : hasExperiences ? (
+          ) : (
             <div className="empty-state">
               <span aria-hidden="true">🧭</span>
               <h3>Пока ничего не нашли</h3>
@@ -142,21 +131,6 @@ export function HomePage() {
                 type="button"
               >
                 Сбросить фильтры
-              </button>
-            </div>
-          ) : (
-            <div className="empty-state city-coming-soon">
-              <span aria-hidden="true">📍</span>
-              <h3>Скоро в {city.prepositionalName}</h3>
-              <p>
-                Мы уже собираем лучшие прогулки и экскурсии. Пока можно
-                посмотреть подборку для Петербурга.
-              </p>
-              <button
-                onClick={() => selectCity('saint-petersburg')}
-                type="button"
-              >
-                Посмотреть Петербург
               </button>
             </div>
           )}

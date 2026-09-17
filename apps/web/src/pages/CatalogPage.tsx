@@ -3,21 +3,18 @@ import { useMemo, useState } from 'react';
 import { AppLayout } from '../components/AppLayout';
 import { ExperienceCard } from '../components/ExperienceCard';
 import { Icon } from '../components/Icon';
-import { categories, experiences } from '../data/experiences';
+import { categories, getExperiencesForCity } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
 
 export function CatalogPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const { city, selectCity } = useCity();
-  const hasExperiences = city.id === 'saint-petersburg';
+  const { city } = useCity();
 
   const filteredExperiences = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('ru');
 
-    if (!hasExperiences) return [];
-
-    return experiences.filter((experience) => {
+    return getExperiencesForCity(city.id).filter((experience) => {
       const matchesCategory =
         activeCategory === null || experience.category === activeCategory;
       const matchesQuery =
@@ -27,7 +24,7 @@ export function CatalogPage() {
           .includes(normalizedQuery);
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, hasExperiences, query]);
+  }, [activeCategory, city.id, query]);
 
   return (
     <AppLayout>
@@ -81,7 +78,7 @@ export function CatalogPage() {
               <ExperienceCard experience={experience} key={experience.id} />
             ))}
           </div>
-        ) : hasExperiences ? (
+        ) : (
           <div className="empty-state">
             <span aria-hidden="true">🔎</span>
             <h2>Ничего не найдено</h2>
@@ -94,20 +91,6 @@ export function CatalogPage() {
               type="button"
             >
               Сбросить фильтры
-            </button>
-          </div>
-        ) : (
-          <div className="empty-state empty-state--large">
-            <span aria-hidden="true">📍</span>
-            <h2>Скоро в {city.prepositionalName}</h2>
-            <p>
-              Каталог для этого города ещё наполняется. Петербург уже доступен.
-            </p>
-            <button
-              onClick={() => selectCity('saint-petersburg')}
-              type="button"
-            >
-              Открыть Петербург
             </button>
           </div>
         )}

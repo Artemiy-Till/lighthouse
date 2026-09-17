@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { cities, type CityId, useCity } from '../features/city/CityContext';
+import { cities, type CityId } from '../data/cities';
+import { useCity } from '../features/city/CityContext';
 
 export function CitySelector() {
   const { city, selectCity } = useCity();

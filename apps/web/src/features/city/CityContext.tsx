@@ -7,35 +7,7 @@ import {
   useState,
 } from 'react';
 
-export type CityId = 'kazan' | 'moscow' | 'saint-petersburg';
-
-export interface City {
-  readonly id: CityId;
-  readonly name: string;
-  readonly prepositionalName: string;
-  readonly subtitle: string;
-}
-
-export const cities: readonly City[] = [
-  {
-    id: 'saint-petersburg',
-    name: 'Санкт-Петербург',
-    prepositionalName: 'Петербурге',
-    subtitle: 'Каналы, дворцы и белые ночи',
-  },
-  {
-    id: 'moscow',
-    name: 'Москва',
-    prepositionalName: 'Москве',
-    subtitle: 'История, архитектура и большие прогулки',
-  },
-  {
-    id: 'kazan',
-    name: 'Казань',
-    prepositionalName: 'Казани',
-    subtitle: 'Две культуры и тысячелетняя история',
-  },
-];
+import { cities, type City, type CityId } from '../../data/cities';
 
 const defaultCity = cities[0]!;
 const storageKey = 'marketplace-city';

@@ -48,7 +48,7 @@ describe('HomePage', () => {
     ).toBeInTheDocument();
   });
 
-  it('selects a city and shows its upcoming collection state', () => {
+  it('selects a city and shows its experiences', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     fireEvent.click(
@@ -59,7 +59,8 @@ describe('HomePage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Москва/ }));
 
     expect(screen.getByText('Популярное в Москве')).toBeInTheDocument();
-    expect(screen.getByText('Скоро в Москве')).toBeInTheDocument();
+    expect(screen.getByText('Москва: первое знакомство')).toBeInTheDocument();
+    expect(screen.queryByText('Скоро в Москве')).not.toBeInTheDocument();
     expect(window.localStorage.getItem('marketplace-city')).toBe('moscow');
   });
 });

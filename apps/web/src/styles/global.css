@@ -318,53 +318,6 @@ main {
   object-position: 54% center;
 }
 
-.hero--city-preview {
-  background:
-    radial-gradient(circle at 82% 14%, rgb(255 255 255 / 24%), transparent 22%),
-    radial-gradient(circle at 12% 74%, rgb(255 190 133 / 32%), transparent 28%),
-    linear-gradient(145deg, #2b368f, #6978ec);
-}
-
-.hero__city-art {
-  position: absolute;
-  z-index: -2;
-  inset: 0;
-  overflow: hidden;
-}
-
-.hero__city-art::before,
-.hero__city-art::after {
-  position: absolute;
-  border: 1px solid rgb(255 255 255 / 17%);
-  border-radius: 50%;
-  content: '';
-}
-
-.hero__city-art::before {
-  top: -80px;
-  right: -40px;
-  width: 280px;
-  height: 280px;
-}
-
-.hero__city-art::after {
-  right: 100px;
-  bottom: -170px;
-  width: 360px;
-  height: 360px;
-}
-
-.hero__city-art span {
-  position: absolute;
-  top: 42px;
-  right: -12px;
-  color: rgb(255 255 255 / 9%);
-  font-size: clamp(74px, 22vw, 150px);
-  font-weight: 900;
-  letter-spacing: -0.08em;
-  white-space: nowrap;
-}
-
 .hero__scrim {
   z-index: -1;
   background: linear-gradient(
