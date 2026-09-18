@@ -6,6 +6,7 @@ import { CitySelector } from '../components/CitySelector';
 import { DateSelector } from '../components/DateSelector';
 import { ExperienceCard } from '../components/ExperienceCard';
 import { Icon } from '../components/Icon';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { categories, getExperiencesForCity } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
 
@@ -35,9 +36,16 @@ export function HomePage() {
     <AppLayout>
       <header className="topbar">
         <CitySelector />
-        <Link aria-label="Избранное" className="topbar-action" to="/favorites">
-          <Icon name="heart" />
-        </Link>
+        <div className="topbar-actions">
+          <ThemeToggle />
+          <Link
+            aria-label="Избранное"
+            className="topbar-action"
+            to="/favorites"
+          >
+            <Icon name="heart" />
+          </Link>
+        </div>
       </header>
 
       <main>

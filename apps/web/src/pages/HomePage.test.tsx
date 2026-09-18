@@ -5,14 +5,17 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { CityProvider } from '../features/city/CityContext';
 import { FavoritesProvider } from '../features/favorites/FavoritesContext';
+import { ThemeProvider } from '../features/theme/ThemeContext';
 import { HomePage } from './HomePage';
 
 function TestProviders({ children }: { readonly children: ReactNode }) {
   return (
     <MemoryRouter>
-      <CityProvider>
-        <FavoritesProvider>{children}</FavoritesProvider>
-      </CityProvider>
+      <ThemeProvider>
+        <CityProvider>
+          <FavoritesProvider>{children}</FavoritesProvider>
+        </CityProvider>
+      </ThemeProvider>
     </MemoryRouter>
   );
 }

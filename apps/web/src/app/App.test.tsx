@@ -5,6 +5,25 @@ import { describe, expect, it } from 'vitest';
 import { App } from './App';
 
 describe('App navigation', () => {
+  it('switches theme and saves the preference', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Включить тёмную тему' }),
+    );
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+    expect(document.documentElement.style.colorScheme).toBe('dark');
+    expect(window.localStorage.getItem('marketplace-theme')).toBe('dark');
+    expect(
+      screen.getByRole('button', { name: 'Включить светлую тему' }),
+    ).toBeInTheDocument();
+  });
+
   it('opens catalog, favorites, orders and profile from the bottom navigation', () => {
     render(
       <MemoryRouter initialEntries={['/']}>

@@ -310,6 +310,22 @@ button {
   place-items: center;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  border: 0;
+  cursor: pointer;
+}
+
+.theme-toggle > span {
+  font-size: 23px;
+  line-height: 1;
+}
+
 main {
   width: 100%;
   max-width: var(--page-width);
@@ -1418,6 +1434,35 @@ main {
   font-size: 24px;
 }
 
+.theme-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: #d9dce4;
+  transition: background 160ms ease;
+}
+
+.theme-switch > span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(29 36 51 / 18%);
+  transition: transform 180ms ease;
+}
+
+.profile-theme-toggle[aria-checked='true'] .theme-switch {
+  background: var(--accent);
+}
+
+.profile-theme-toggle[aria-checked='true'] .theme-switch > span {
+  transform: translateX(18px);
+}
+
 .prototype-caption {
   padding: 0 10px;
   margin: 2px 0 0;
@@ -2010,6 +2055,213 @@ main {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   backdrop-filter: blur(8px);
+}
+
+html[data-theme='dark'] {
+  --accent: #7484ff;
+  --accent-dark: #5d6de8;
+  --ink: #f3f5fa;
+  --line: #303541;
+  --muted: #a5acb9;
+  --surface: #181b23;
+  color: var(--ink);
+  background: #0d0f14;
+}
+
+html[data-theme='dark'] body,
+html[data-theme='dark'] .app-shell,
+html[data-theme='dark'] .experience-not-found {
+  color: var(--ink);
+  background: #0d0f14;
+}
+
+html[data-theme='dark'] .topbar {
+  background: rgb(13 15 20 / 92%);
+}
+
+html[data-theme='dark'] .search-panel,
+html[data-theme='dark'] .city-dialog,
+html[data-theme='dark'] .date-dialog,
+html[data-theme='dark'] .catalog-filter-dialog,
+html[data-theme='dark'] .catalog-filter-dialog__actions,
+html[data-theme='dark'] .empty-state,
+html[data-theme='dark'] .profile-card,
+html[data-theme='dark'] .profile-menu,
+html[data-theme='dark'] .order-card,
+html[data-theme='dark'] .experience-details-page {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+html[data-theme='dark'] .search-panel {
+  border-color: rgb(255 255 255 / 8%);
+  box-shadow: 0 16px 42px rgb(0 0 0 / 32%);
+}
+
+html[data-theme='dark'] .search-field,
+html[data-theme='dark'] .date-input-field input,
+html[data-theme='dark'] .order-facts div {
+  color: var(--ink);
+  background: #20242d;
+}
+
+html[data-theme='dark'] .search-field input {
+  color: var(--ink);
+}
+
+html[data-theme='dark'] .search-field input::placeholder {
+  color: #858d9c;
+}
+
+html[data-theme='dark'] .topbar-action,
+html[data-theme='dark'] .category-item__icon,
+html[data-theme='dark'] .filter-chips button,
+html[data-theme='dark'] .catalog-summary .catalog-filter-button,
+html[data-theme='dark'] .catalog-sort select,
+html[data-theme='dark'] .catalog-filter-options span,
+html[data-theme='dark'] .city-options button {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+html[data-theme='dark'] .city-dialog__close,
+html[data-theme='dark'] .date-dialog__close,
+html[data-theme='dark'] .catalog-filter-dialog__close,
+html[data-theme='dark'] .profile-menu__icon,
+html[data-theme='dark'] .experience-terms li span {
+  color: var(--ink);
+  background: #272b35;
+}
+
+html[data-theme='dark'] .city-options button.is-selected,
+html[data-theme='dark'] .catalog-filter-options input:checked + span,
+html[data-theme='dark'] .date-quick-options button.is-selected,
+html[data-theme='dark'] .catalog-summary .catalog-filter-button.is-active {
+  color: #c9ceff;
+  background: #252a43;
+}
+
+html[data-theme='dark'] .date-quick-options button {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+html[data-theme='dark'] .category-item--active .category-item__icon {
+  border-color: var(--accent);
+  background: #252a43;
+}
+
+html[data-theme='dark'] .date-dialog__reset,
+html[data-theme='dark'] .catalog-filter-dialog__actions button:first-child {
+  color: #c9ceff;
+  background: #292e49;
+}
+
+html[data-theme='dark'] .date-dialog__apply:disabled {
+  color: #777f8e;
+  background: #292d36;
+}
+
+html[data-theme='dark'] .experience-card {
+  box-shadow: 0 10px 30px rgb(0 0 0 / 24%);
+}
+
+html[data-theme='dark'] .favorite-button:not(.is-favorite),
+html[data-theme='dark'] .experience-details-hero__back,
+html[data-theme='dark'] .experience-details-hero__favorite:not(.is-favorite) {
+  color: #1d2433;
+}
+
+html[data-theme='dark'] .local-banner {
+  border-color: var(--line);
+  background: linear-gradient(135deg, #1d2130, #252a43);
+}
+
+html[data-theme='dark'] .favorites-note {
+  border-color: #353b61;
+  background: #22263c;
+}
+
+html[data-theme='dark'] .favorites-note p {
+  color: #c0c5d2;
+}
+
+html[data-theme='dark'] .segmented-control {
+  background: #20242d;
+}
+
+html[data-theme='dark'] .segmented-control button {
+  color: var(--muted);
+}
+
+html[data-theme='dark'] .segmented-control button.is-active {
+  color: var(--ink);
+  background: #303542;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 22%);
+}
+
+html[data-theme='dark'] .segmented-control span,
+html[data-theme='dark'] .status-completed {
+  color: #c1c6d1;
+  background: #333844;
+}
+
+html[data-theme='dark'] .status-confirmed {
+  color: #8ee1ad;
+  background: #193627;
+}
+
+html[data-theme='dark'] .order-details {
+  border-color: #343a60;
+  background: #22263c;
+}
+
+html[data-theme='dark'] .order-card__action {
+  border-color: var(--line);
+  color: #c5cbff;
+  background: #242833;
+}
+
+html[data-theme='dark'] .experience-details-intro,
+html[data-theme='dark'] .experience-description p {
+  color: #c6cbd5;
+}
+
+html[data-theme='dark'] .experience-facts-card {
+  background: #20242d;
+}
+
+html[data-theme='dark'] .experience-booking-cta {
+  border-color: var(--line);
+}
+
+html[data-theme='dark'] .experience-details-header h1,
+html[data-theme='dark'] .experience-details-rating strong,
+html[data-theme='dark'] .experience-details-location,
+html[data-theme='dark'] .experience-facts-card h2,
+html[data-theme='dark'] .experience-description h2,
+html[data-theme='dark'] .experience-more h2,
+html[data-theme='dark'] .experience-terms h2,
+html[data-theme='dark'] .experience-facts-card dd,
+html[data-theme='dark'] .experience-booking-cta > p,
+html[data-theme='dark'] .experience-benefits strong,
+html[data-theme='dark'] .experience-more summary,
+html[data-theme='dark'] .experience-terms li {
+  color: var(--ink);
+}
+
+html[data-theme='dark'] .bottom-navigation {
+  border-color: var(--line);
+  background: rgb(24 27 35 / 94%);
+  box-shadow: 0 -10px 30px rgb(0 0 0 / 24%);
+}
+
+html[data-theme='dark'] .theme-switch {
+  background: #3a3f4b;
+}
+
+html[data-theme='dark'] .booking-card__action {
+  color: #3443b7;
 }
 
 @media (min-width: 700px) {

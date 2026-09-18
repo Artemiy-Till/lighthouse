@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { AppLayout } from '../components/AppLayout';
+import { useTheme } from '../features/theme/ThemeContext';
 
 const profileMenu = [
   { icon: '💬', label: 'Поддержка', meta: 'Ответим в чате' },
@@ -8,6 +9,9 @@ const profileMenu = [
 ] as const;
 
 export function ProfilePage() {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
     <AppLayout>
       <main className="secondary-page profile-page">
@@ -56,6 +60,24 @@ export function ProfilePage() {
               ›
             </span>
           </Link>
+          <button
+            aria-checked={isDark}
+            className="profile-theme-toggle"
+            onClick={toggleTheme}
+            role="switch"
+            type="button"
+          >
+            <span aria-hidden="true" className="profile-menu__icon">
+              {isDark ? '🌙' : '☀️'}
+            </span>
+            <span>
+              <strong>Тёмная тема</strong>
+              <small>{isDark ? 'Включена' : 'Выключена'}</small>
+            </span>
+            <span aria-hidden="true" className="theme-switch">
+              <span />
+            </span>
+          </button>
           {profileMenu.map((item) => (
             <button key={item.label} type="button">
               <span aria-hidden="true" className="profile-menu__icon">
