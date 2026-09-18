@@ -181,6 +181,14 @@ export function getExperiencesForCity(cityId: CityId) {
   return experiences.filter((experience) => experience.cityId === cityId);
 }
 
+export function formatOfferCount(count: number) {
+  if (count % 10 === 1 && count % 100 !== 11) return `${count} предложение`;
+  if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
+    return `${count} предложения`;
+  }
+  return `${count} предложений`;
+}
+
 const experienceDetails: Readonly<Record<string, ExperienceDetails>> = {
   'first-meeting': {
     children: 'Можно с детьми от 7 лет',

@@ -10,6 +10,7 @@ import { ExperienceCard } from '../components/ExperienceCard';
 import { Icon } from '../components/Icon';
 import {
   categories,
+  formatOfferCount,
   getExperienceDetails,
   getExperiencesForCity,
 } from '../data/experiences';
@@ -54,14 +55,6 @@ function isSuitableForChildren(id: string) {
     children.includes('детям') ||
     children.includes('для детей')
   );
-}
-
-function getOffersLabel(count: number) {
-  if (count % 10 === 1 && count % 100 !== 11) return `${count} предложение`;
-  if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
-    return `${count} предложения`;
-  }
-  return `${count} предложений`;
 }
 
 export function CatalogPage() {
@@ -163,7 +156,7 @@ export function CatalogPage() {
         </div>
 
         <div className="catalog-summary">
-          <strong>{getOffersLabel(filteredExperiences.length)}</strong>
+          <strong>{formatOfferCount(filteredExperiences.length)}</strong>
           <div className="catalog-summary__actions">
             <CatalogFilters onChange={setFilters} value={filters} />
             <label className="catalog-sort">

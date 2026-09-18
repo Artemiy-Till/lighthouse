@@ -67,7 +67,18 @@ describe('HomePage', () => {
         name: 'Выбрать город. Сейчас Санкт-Петербург',
       }),
     );
-    fireEvent.click(screen.getByRole('button', { name: /Москва/ }));
+    expect(
+      screen.getByRole('button', { name: 'Санкт-Петербург. 4 предложения' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Москва. 4 предложения' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Казань. 4 предложения' }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Москва. 4 предложения' }),
+    );
 
     expect(screen.getByText('Популярное в Москве')).toBeInTheDocument();
     expect(screen.getByText('Москва: первое знакомство')).toBeInTheDocument();

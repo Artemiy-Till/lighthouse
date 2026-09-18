@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cities, type CityId } from '../data/cities';
+import { formatOfferCount, getExperiencesForCity } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
 
 export function CitySelector() {
@@ -89,9 +90,11 @@ export function CitySelector() {
                 <div className="city-options">
                   {cities.map((item) => {
                     const isSelected = city.id === item.id;
+                    const offerCount = getExperiencesForCity(item.id).length;
 
                     return (
                       <button
+                        aria-label={`${item.name}. ${formatOfferCount(offerCount)}`}
                         aria-pressed={isSelected}
                         className={isSelected ? 'is-selected' : ''}
                         key={item.id}
@@ -112,7 +115,7 @@ export function CitySelector() {
                         </span>
                         <span>
                           <strong>{item.name}</strong>
-                          <small>{item.subtitle}</small>
+                          <small>{formatOfferCount(offerCount)}</small>
                         </span>
                         <span
                           aria-hidden="true"
