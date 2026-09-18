@@ -117,6 +117,16 @@ describe('App navigation', () => {
 
     expect(screen.getByText('4 предложения')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
+    fireEvent.click(screen.getByLabelText('Подходит с детьми'));
+    fireEvent.click(screen.getByRole('button', { name: 'Показать варианты' }));
+    expect(screen.getByText('3 предложения')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Дворы, парадные и старые истории'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Сбросить' }));
+    fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
     fireEvent.click(screen.getByLabelText('До 1 500 ₽'));
     fireEvent.click(screen.getByRole('button', { name: 'Показать варианты' }));
 

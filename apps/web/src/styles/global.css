@@ -1052,7 +1052,7 @@ main {
 
 .catalog-filter-dialog {
   width: min(100%, 560px);
-  max-height: min(90dvh, 760px);
+  max-height: min(94dvh, 860px);
   overflow-y: auto;
   padding: 10px 16px max(18px, env(safe-area-inset-bottom));
   border-radius: 28px 28px 22px 22px;

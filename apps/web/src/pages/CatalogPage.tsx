@@ -47,6 +47,15 @@ function getFormat(id: string): CatalogFilterState['format'] {
   return 'transport';
 }
 
+function isSuitableForChildren(id: string) {
+  const children = getExperienceDetails(id)?.children ?? '';
+  return (
+    children.startsWith('Можно с детьми') ||
+    children.includes('детям') ||
+    children.includes('для детей')
+  );
+}
+
 function getOffersLabel(count: number) {
   if (count % 10 === 1 && count % 100 !== 11) return `${count} предложение`;
   if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
@@ -88,6 +97,8 @@ export function CatalogPage() {
         const matchesRating =
           filters.minRating === null ||
           getRating(experience.rating) >= filters.minRating;
+        const matchesChildren =
+          filters.children === 'any' || isSuitableForChildren(experience.id);
 
         return (
           matchesCategory &&
@@ -95,7 +106,8 @@ export function CatalogPage() {
           matchesPrice &&
           matchesDurationFilter &&
           matchesFormat &&
-          matchesRating
+          matchesRating &&
+          matchesChildren
         );
       })
       .sort((first, second) => {

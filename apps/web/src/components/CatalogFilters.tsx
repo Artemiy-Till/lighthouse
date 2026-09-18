@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface CatalogFilterState {
+  readonly children: 'any' | 'family';
   readonly duration: 'any' | 'long' | 'medium' | 'short';
   readonly format: 'any' | 'transport' | 'walking' | 'water';
   readonly maxPrice: number | null;
@@ -9,6 +10,7 @@ export interface CatalogFilterState {
 }
 
 export const emptyCatalogFilters: CatalogFilterState = {
+  children: 'any',
   duration: 'any',
   format: 'any',
   maxPrice: null,
@@ -21,6 +23,7 @@ export function countActiveCatalogFilters(filters: CatalogFilterState) {
     filters.duration !== 'any',
     filters.format !== 'any',
     filters.minRating !== null,
+    filters.children !== 'any',
   ].filter(Boolean).length;
 }
 
@@ -210,6 +213,32 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                           name="rating-filter"
                           onChange={() =>
                             setDraft({ ...draft, minRating: option.value })
+                          }
+                          type="radio"
+                        />
+                        <span>{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <fieldset className="catalog-filter-group">
+                  <legend>С детьми</legend>
+                  <div className="catalog-filter-options">
+                    {[
+                      { label: 'Неважно', value: 'any' },
+                      { label: 'Подходит с детьми', value: 'family' },
+                    ].map((option) => (
+                      <label key={option.value}>
+                        <input
+                          checked={draft.children === option.value}
+                          name="children-filter"
+                          onChange={() =>
+                            setDraft({
+                              ...draft,
+                              children:
+                                option.value as CatalogFilterState['children'],
+                            })
                           }
                           type="radio"
                         />
