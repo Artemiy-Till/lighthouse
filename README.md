@@ -2,7 +2,8 @@
 
 Production-oriented foundation for a mobile-first marketplace of tours and local experiences inside MAX.
 
-The repository intentionally contains no marketplace business features yet. Product capabilities are added as independently testable vertical slices.
+The first marketplace vertical slice includes verified MAX profiles, professional
+guide accounts and globally published excursions backed by PostgreSQL.
 
 ## Requirements
 
@@ -54,7 +55,9 @@ No domain tables are created until their product slice is implemented.
 
 Copy `.env.example` to `.env`. Environment files are ignored by Git.
 
-- `DATABASE_URL`: PostgreSQL connection string. Optional until a persistence-backed module is enabled.
+- `DATABASE_URL`: PostgreSQL connection string. Required for professional guide
+  accounts and global excursion publishing. The rest of the prototype keeps a
+  read-only static fallback when the database is not configured.
 - `PORT`: API port, defaults to `3000`.
 - `CORS_ORIGINS`: comma-separated development origins. Production should prefer a same-origin deployment.
 - `LOG_LEVEL`: structured API log level.
@@ -93,6 +96,17 @@ Add the following server-side environment variables to the API project:
 - `NODE_ENV=production`
 - `CORS_ORIGINS=https://lighthouse-api-one.vercel.app`
 - `MAX_BOT_TOKEN`: a newly issued bot token
+- `DATABASE_URL`: PostgreSQL connection string supplied by the database provider
+
+After connecting PostgreSQL, apply the committed schema once from a trusted
+terminal with access to the production `DATABASE_URL`:
+
+```bash
+pnpm db:migrate:deploy
+```
+
+Professional endpoints authenticate every write with signed MAX launch data.
+The bot token and database URL remain server-only.
 
 After deployment, verify `/api/v1/health` and
 `/api/v1/integrations/max/status`. The status response exposes only the public

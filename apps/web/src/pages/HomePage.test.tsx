@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -9,14 +10,20 @@ import { ThemeProvider } from '../features/theme/ThemeContext';
 import { HomePage } from './HomePage';
 
 function TestProviders({ children }: { readonly children: ReactNode }) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
   return (
-    <MemoryRouter>
-      <ThemeProvider>
-        <CityProvider>
-          <FavoritesProvider>{children}</FavoritesProvider>
-        </CityProvider>
-      </ThemeProvider>
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <ThemeProvider>
+          <CityProvider>
+            <FavoritesProvider>{children}</FavoritesProvider>
+          </CityProvider>
+        </ThemeProvider>
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 }
 

@@ -1,0 +1,172 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+
+import { DatabaseService } from '../database/database.service.js';
+import type { AuthenticatedMaxUser } from '../max/max-auth.service.js';
+import type {
+  CreateExperienceDto,
+  UpsertGuideProfileDto,
+} from './marketplace.dto.js';
+
+interface GuideRow {
+  id: string;
+  max_user_id: string;
+  display_name: string;
+  bio: string;
+  created_at: Date;
+}
+
+interface ExperienceRow {
+  id: string;
+  city_id: string;
+  category: string;
+  title: string;
+  intro: string;
+  description: string;
+  duration_minutes: number;
+  format: string;
+  group_size: number;
+  children_policy: string;
+  meeting_point: string;
+  price_rub: number;
+  created_at: Date;
+  guide_id: string;
+  guide_name: string;
+  guide_bio: string;
+}
+
+function mapGuide(row: GuideRow) {
+  return {
+    bio: row.bio,
+    createdAt: row.created_at.toISOString(),
+    displayName: row.display_name,
+    id: row.id,
+  };
+}
+
+function mapExperience(row: ExperienceRow) {
+  return {
+    category: row.category,
+    children: row.children_policy,
+    cityId: row.city_id,
+    createdAt: row.created_at.toISOString(),
+    description: row.description,
+    durationMinutes: row.duration_minutes,
+    format: row.format,
+    groupSize: row.group_size,
+    groupType: 'Авторская экскурсия',
+    guide: {
+      bio: row.guide_bio,
+      displayName: row.guide_name,
+      id: row.guide_id,
+    },
+    highlights: [row.intro],
+    id: row.id,
+    intro: row.intro,
+    meetingPoint: row.meeting_point,
+    priceRub: row.price_rub,
+    status: 'published' as const,
+    title: row.title,
+  };
+}
+
+@Injectable()
+export class MarketplaceService {
+  constructor(private readonly database: DatabaseService) {}
+
+  async getGuideProfile(maxUserId: string) {
+    const result = await this.database.query<GuideRow>(
+      `select id, max_user_id, display_name, bio, created_at
+       from guide_profiles where max_user_id = $1`,
+      [maxUserId],
+    );
+    return result.rows[0] ? mapGuide(result.rows[0]) : null;
+  }
+
+  async upsertGuideProfile(
+    user: AuthenticatedMaxUser,
+    input: UpsertGuideProfileDto,
+  ) {
+    const result = await this.database.query<GuideRow>(
+      `insert into guide_profiles (max_user_id, display_name, bio)
+       values ($1, $2, $3)
+       on conflict (max_user_id) do update
+       set display_name = excluded.display_name,
+           bio = excluded.bio,
+           updated_at = now()
+       returning id, max_user_id, display_name, bio, created_at`,
+      [user.id, input.displayName.trim(), input.bio.trim()],
+    );
+    return mapGuide(result.rows[0]!);
+  }
+
+  async createExperience(maxUserId: string, input: CreateExperienceDto) {
+    const guide = await this.database.query<GuideRow>(
+      `select id, max_user_id, display_name, bio, created_at
+       from guide_profiles where max_user_id = $1`,
+      [maxUserId],
+    );
+    const profile = guide.rows[0];
+    if (!profile) {
+      throw new NotFoundException('Create a professional profile first');
+    }
+
+    const result = await this.database.query<ExperienceRow>(
+      `insert into published_experiences (
+         guide_id, city_id, category, title, intro, description,
+         duration_minutes, format, group_size, children_policy,
+         meeting_point, price_rub
+       ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+       returning id, city_id, category, title, intro, description,
+         duration_minutes, format, group_size, children_policy,
+         meeting_point, price_rub, created_at, guide_id,
+         $13::text as guide_name, $14::text as guide_bio`,
+      [
+        profile.id,
+        input.cityId,
+        input.category,
+        input.title.trim(),
+        input.intro.trim(),
+        input.description.trim(),
+        input.durationMinutes,
+        input.format.trim(),
+        input.groupSize,
+        input.childrenPolicy.trim(),
+        input.meetingPoint.trim(),
+        input.priceRub,
+        profile.display_name,
+        profile.bio,
+      ],
+    );
+    return mapExperience(result.rows[0]!);
+  }
+
+  async listExperiences(cityId?: string) {
+    const result = await this.database.query<ExperienceRow>(
+      `select e.id, e.city_id, e.category, e.title, e.intro,
+         e.description, e.duration_minutes, e.format, e.group_size,
+         e.children_policy, e.meeting_point, e.price_rub, e.created_at,
+         g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio
+       from published_experiences e
+       join guide_profiles g on g.id = e.guide_id
+       where e.status = 'published' and ($1::text is null or e.city_id = $1)
+       order by e.created_at desc`,
+      [cityId ?? null],
+    );
+    return { items: result.rows.map(mapExperience) };
+  }
+
+  async getExperience(id: string) {
+    const result = await this.database.query<ExperienceRow>(
+      `select e.id, e.city_id, e.category, e.title, e.intro,
+         e.description, e.duration_minutes, e.format, e.group_size,
+         e.children_policy, e.meeting_point, e.price_rub, e.created_at,
+         g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio
+       from published_experiences e
+       join guide_profiles g on g.id = e.guide_id
+       where e.id = $1 and e.status = 'published'`,
+      [id],
+    );
+    if (!result.rows[0]) throw new NotFoundException('Experience not found');
+    return mapExperience(result.rows[0]);
+  }
+}

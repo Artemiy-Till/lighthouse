@@ -11,21 +11,45 @@ import {
 } from '../data/experiences';
 import { getGuideForCity } from '../data/guides';
 import { useFavorites } from '../features/favorites/FavoritesContext';
+import {
+  toExperience,
+  toExperienceDetails,
+  usePublishedExperience,
+} from '../features/marketplace/usePublishedExperiences';
 
 export function ExperienceDetailsPage() {
   const { experienceId = '' } = useParams();
   const navigate = useNavigate();
   const { favoriteIds, toggleFavorite } = useFavorites();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const experience = getExperienceById(experienceId);
-  const details = getExperienceDetails(experienceId);
+  const staticExperience = getExperienceById(experienceId);
+  const published = usePublishedExperience(experienceId, !staticExperience);
+  const experience =
+    staticExperience ??
+    (published.data ? toExperience(published.data) : undefined);
+  const details = staticExperience
+    ? getExperienceDetails(experienceId)
+    : published.data
+      ? toExperienceDetails(published.data)
+      : undefined;
   const restrictions = getExperienceRestrictions(experienceId);
   const city = cities.find((item) => item.id === experience?.cityId);
-  const guide = experience ? getGuideForCity(experience.cityId) : undefined;
+  const guide = staticExperience
+    ? getGuideForCity(staticExperience.cityId)
+    : undefined;
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [experienceId]);
+
+  if (!staticExperience && published.isPending) {
+    return (
+      <main className="experience-not-found">
+        <span aria-hidden="true">⏳</span>
+        <h1>Загружаем экскурсию</h1>
+      </main>
+    );
+  }
 
   if (!experience || !details || !city) {
     return (
@@ -167,6 +191,20 @@ export function ExperienceDetailsPage() {
                 ›
               </span>
             </Link>
+          </section>
+        ) : published.data ? (
+          <section className="experience-guide">
+            <h2>Ваш гид</h2>
+            <div className="experience-guide__card">
+              <span aria-hidden="true" className="experience-guide__avatar">
+                {published.data.guide.displayName.charAt(0).toUpperCase()}
+              </span>
+              <span className="experience-guide__info">
+                <strong>{published.data.guide.displayName}</strong>
+                <small>{published.data.guide.bio}</small>
+                <span>✓ Профиль гида подтверждён через MAX</span>
+              </span>
+            </div>
           </section>
         ) : null}
 

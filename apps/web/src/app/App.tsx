@@ -10,6 +10,7 @@ import { ExperienceDetailsPage } from '../pages/ExperienceDetailsPage';
 import { GuidePage } from '../pages/GuidePage';
 import { OrdersPage } from '../pages/OrdersPage';
 import { ProfilePage } from '../pages/ProfilePage';
+import { ProfessionalPage } from '../pages/ProfessionalPage';
 
 export function App() {
   return (
@@ -27,6 +28,7 @@ export function App() {
             <Route element={<GuidePage />} path="/guides/:guideId" />
             <Route element={<OrdersPage />} path="/orders" />
             <Route element={<ProfilePage />} path="/profile" />
+            <Route element={<ProfessionalPage />} path="/professional" />
             <Route element={<Navigate replace to="/" />} path="*" />
           </Routes>
         </FavoritesProvider>

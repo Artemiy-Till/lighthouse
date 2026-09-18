@@ -37,6 +37,47 @@ export type MaxIntegrationStatus =
       readonly reason: string;
     };
 
+export interface GuideProfile {
+  readonly bio: string;
+  readonly createdAt: string;
+  readonly displayName: string;
+  readonly id: string;
+}
+
+export interface PublishedExperience {
+  readonly category: string;
+  readonly children: string;
+  readonly cityId: 'kazan' | 'kostroma' | 'moscow' | 'saint-petersburg';
+  readonly createdAt: string;
+  readonly description: string;
+  readonly durationMinutes: number;
+  readonly format: string;
+  readonly groupSize: number;
+  readonly groupType: string;
+  readonly guide: Pick<GuideProfile, 'bio' | 'displayName' | 'id'>;
+  readonly highlights: readonly string[];
+  readonly id: string;
+  readonly intro: string;
+  readonly meetingPoint: string;
+  readonly priceRub: number;
+  readonly status: 'published';
+  readonly title: string;
+}
+
+export interface CreateExperienceInput {
+  readonly category: string;
+  readonly childrenPolicy: string;
+  readonly cityId: PublishedExperience['cityId'];
+  readonly description: string;
+  readonly durationMinutes: number;
+  readonly format: string;
+  readonly groupSize: number;
+  readonly intro: string;
+  readonly meetingPoint: string;
+  readonly priceRub: number;
+  readonly title: string;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}/api/v1${path}`, {
     ...init,
@@ -63,4 +104,47 @@ export function authenticateMax(initData: string): Promise<MaxSession> {
 
 export function getMaxIntegrationStatus(): Promise<MaxIntegrationStatus> {
   return request<MaxIntegrationStatus>('/integrations/max/status');
+}
+
+export function getPublishedExperiences(cityId?: string) {
+  const query = cityId ? `?cityId=${encodeURIComponent(cityId)}` : '';
+  return request<{ readonly items: readonly PublishedExperience[] }>(
+    `/experiences${query}`,
+  );
+}
+
+export function getPublishedExperience(id: string) {
+  return request<PublishedExperience>(`/experiences/${encodeURIComponent(id)}`);
+}
+
+function maxHeaders(initData: string) {
+  return { 'X-Max-Init-Data': initData };
+}
+
+export function getGuideProfile(initData: string) {
+  return request<GuideProfile | null>('/professional/profile', {
+    headers: maxHeaders(initData),
+  });
+}
+
+export function saveGuideProfile(
+  initData: string,
+  profile: Pick<GuideProfile, 'bio' | 'displayName'>,
+) {
+  return request<GuideProfile>('/professional/profile', {
+    body: JSON.stringify(profile),
+    headers: maxHeaders(initData),
+    method: 'PUT',
+  });
+}
+
+export function createPublishedExperience(
+  initData: string,
+  experience: CreateExperienceInput,
+) {
+  return request<PublishedExperience>('/professional/experiences', {
+    body: JSON.stringify(experience),
+    headers: maxHeaders(initData),
+    method: 'POST',
+  });
 }

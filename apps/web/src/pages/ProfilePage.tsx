@@ -98,6 +98,18 @@ export function ProfilePage() {
         </section>
 
         <section aria-label="Разделы профиля" className="profile-menu">
+          <Link to="/professional">
+            <span aria-hidden="true" className="profile-menu__icon">
+              🧭
+            </span>
+            <span>
+              <strong>Кабинет гида</strong>
+              <small>Создавать и публиковать экскурсии</small>
+            </span>
+            <span aria-hidden="true" className="profile-menu__arrow">
+              ›
+            </span>
+          </Link>
           <Link to="/orders">
             <span aria-hidden="true" className="profile-menu__icon">
               🎟️

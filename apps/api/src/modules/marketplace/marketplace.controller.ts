@@ -1,0 +1,70 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Put,
+  Query,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+
+import { MaxAuthService } from '../max/max-auth.service.js';
+import {
+  CreateExperienceDto,
+  UpsertGuideProfileDto,
+} from './marketplace.dto.js';
+import { MarketplaceService } from './marketplace.service.js';
+
+@ApiTags('marketplace')
+@Controller()
+export class MarketplaceController {
+  constructor(
+    private readonly marketplace: MarketplaceService,
+    private readonly maxAuth: MaxAuthService,
+  ) {}
+
+  private authenticate(initData?: string) {
+    if (!initData)
+      throw new UnauthorizedException('MAX launch data is required');
+    return this.maxAuth.authenticate(initData).user;
+  }
+
+  @Get('experiences')
+  list(@Query('cityId') cityId?: string) {
+    return this.marketplace.listExperiences(cityId);
+  }
+
+  @Get('experiences/:id')
+  get(@Param('id') id: string) {
+    return this.marketplace.getExperience(id);
+  }
+
+  @Get('professional/profile')
+  profile(@Headers('x-max-init-data') initData?: string) {
+    const user = this.authenticate(initData);
+    return this.marketplace.getGuideProfile(user.id);
+  }
+
+  @Put('professional/profile')
+  saveProfile(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Body() body: UpsertGuideProfileDto,
+  ) {
+    return this.marketplace.upsertGuideProfile(
+      this.authenticate(initData),
+      body,
+    );
+  }
+
+  @Post('professional/experiences')
+  create(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Body() body: CreateExperienceDto,
+  ) {
+    const user = this.authenticate(initData);
+    return this.marketplace.createExperience(user.id, body);
+  }
+}

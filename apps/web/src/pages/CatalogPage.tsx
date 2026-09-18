@@ -15,6 +15,11 @@ import {
   getExperiencesForCity,
 } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
+import {
+  toExperience,
+  toExperienceDetails,
+  usePublishedExperiences,
+} from '../features/marketplace/usePublishedExperiences';
 
 type CatalogSort = 'popular' | 'price' | 'rating';
 
@@ -41,20 +46,28 @@ function matchesDuration(
   return true;
 }
 
-function getFormat(id: string): CatalogFilterState['format'] {
-  const format = getExperienceDetails(id)?.format.toLocaleLowerCase('ru') ?? '';
+function getFormatFromDetails(value: string): CatalogFilterState['format'] {
+  const format = value.toLocaleLowerCase('ru');
   if (format.includes('катер') || format.includes('теплоход')) return 'water';
   if (format === 'пешком' || format.includes('метро')) return 'walking';
   return 'transport';
 }
 
-function isSuitableForChildren(id: string) {
-  const children = getExperienceDetails(id)?.children ?? '';
+function getFormat(id: string): CatalogFilterState['format'] {
+  return getFormatFromDetails(getExperienceDetails(id)?.format ?? '');
+}
+
+function isChildrenTextSuitable(children: string) {
   return (
     children.startsWith('Можно с детьми') ||
     children.includes('детям') ||
     children.includes('для детей')
   );
+}
+
+function isSuitableForChildren(id: string) {
+  const children = getExperienceDetails(id)?.children ?? '';
+  return isChildrenTextSuitable(children);
 }
 
 export function CatalogPage() {
@@ -64,11 +77,17 @@ export function CatalogPage() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CatalogSort>('popular');
   const { city } = useCity();
+  const published = usePublishedExperiences(city.id);
 
   const filteredExperiences = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('ru');
 
-    return getExperiencesForCity(city.id)
+    const remoteItems = published.data?.items ?? [];
+    const remoteDetails = new Map(
+      remoteItems.map((item) => [item.id, toExperienceDetails(item)]),
+    );
+
+    return [...remoteItems.map(toExperience), ...getExperiencesForCity(city.id)]
       .filter((experience) => {
         const matchesCategory =
           activeCategory === null || experience.category === activeCategory;
@@ -86,12 +105,17 @@ export function CatalogPage() {
         );
         const matchesFormat =
           filters.format === 'any' ||
-          getFormat(experience.id) === filters.format;
+          (remoteDetails.get(experience.id)
+            ? getFormatFromDetails(remoteDetails.get(experience.id)!.format)
+            : getFormat(experience.id)) === filters.format;
         const matchesRating =
           filters.minRating === null ||
           getRating(experience.rating) >= filters.minRating;
         const matchesChildren =
-          filters.children === 'any' || isSuitableForChildren(experience.id);
+          filters.children === 'any' ||
+          (remoteDetails.get(experience.id)
+            ? isChildrenTextSuitable(remoteDetails.get(experience.id)!.children)
+            : isSuitableForChildren(experience.id));
 
         return (
           matchesCategory &&
@@ -112,7 +136,7 @@ export function CatalogPage() {
         }
         return second.reviews - first.reviews;
       });
-  }, [activeCategory, city.id, filters, query, sort]);
+  }, [activeCategory, city.id, filters, published.data, query, sort]);
 
   return (
     <AppLayout>

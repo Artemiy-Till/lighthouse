@@ -9,17 +9,27 @@ import { Icon } from '../components/Icon';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { categories, getExperiencesForCity } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
+import {
+  toExperience,
+  usePublishedExperiences,
+} from '../features/marketplace/usePublishedExperiences';
 
 export function HomePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const { city } = useCity();
+  const published = usePublishedExperiences(city.id);
 
   const filteredExperiences = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('ru');
 
-    return getExperiencesForCity(city.id).filter((experience) => {
+    const allExperiences = [
+      ...(published.data?.items.map(toExperience) ?? []),
+      ...getExperiencesForCity(city.id),
+    ];
+
+    return allExperiences.filter((experience) => {
       const matchesCategory =
         activeCategory === null || experience.category === activeCategory;
       const matchesQuery =
@@ -30,7 +40,7 @@ export function HomePage() {
 
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, city.id, query]);
+  }, [activeCategory, city.id, published.data, query]);
 
   return (
     <AppLayout>

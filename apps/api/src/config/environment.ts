@@ -12,7 +12,14 @@ const environmentSchema = z.object({
             .filter(Boolean)
         : [],
     ),
-  DATABASE_URL: z.url().startsWith('postgresql://').optional(),
+  DATABASE_URL: z
+    .url()
+    .refine(
+      (value) =>
+        value.startsWith('postgresql://') || value.startsWith('postgres://'),
+      'DATABASE_URL must use the PostgreSQL protocol',
+    )
+    .optional(),
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
