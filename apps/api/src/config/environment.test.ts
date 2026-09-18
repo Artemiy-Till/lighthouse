@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseEnvironment } from './environment';
+import { parseEnvironment } from './environment.js';
 
 describe('parseEnvironment', () => {
   it('parses a valid environment and normalizes CORS origins', () => {

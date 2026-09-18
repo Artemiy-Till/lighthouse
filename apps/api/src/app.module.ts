@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 
-import { HealthModule } from './modules/health/health.module';
-import { MaxIntegrationModule } from './modules/max/max-integration.module';
+import { HealthModule } from './modules/health/health.module.js';
+import { MaxIntegrationModule } from './modules/max/max-integration.module.js';
 
 @Module({
   imports: [

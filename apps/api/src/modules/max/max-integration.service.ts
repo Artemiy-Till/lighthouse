@@ -4,7 +4,7 @@ import {
   MaxApiClient,
   MaxApiError,
   type MaxApiFailureReason,
-} from './max-api.client';
+} from './max-api.client.js';
 
 interface ConnectedMaxStatus {
   readonly bot: {

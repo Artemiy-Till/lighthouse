@@ -7,8 +7,8 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import { AppModule } from './app.module';
-import { parseEnvironment } from './config/environment';
+import { AppModule } from './app.module.js';
+import { parseEnvironment } from './config/environment.js';
 
 async function bootstrap() {
   const environment = parseEnvironment(process.env);

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { type MaxApiClient, MaxApiError } from './max-api.client';
-import { MaxIntegrationService } from './max-integration.service';
+import { type MaxApiClient, MaxApiError } from './max-api.client.js';
+import { MaxIntegrationService } from './max-integration.service.js';
 
 describe('MaxIntegrationService', () => {
   it('reports when the server secret is not configured', async () => {

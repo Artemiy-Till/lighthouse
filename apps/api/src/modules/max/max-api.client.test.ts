@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { MaxApiClient, type MaxApiError } from './max-api.client';
+import { MaxApiClient, type MaxApiError } from './max-api.client.js';
 
 function createClient(values: Record<string, unknown>) {
   return new MaxApiClient(

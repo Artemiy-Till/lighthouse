@@ -4,7 +4,7 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   MaxIntegrationService,
   type MaxIntegrationStatus,
-} from './max-integration.service';
+} from './max-integration.service.js';
 
 @ApiTags('integrations')
 @Controller('integrations/max')
