@@ -66,6 +66,25 @@ describe('MaxAuthService', () => {
     });
   });
 
+  it('accepts optional MAX profile fields sent as null', () => {
+    const initData = signMaxInitData({
+      auth_date: String(Math.floor(NOW.getTime() / 1000)),
+      user: JSON.stringify({
+        first_name: 'Артемий',
+        id: 123,
+        language_code: 'ru',
+        last_name: 'Тиль',
+        photo_url: null,
+        username: null,
+      }),
+    });
+
+    expect(createService().authenticate(initData).user).toMatchObject({
+      photoUrl: null,
+      username: null,
+    });
+  });
+
   it('rejects data changed after signing', () => {
     const signedData = signMaxInitData({
       auth_date: String(Math.floor(NOW.getTime() / 1000)),

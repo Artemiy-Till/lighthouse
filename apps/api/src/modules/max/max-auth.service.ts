@@ -13,10 +13,10 @@ const MAX_INIT_DATA_CLOCK_SKEW_SECONDS = 60;
 const maxUserSchema = z.object({
   first_name: z.string().min(1),
   id: z.union([z.string().min(1), z.number().int()]),
-  language_code: z.string().min(1).optional(),
-  last_name: z.string().optional(),
-  photo_url: z.url().optional(),
-  username: z.string().min(1).optional(),
+  language_code: z.string().min(1).nullish(),
+  last_name: z.string().nullish(),
+  photo_url: z.url().nullish(),
+  username: z.string().min(1).nullish(),
 });
 
 export interface AuthenticatedMaxUser {
