@@ -184,20 +184,17 @@ export function ExperienceDetailsPage() {
             <summary>Место встречи</summary>
             <p>{details.meetingPoint}</p>
           </details>
-        </section>
-
-        {restrictions.length > 0 ? (
-          <section className="experience-restrictions">
-            <details open>
-              <summary>Не подойдёт для:</summary>
+          {restrictions.length > 0 ? (
+            <details className="experience-more__restrictions">
+              <summary>Не подойдёт для</summary>
               <ul>
                 {restrictions.map((restriction) => (
                   <li key={restriction}>{restriction}</li>
                 ))}
               </ul>
             </details>
-          </section>
-        ) : null}
+          ) : null}
+        </section>
 
         <section className="experience-terms">
           <h2>Условия бронирования</h2>

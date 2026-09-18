@@ -1883,7 +1883,6 @@ main {
 .experience-description,
 .experience-guide,
 .experience-more,
-.experience-restrictions,
 .experience-terms {
   padding-top: 34px;
 }
@@ -2194,57 +2193,7 @@ main {
   margin-top: 7px;
 }
 
-.experience-restrictions details {
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: #f6f7f9;
-}
-
-.experience-restrictions summary {
-  position: relative;
-  padding: 20px 52px 20px 18px;
-  color: var(--ink);
-  font-size: 21px;
-  font-weight: 850;
-  cursor: pointer;
-  list-style: none;
-}
-
-.experience-restrictions summary::-webkit-details-marker {
-  display: none;
-}
-
-.experience-restrictions summary::after {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  width: 12px;
-  height: 12px;
-  border-right: 3px solid currentcolor;
-  border-bottom: 3px solid currentcolor;
-  color: #89909e;
-  content: '';
-  transform: rotate(45deg);
-  transition: transform 160ms ease;
-}
-
-.experience-restrictions details[open] summary::after {
-  top: 24px;
-  transform: rotate(225deg);
-}
-
-.experience-restrictions ul {
-  display: grid;
-  gap: 13px;
-  padding: 0 18px 21px 42px;
-  margin: 0;
-  color: #424958;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.experience-restrictions li::marker {
+.experience-more__restrictions li::marker {
   color: var(--accent);
   font-size: 1.25em;
 }
@@ -2536,7 +2485,6 @@ html[data-theme='dark'] .order-card__action {
 
 html[data-theme='dark'] .experience-details-intro,
 html[data-theme='dark'] .experience-description p,
-html[data-theme='dark'] .experience-restrictions ul,
 html[data-theme='dark'] .guide-section > p {
   color: #c6cbd5;
 }
@@ -2561,7 +2509,6 @@ html[data-theme='dark'] .experience-facts-card dd,
 html[data-theme='dark'] .experience-booking-cta > p,
 html[data-theme='dark'] .experience-benefits strong,
 html[data-theme='dark'] .experience-more summary,
-html[data-theme='dark'] .experience-restrictions summary,
 html[data-theme='dark'] .experience-terms li,
 html[data-theme='dark'] .experience-guide__info strong,
 html[data-theme='dark'] .experience-guide__info > span,
@@ -2572,11 +2519,6 @@ html[data-theme='dark'] .guide-section h2,
 html[data-theme='dark'] .guide-tours h2,
 html[data-theme='dark'] .guide-credentials li {
   color: var(--ink);
-}
-
-html[data-theme='dark'] .experience-restrictions details {
-  border-color: var(--line);
-  background: #20242d;
 }
 
 html[data-theme='dark'] .guide-page__topbar {

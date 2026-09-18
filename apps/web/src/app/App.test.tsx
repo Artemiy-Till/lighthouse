@@ -122,7 +122,7 @@ describe('App navigation', () => {
     expect(screen.getByText('До 12 человек')).toBeInTheDocument();
     expect(screen.getByText('Об экскурсии')).toBeInTheDocument();
     expect(screen.getByText('Условия бронирования')).toBeInTheDocument();
-    expect(screen.getByText('Не подойдёт для:')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Не подойдёт для'));
     expect(
       screen.getByText('Гости на инвалидных колясках'),
     ).toBeInTheDocument();
