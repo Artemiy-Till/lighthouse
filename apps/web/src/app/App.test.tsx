@@ -122,6 +122,11 @@ describe('App navigation', () => {
     expect(screen.getByText('До 12 человек')).toBeInTheDocument();
     expect(screen.getByText('Об экскурсии')).toBeInTheDocument();
     expect(screen.getByText('Условия бронирования')).toBeInTheDocument();
+    expect(screen.getByText('Не подойдёт для:')).toBeInTheDocument();
+    expect(
+      screen.getByText('Гости на инвалидных колясках'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Дети младше 7 лет')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Что вас ожидает'));
     expect(screen.getByText('Дворцовая площадь')).toBeInTheDocument();
 

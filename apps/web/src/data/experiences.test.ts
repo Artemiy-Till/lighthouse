@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   experiences,
   getExperienceDetails,
+  getExperienceRestrictions,
   getExperiencesForCity,
 } from './experiences';
 import { getGuideForCity } from './guides';
@@ -33,5 +34,18 @@ describe('experience catalog', () => {
     expect(
       experiences.every((experience) => getGuideForCity(experience.cityId)),
     ).toBe(true);
+  });
+
+  it('contains relevant restrictions for every experience', () => {
+    const restrictionSets = experiences.map((experience) =>
+      getExperienceRestrictions(experience.id),
+    );
+
+    expect(
+      restrictionSets.every((restrictions) => restrictions.length > 0),
+    ).toBe(true);
+    expect(
+      new Set(restrictionSets.map((items) => items.join('|'))).size,
+    ).toBeGreaterThan(8);
   });
 });

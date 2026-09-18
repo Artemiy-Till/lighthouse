@@ -4,7 +4,11 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { DateSelector } from '../components/DateSelector';
 import { Icon } from '../components/Icon';
 import { cities } from '../data/cities';
-import { getExperienceById, getExperienceDetails } from '../data/experiences';
+import {
+  getExperienceById,
+  getExperienceDetails,
+  getExperienceRestrictions,
+} from '../data/experiences';
 import { getGuideForCity } from '../data/guides';
 import { useFavorites } from '../features/favorites/FavoritesContext';
 
@@ -15,6 +19,7 @@ export function ExperienceDetailsPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const experience = getExperienceById(experienceId);
   const details = getExperienceDetails(experienceId);
+  const restrictions = getExperienceRestrictions(experienceId);
   const city = cities.find((item) => item.id === experience?.cityId);
   const guide = experience ? getGuideForCity(experience.cityId) : undefined;
 
@@ -180,6 +185,19 @@ export function ExperienceDetailsPage() {
             <p>{details.meetingPoint}</p>
           </details>
         </section>
+
+        {restrictions.length > 0 ? (
+          <section className="experience-restrictions">
+            <details open>
+              <summary>Не подойдёт для:</summary>
+              <ul>
+                {restrictions.map((restriction) => (
+                  <li key={restriction}>{restriction}</li>
+                ))}
+              </ul>
+            </details>
+          </section>
+        ) : null}
 
         <section className="experience-terms">
           <h2>Условия бронирования</h2>
