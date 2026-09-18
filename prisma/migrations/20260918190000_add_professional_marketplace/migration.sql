@@ -1,6 +1,6 @@
 create extension if not exists pgcrypto;
 
-create table guide_profiles (
+create table if not exists guide_profiles (
   id uuid primary key default gen_random_uuid(),
   max_user_id text not null unique,
   display_name varchar(80) not null,
@@ -9,7 +9,7 @@ create table guide_profiles (
   updated_at timestamptz not null default now()
 );
 
-create table published_experiences (
+create table if not exists published_experiences (
   id uuid primary key default gen_random_uuid(),
   guide_id uuid not null references guide_profiles(id) on delete cascade,
   city_id varchar(40) not null,
@@ -28,5 +28,5 @@ create table published_experiences (
   updated_at timestamptz not null default now()
 );
 
-create index published_experiences_city_status_created_idx
+create index if not exists published_experiences_city_status_created_idx
   on published_experiences (city_id, status, created_at desc);
