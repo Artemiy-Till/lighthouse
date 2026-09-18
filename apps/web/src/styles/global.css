@@ -1788,6 +1788,7 @@ main {
 
 .experience-facts-card h2,
 .experience-description h2,
+.experience-guide h2,
 .experience-more h2,
 .experience-terms h2 {
   margin: 0;
@@ -1880,6 +1881,7 @@ main {
 }
 
 .experience-description,
+.experience-guide,
 .experience-more,
 .experience-terms {
   padding-top: 34px;
@@ -1890,6 +1892,256 @@ main {
   color: #353c49;
   font-size: 16px;
   line-height: 1.65;
+}
+
+.experience-guide__card {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 14px;
+  min-height: 96px;
+  padding: 14px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  color: inherit;
+  background: #fff;
+  box-shadow: 0 9px 28px rgb(27 35 52 / 8%);
+  text-decoration: none;
+}
+
+.experience-guide__card > img {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.experience-guide__info {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.experience-guide__info strong {
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.experience-guide__info small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.experience-guide__info > span {
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.experience-guide__arrow {
+  color: #9ca2af;
+  font-size: 28px;
+}
+
+.guide-page {
+  width: 100%;
+  max-width: 860px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  color: var(--ink);
+  background: #f7f8fa;
+}
+
+.guide-page__topbar {
+  position: sticky;
+  z-index: 10;
+  top: 0;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 12px;
+  min-height: calc(68px + env(safe-area-inset-top));
+  padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+  border-bottom: 1px solid var(--line);
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(18px);
+}
+
+.guide-page__topbar > strong {
+  text-align: center;
+}
+
+.guide-page__back {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0 0 3px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  background: #eef0f4;
+  font-size: 26px;
+  cursor: pointer;
+  place-items: center;
+}
+
+.guide-page__topbar .theme-toggle {
+  width: 44px;
+  height: 44px;
+}
+
+.guide-profile {
+  padding: 28px 18px 25px;
+  background: #fff;
+  text-align: center;
+}
+
+.guide-profile__avatar {
+  width: 132px;
+  height: 132px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 12px 36px rgb(29 36 51 / 18%);
+  object-fit: cover;
+}
+
+.guide-profile__verified {
+  width: fit-content;
+  padding: 6px 10px;
+  margin: 13px auto 0;
+  border-radius: 999px;
+  color: #3443b7;
+  background: #eef0ff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.guide-profile h1 {
+  margin: 12px 0 0;
+  color: var(--ink);
+  font-size: clamp(30px, 8vw, 42px);
+  letter-spacing: -0.04em;
+}
+
+.guide-profile__tagline {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.guide-profile__cities {
+  margin: 9px 0 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.guide-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 24px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #f8f9fb;
+}
+
+.guide-stats > div {
+  padding: 15px 6px;
+}
+
+.guide-stats > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.guide-stats dt {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.guide-stats dd {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.guide-page__content {
+  padding: 18px 18px 48px;
+}
+
+.guide-section {
+  padding: 21px 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+}
+
+.guide-section + .guide-section {
+  margin-top: 14px;
+}
+
+.guide-section h2,
+.guide-tours h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 24px;
+  letter-spacing: -0.03em;
+}
+
+.guide-section > p {
+  margin: 12px 0 0;
+  color: #424958;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.guide-credentials {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 16px 0 0;
+  list-style: none;
+}
+
+.guide-credentials li {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.guide-credentials span {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  place-items: center;
+}
+
+.guide-languages {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.guide-tours {
+  padding-top: 30px;
+}
+
+.guide-tours .section-heading {
+  margin-bottom: 15px;
 }
 
 .experience-more details {
@@ -2088,7 +2340,11 @@ html[data-theme='dark'] .empty-state,
 html[data-theme='dark'] .profile-card,
 html[data-theme='dark'] .profile-menu,
 html[data-theme='dark'] .order-card,
-html[data-theme='dark'] .experience-details-page {
+html[data-theme='dark'] .experience-details-page,
+html[data-theme='dark'] .guide-page,
+html[data-theme='dark'] .guide-profile,
+html[data-theme='dark'] .guide-section,
+html[data-theme='dark'] .experience-guide__card {
   color: var(--ink);
   background: var(--surface);
 }
@@ -2223,7 +2479,8 @@ html[data-theme='dark'] .order-card__action {
 }
 
 html[data-theme='dark'] .experience-details-intro,
-html[data-theme='dark'] .experience-description p {
+html[data-theme='dark'] .experience-description p,
+html[data-theme='dark'] .guide-section > p {
   color: #c6cbd5;
 }
 
@@ -2240,14 +2497,39 @@ html[data-theme='dark'] .experience-details-rating strong,
 html[data-theme='dark'] .experience-details-location,
 html[data-theme='dark'] .experience-facts-card h2,
 html[data-theme='dark'] .experience-description h2,
+html[data-theme='dark'] .experience-guide h2,
 html[data-theme='dark'] .experience-more h2,
 html[data-theme='dark'] .experience-terms h2,
 html[data-theme='dark'] .experience-facts-card dd,
 html[data-theme='dark'] .experience-booking-cta > p,
 html[data-theme='dark'] .experience-benefits strong,
 html[data-theme='dark'] .experience-more summary,
-html[data-theme='dark'] .experience-terms li {
+html[data-theme='dark'] .experience-terms li,
+html[data-theme='dark'] .experience-guide__info strong,
+html[data-theme='dark'] .experience-guide__info > span,
+html[data-theme='dark'] .guide-profile h1,
+html[data-theme='dark'] .guide-profile__cities,
+html[data-theme='dark'] .guide-stats dt,
+html[data-theme='dark'] .guide-section h2,
+html[data-theme='dark'] .guide-tours h2,
+html[data-theme='dark'] .guide-credentials li {
   color: var(--ink);
+}
+
+html[data-theme='dark'] .guide-page__topbar {
+  border-color: var(--line);
+  background: rgb(24 27 35 / 92%);
+}
+
+html[data-theme='dark'] .guide-page__back,
+html[data-theme='dark'] .guide-stats {
+  color: var(--ink);
+  background: #242832;
+}
+
+html[data-theme='dark'] .guide-profile__verified {
+  color: #c9ceff;
+  background: #292e49;
 }
 
 html[data-theme='dark'] .bottom-navigation {
@@ -2391,7 +2673,8 @@ html[data-theme='dark'] .booking-card__action {
     justify-self: center;
   }
 
-  .experience-details-page {
+  .experience-details-page,
+  .guide-page {
     margin-top: 24px;
     margin-bottom: 24px;
     overflow: hidden;

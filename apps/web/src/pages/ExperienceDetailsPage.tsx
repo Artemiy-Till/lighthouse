@@ -5,6 +5,7 @@ import { DateSelector } from '../components/DateSelector';
 import { Icon } from '../components/Icon';
 import { cities } from '../data/cities';
 import { getExperienceById, getExperienceDetails } from '../data/experiences';
+import { getGuideForCity } from '../data/guides';
 import { useFavorites } from '../features/favorites/FavoritesContext';
 
 export function ExperienceDetailsPage() {
@@ -15,6 +16,7 @@ export function ExperienceDetailsPage() {
   const experience = getExperienceById(experienceId);
   const details = getExperienceDetails(experienceId);
   const city = cities.find((item) => item.id === experience?.cityId);
+  const guide = experience ? getGuideForCity(experience.cityId) : undefined;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -133,6 +135,35 @@ export function ExperienceDetailsPage() {
           <h2>Об экскурсии</h2>
           <p>{details.description}</p>
         </section>
+
+        {guide ? (
+          <section className="experience-guide">
+            <h2>Ваш гид</h2>
+            <Link
+              aria-label={`Открыть профиль гида ${guide.name}`}
+              className="experience-guide__card"
+              to={`/guides/${guide.id}`}
+            >
+              <img
+                alt=""
+                height="720"
+                loading="lazy"
+                src={guide.avatar}
+                width="720"
+              />
+              <span className="experience-guide__info">
+                <strong>{guide.name}</strong>
+                <small>{guide.tagline}</small>
+                <span>
+                  ★ {guide.rating} · {guide.reviewCount} отзывов
+                </span>
+              </span>
+              <span aria-hidden="true" className="experience-guide__arrow">
+                ›
+              </span>
+            </Link>
+          </section>
+        ) : null}
 
         <section className="experience-more">
           <h2>Подробнее</h2>

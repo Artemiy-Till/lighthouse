@@ -122,9 +122,22 @@ describe('App navigation', () => {
     expect(screen.getByText('До 12 человек')).toBeInTheDocument();
     expect(screen.getByText('Об экскурсии')).toBeInTheDocument();
     expect(screen.getByText('Условия бронирования')).toBeInTheDocument();
-
     fireEvent.click(screen.getByText('Что вас ожидает'));
     expect(screen.getByText('Дворцовая площадь')).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('link', {
+        name: 'Открыть профиль гида Алексей Смирнов',
+      }),
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Алексей Смирнов', level: 1 }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Личность подтверждена/)).toBeInTheDocument();
+    expect(screen.getByText('Опыт и квалификация')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Экскурсии', level: 2 }),
+    ).toBeInTheDocument();
   });
 
   it('filters and sorts catalog experiences', () => {

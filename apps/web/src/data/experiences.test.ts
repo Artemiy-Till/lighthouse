@@ -5,6 +5,7 @@ import {
   getExperienceDetails,
   getExperiencesForCity,
 } from './experiences';
+import { getGuideForCity } from './guides';
 
 describe('experience catalog', () => {
   it.each([
@@ -25,6 +26,12 @@ describe('experience catalog', () => {
         const details = getExperienceDetails(experience.id);
         return details && details.highlights.length > 0;
       }),
+    ).toBe(true);
+  });
+
+  it('assigns a guide to every experience', () => {
+    expect(
+      experiences.every((experience) => getGuideForCity(experience.cityId)),
     ).toBe(true);
   });
 });
