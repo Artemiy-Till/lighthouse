@@ -61,13 +61,13 @@ Copy `.env.example` to `.env`. Environment files are ignored by Git.
 ## Prototype deployment
 
 The current frontend prototype can be deployed to Vercel directly from this
-repository. The root `vercel.json` builds only `apps/web` and configures the
-single-page application fallback required for direct links such as
-`/catalog` and `/experiences/:id`.
+repository. The `apps/web/vercel.json` file configures the Vite build and the
+single-page application fallback required for direct links such as `/catalog`
+and `/experiences/:id`.
 
 1. Import the GitHub repository into Vercel.
-2. Keep the repository root as the project root; the build and output settings
-   are read from `vercel.json`.
+2. Select `apps/web` as the Vercel Root Directory; the build and output settings
+   are read from `apps/web/vercel.json`.
 3. Deploy and copy the generated `https://...vercel.app` URL.
 4. After the MAX bot passes moderation, open its settings on the MAX partner
    platform and paste that HTTPS URL into the mini-app URL field.
