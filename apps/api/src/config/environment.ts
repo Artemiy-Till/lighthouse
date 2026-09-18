@@ -12,10 +12,20 @@ const environmentSchema = z.object({
             .filter(Boolean)
         : [],
     ),
-  DATABASE_URL: z.url().startsWith('postgresql://'),
+  DATABASE_URL: z.url().startsWith('postgresql://').optional(),
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
+  MAX_API_BASE_URL: z
+    .url()
+    .startsWith('https://')
+    .default('https://platform-api2.max.ru'),
+  MAX_API_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(100)
+    .max(30_000)
+    .default(5000),
   MAX_BOT_TOKEN: z.string().min(1).optional(),
   NODE_ENV: z
     .enum(['development', 'test', 'production'])

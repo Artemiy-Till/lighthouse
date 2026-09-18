@@ -15,11 +15,19 @@ describe('parseEnvironment', () => {
       'https://app.example',
       'https://admin.example',
     ]);
+    expect(environment.MAX_API_BASE_URL).toBe('https://platform-api2.max.ru');
+    expect(environment.MAX_API_TIMEOUT_MS).toBe(5000);
   });
 
   it('rejects non-PostgreSQL database URLs', () => {
     expect(() =>
       parseEnvironment({ DATABASE_URL: 'mysql://localhost/app' }),
     ).toThrow();
+  });
+
+  it('allows the API to start before persistence is configured', () => {
+    expect(parseEnvironment({ NODE_ENV: 'production' }).DATABASE_URL).toBe(
+      undefined,
+    );
   });
 });

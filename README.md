@@ -52,11 +52,13 @@ No domain tables are created until their product slice is implemented.
 
 Copy `.env.example` to `.env`. Environment files are ignored by Git.
 
-- `DATABASE_URL`: PostgreSQL connection string.
+- `DATABASE_URL`: PostgreSQL connection string. Optional until a persistence-backed module is enabled.
 - `PORT`: API port, defaults to `3000`.
 - `CORS_ORIGINS`: comma-separated development origins. Production should prefer a same-origin deployment.
 - `LOG_LEVEL`: structured API log level.
 - `MAX_BOT_TOKEN`: server-only MAX bot token; never expose it to the frontend.
+- `MAX_API_BASE_URL`: MAX API origin; defaults to `https://platform-api2.max.ru`.
+- `MAX_API_TIMEOUT_MS`: timeout for outgoing MAX API calls.
 
 ## Prototype deployment
 
@@ -75,6 +77,23 @@ and `/experiences/:id`.
 This deployment publishes only the static prototype. The API, database, MAX
 authentication, and bot token will be configured separately before production
 use. Never add `MAX_BOT_TOKEN` to Vercel variables exposed to the frontend.
+
+### API deployment
+
+Create a second Vercel project from the same GitHub repository and select
+`apps/api` as its Root Directory. Vercel detects the standard NestJS
+`src/main.ts` entrypoint automatically, so do not configure a build command or
+an output directory for this project.
+
+Add the following server-side environment variables to the API project:
+
+- `NODE_ENV=production`
+- `CORS_ORIGINS=https://lighthouse-api-one.vercel.app`
+- `MAX_BOT_TOKEN`: a newly issued bot token
+
+After deployment, verify `/api/v1/health` and
+`/api/v1/integrations/max/status`. The status response exposes only the public
+bot identity and never returns the token.
 
 ## Repository layout
 
