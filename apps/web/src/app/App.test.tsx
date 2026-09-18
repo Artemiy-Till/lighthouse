@@ -1,16 +1,43 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from './App';
 
-describe('App navigation', () => {
-  it('switches theme and saves the preference', () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
+function renderApp(initialEntry = '/') {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[initialEntry]}>
         <App />
-      </MemoryRouter>,
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+describe('App navigation', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+            configured: true,
+            connected: true,
+          }),
+          { status: 200 },
+        ),
+      ),
     );
+  });
+
+  it('switches theme and saves the preference', () => {
+    renderApp();
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Включить тёмную тему' }),
@@ -25,11 +52,7 @@ describe('App navigation', () => {
   });
 
   it('opens catalog, favorites, orders and profile from the bottom navigation', () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>,
-    );
+    renderApp();
 
     fireEvent.click(screen.getByRole('link', { name: 'Каталог' }));
     expect(
@@ -52,12 +75,66 @@ describe('App navigation', () => {
     ).toBeInTheDocument();
   });
 
-  it('switches order history and expands order details', () => {
-    render(
-      <MemoryRouter initialEntries={['/orders']}>
-        <App />
-      </MemoryRouter>,
+  it('shows the verified MAX user returned by the backend', async () => {
+    window.WebApp = {
+      BackButton: {
+        hide() {},
+        offClick() {},
+        onClick() {},
+        show() {},
+      },
+      initData: 'auth_date=1&hash=signed',
+      platform: 'ios',
+      version: '26.20.0',
+      getViewportSize() {
+        return Promise.resolve({ height: '800px', width: '390px' });
+      },
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        const isAuthenticationRequest = requestUrl.endsWith('/auth/max');
+        const payload = isAuthenticationRequest
+          ? {
+              authenticated: true,
+              user: {
+                firstName: 'Мария',
+                id: '42',
+                languageCode: 'ru',
+                lastName: 'Иванова',
+                photoUrl: null,
+                username: 'maria',
+              },
+            }
+          : {
+              bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+              configured: true,
+              connected: true,
+            };
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
     );
+
+    renderApp('/profile');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Мария Иванова' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Профиль MAX')).toBeInTheDocument();
+    expect(screen.getByText('@maria')).toBeInTheDocument();
+  });
+
+  it('switches order history and expands order details', () => {
+    renderApp('/orders');
 
     expect(
       screen.getByText('Петербург: первое знакомство'),
@@ -76,11 +153,7 @@ describe('App navigation', () => {
   });
 
   it('removes saved experiences and shows the empty state', () => {
-    render(
-      <MemoryRouter initialEntries={['/favorites']}>
-        <App />
-      </MemoryRouter>,
-    );
+    renderApp('/favorites');
 
     fireEvent.click(
       screen.getByRole('button', {
@@ -100,11 +173,7 @@ describe('App navigation', () => {
   });
 
   it('opens an experience card and shows its complete details', () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>,
-    );
+    renderApp();
 
     fireEvent.click(
       screen.getByRole('link', {
@@ -146,11 +215,7 @@ describe('App navigation', () => {
   });
 
   it('filters and sorts catalog experiences', () => {
-    render(
-      <MemoryRouter initialEntries={['/catalog']}>
-        <App />
-      </MemoryRouter>,
-    );
+    renderApp('/catalog');
 
     expect(screen.getByText('4 предложения')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));

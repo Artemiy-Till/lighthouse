@@ -24,7 +24,9 @@ pnpm dev
 - API health: `http://localhost:3000/api/v1/health`
 - API docs in development: `http://localhost:3000/api/docs`
 
-The browser development fallback never impersonates a MAX user. Real authentication will accept only raw `window.WebApp.initData` and validate its signature on the backend.
+The browser development fallback never impersonates a MAX user. Authentication
+accepts only raw `window.WebApp.initData`, validates its signature and freshness
+on the backend, and then returns the verified public profile.
 
 ## Quality checks
 
@@ -59,6 +61,8 @@ Copy `.env.example` to `.env`. Environment files are ignored by Git.
 - `MAX_BOT_TOKEN`: server-only MAX bot token; never expose it to the frontend.
 - `MAX_API_BASE_URL`: MAX API origin; defaults to `https://platform-api2.max.ru`.
 - `MAX_API_TIMEOUT_MS`: timeout for outgoing MAX API calls.
+- `VITE_API_BASE_URL`: public API origin used by the frontend. This value is not
+  a secret.
 
 ## Prototype deployment
 
@@ -74,9 +78,8 @@ and `/experiences/:id`.
 4. After the MAX bot passes moderation, open its settings on the MAX partner
    platform and paste that HTTPS URL into the mini-app URL field.
 
-This deployment publishes only the static prototype. The API, database, MAX
-authentication, and bot token will be configured separately before production
-use. Never add `MAX_BOT_TOKEN` to Vercel variables exposed to the frontend.
+Never add `MAX_BOT_TOKEN` to Vercel variables exposed to the frontend. The
+frontend sends signed launch data to the API and never receives the bot token.
 
 ### API deployment
 
@@ -94,6 +97,11 @@ Add the following server-side environment variables to the API project:
 After deployment, verify `/api/v1/health` and
 `/api/v1/integrations/max/status`. The status response exposes only the public
 bot identity and never returns the token.
+
+The frontend uses `https://lighthouse-api-lwsx.vercel.app` as the current
+production API fallback. Set `VITE_API_BASE_URL` on the frontend Vercel project
+when the API domain changes. Inside MAX, `POST /api/v1/auth/max` verifies the
+signed launch data before the profile is displayed.
 
 ## Repository layout
 

@@ -1272,6 +1272,11 @@ main {
   place-items: center;
 }
 
+.profile-avatar--image {
+  display: block;
+  object-fit: cover;
+}
+
 .profile-card__badge {
   display: inline-block;
   margin-bottom: 7px;
@@ -1289,6 +1294,45 @@ main {
 .profile-card p {
   margin-top: 7px;
   font-size: 12px;
+}
+
+.max-connection {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.max-connection__indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #b8bdc8;
+  box-shadow: 0 0 0 5px rgb(184 189 200 / 14%);
+}
+
+.max-connection.is-connected .max-connection__indicator {
+  background: #27be5b;
+  box-shadow: 0 0 0 5px rgb(39 190 91 / 14%);
+}
+
+.max-connection strong,
+.max-connection small {
+  display: block;
+}
+
+.max-connection strong {
+  font-size: 13px;
+}
+
+.max-connection small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .booking-card {
@@ -2344,6 +2388,7 @@ html[data-theme='dark'] .catalog-filter-dialog__actions,
 html[data-theme='dark'] .empty-state,
 html[data-theme='dark'] .profile-card,
 html[data-theme='dark'] .profile-menu,
+html[data-theme='dark'] .max-connection,
 html[data-theme='dark'] .order-card,
 html[data-theme='dark'] .experience-details-page,
 html[data-theme='dark'] .guide-page,
