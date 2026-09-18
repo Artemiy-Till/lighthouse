@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { z } from 'zod';
 
+import { MaxApiTransport } from './max-api.transport.js';
+
 const maxBotInfoSchema = z.object({
   first_name: z.string(),
   is_bot: z.literal(true),
@@ -23,7 +25,10 @@ export class MaxApiError extends Error {
 
 @Injectable()
 export class MaxApiClient {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly transport: MaxApiTransport,
+  ) {}
 
   isConfigured(): boolean {
     return Boolean(this.configService.get<string>('MAX_BOT_TOKEN'));
@@ -42,16 +47,17 @@ export class MaxApiClient {
     );
     const timeout = this.configService.get<number>('MAX_API_TIMEOUT_MS', 5000);
 
-    let response: Response;
+    let response: Awaited<ReturnType<MaxApiTransport['request']>>;
 
     try {
-      response = await fetch(new URL('/me', baseUrl), {
-        headers: {
+      response = await this.transport.request(
+        new URL('/me', baseUrl),
+        {
           Accept: 'application/json',
           Authorization: token,
         },
-        signal: AbortSignal.timeout(timeout),
-      });
+        timeout,
+      );
     } catch {
       throw new MaxApiError('unavailable');
     }
@@ -60,12 +66,12 @@ export class MaxApiClient {
       throw new MaxApiError('invalid_credentials');
     }
 
-    if (!response.ok) {
+    if (response.status < 200 || response.status >= 300) {
       throw new MaxApiError('unavailable');
     }
 
     try {
-      return maxBotInfoSchema.parse(await response.json());
+      return maxBotInfoSchema.parse(JSON.parse(response.body));
     } catch {
       throw new MaxApiError('invalid_response');
     }
