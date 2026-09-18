@@ -76,6 +76,9 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('button', { name: 'Казань. 4 предложения' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Кострома. 4 предложения' }),
+    ).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole('button', { name: 'Москва. 4 предложения' }),
     );

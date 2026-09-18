@@ -11,6 +11,7 @@ describe('experience catalog', () => {
     ['saint-petersburg', 4],
     ['moscow', 4],
     ['kazan', 4],
+    ['kostroma', 4],
   ] as const)('%s contains %i experiences', (cityId, expectedCount) => {
     const cityExperiences = getExperiencesForCity(cityId);
 
