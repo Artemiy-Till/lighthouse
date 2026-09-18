@@ -133,6 +133,64 @@ describe('App navigation', () => {
     expect(screen.getByText('@maria')).toBeInTheDocument();
   });
 
+  it('shows a completed state when the MAX user has no username', async () => {
+    window.WebApp = {
+      BackButton: {
+        hide() {},
+        offClick() {},
+        onClick() {},
+        show() {},
+      },
+      initData: 'auth_date=1&hash=signed',
+      platform: 'desktop',
+      version: '26.20.0',
+      getViewportSize() {
+        return Promise.resolve({ height: '800px', width: '390px' });
+      },
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        const payload = requestUrl.endsWith('/auth/max')
+          ? {
+              authenticated: true,
+              user: {
+                firstName: 'Артемий',
+                id: '42',
+                languageCode: 'ru',
+                lastName: null,
+                photoUrl: null,
+                username: null,
+              },
+            }
+          : {
+              bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+              configured: true,
+              connected: true,
+            };
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
+    );
+
+    renderApp('/profile');
+
+    expect(
+      await screen.findByText('Профиль подтверждён через MAX'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Проверяем данные профиля MAX…'),
+    ).not.toBeInTheDocument();
+  });
+
   it('switches order history and expands order details', () => {
     renderApp('/orders');
 

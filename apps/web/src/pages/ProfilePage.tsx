@@ -18,8 +18,10 @@ export function ProfilePage() {
   const displayName = maxUser
     ? [maxUser.firstName, maxUser.lastName].filter(Boolean).join(' ')
     : 'Артемий';
-  const profileDescription = maxUser?.username
-    ? `@${maxUser.username}`
+  const profileDescription = maxUser
+    ? maxUser.username
+      ? `@${maxUser.username}`
+      : 'Профиль подтверждён через MAX'
     : hasMaxLaunchData
       ? session.isError
         ? 'Не удалось подтвердить профиль. Перезапустите мини-приложение.'
