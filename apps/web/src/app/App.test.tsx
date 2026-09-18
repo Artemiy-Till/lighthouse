@@ -107,4 +107,38 @@ describe('App navigation', () => {
     fireEvent.click(screen.getByText('Что вас ожидает'));
     expect(screen.getByText('Дворцовая площадь')).toBeInTheDocument();
   });
+
+  it('filters and sorts catalog experiences', () => {
+    render(
+      <MemoryRouter initialEntries={['/catalog']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('4 предложения')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
+    fireEvent.click(screen.getByLabelText('До 1 500 ₽'));
+    fireEvent.click(screen.getByRole('button', { name: 'Показать варианты' }));
+
+    expect(screen.getByText('1 предложение')).toBeInTheDocument();
+    expect(
+      screen.getByText('Петербург: первое знакомство'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Разводные мосты с воды'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Сбросить' }));
+    fireEvent.change(screen.getByRole('combobox', { name: 'Сортировка' }), {
+      target: { value: 'price' },
+    });
+
+    expect(screen.getByText('4 предложения')).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('link', { name: /Подробнее об экскурсии/ })[0],
+    ).toHaveAccessibleName(
+      'Подробнее об экскурсии «Петербург: первое знакомство»',
+    );
+  });
 });
