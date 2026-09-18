@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { getExperiencesForCity } from './experiences';
+import {
+  experiences,
+  getExperienceDetails,
+  getExperiencesForCity,
+} from './experiences';
 
 describe('experience catalog', () => {
   it.each([
@@ -12,5 +16,14 @@ describe('experience catalog', () => {
 
     expect(cityExperiences).toHaveLength(expectedCount);
     expect(cityExperiences.every((item) => item.cityId === cityId)).toBe(true);
+  });
+
+  it('contains details for every experience', () => {
+    expect(
+      experiences.every((experience) => {
+        const details = getExperienceDetails(experience.id);
+        return details && details.highlights.length > 0;
+      }),
+    ).toBe(true);
   });
 });

@@ -79,4 +79,32 @@ describe('App navigation', () => {
       screen.getByRole('link', { name: 'Перейти в каталог' }),
     ).toHaveAttribute('href', '/catalog');
   });
+
+  it('opens an experience card and shows its complete details', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(
+      screen.getByRole('link', {
+        name: 'Подробнее об экскурсии «Петербург: первое знакомство»',
+      }),
+    );
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Петербург: первое знакомство',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Мини-группа')).toBeInTheDocument();
+    expect(screen.getByText('До 12 человек')).toBeInTheDocument();
+    expect(screen.getByText('Об экскурсии')).toBeInTheDocument();
+    expect(screen.getByText('Условия бронирования')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Что вас ожидает'));
+    expect(screen.getByText('Дворцовая площадь')).toBeInTheDocument();
+  });
 });

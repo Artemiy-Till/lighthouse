@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { Icon } from './Icon';
 
 interface DateSelectorProps {
+  readonly defaultLabel?: string;
   readonly onChange: (date: string | null) => void;
   readonly value: string | null;
 }
@@ -40,7 +41,11 @@ function formatDate(value: string) {
   }).format(date);
 }
 
-export function DateSelector({ onChange, value }: DateSelectorProps) {
+export function DateSelector({
+  defaultLabel = 'Любая дата',
+  onChange,
+  value,
+}: DateSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [draftDate, setDraftDate] = useState(value ?? '');
   const today = useMemo(() => new Date(), []);
@@ -97,7 +102,7 @@ export function DateSelector({ onChange, value }: DateSelectorProps) {
         type="button"
       >
         <Icon name="calendar" />
-        <span>{value ? formatDate(value) : 'Любая дата'}</span>
+        <span>{value ? formatDate(value) : defaultLabel}</span>
       </button>
 
       {isOpen

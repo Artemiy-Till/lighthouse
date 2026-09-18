@@ -1,5 +1,6 @@
 import { type Experience } from '../data/experiences';
 import { useFavorites } from '../features/favorites/FavoritesContext';
+import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
 
 export function ExperienceCard({
@@ -12,6 +13,11 @@ export function ExperienceCard({
 
   return (
     <article className="experience-card">
+      <Link
+        aria-label={`Подробнее об экскурсии «${experience.title}»`}
+        className="experience-card__link"
+        to={`/experiences/${experience.id}`}
+      />
       <div className="experience-card__media">
         <img
           alt=""
@@ -31,7 +37,10 @@ export function ExperienceCard({
           }
           aria-pressed={isFavorite}
           className={`favorite-button${isFavorite ? ' is-favorite' : ''}`}
-          onClick={() => toggleFavorite(experience.id)}
+          onClick={(event) => {
+            event.preventDefault();
+            toggleFavorite(experience.id);
+          }}
           type="button"
         >
           <Icon name="heart" />
