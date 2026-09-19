@@ -62,6 +62,8 @@ export interface PublishedExperience {
   readonly meetingPoint: string;
   readonly photos: readonly string[];
   readonly priceRub: number;
+  readonly rating: number;
+  readonly reviewCount: number;
   readonly status: 'published';
   readonly title: string;
 }
@@ -90,11 +92,19 @@ export interface Booking {
   readonly imageUrl: string;
   readonly meetingPoint: string;
   readonly participants: number;
+  readonly review: BookingReview | null;
   readonly status: 'cancelled' | 'confirmed';
   readonly time: string;
   readonly title: string;
   readonly totalPriceRub: number;
   readonly unitPriceRub: number;
+}
+
+export interface BookingReview {
+  readonly comment: string;
+  readonly createdAt: string;
+  readonly id: string;
+  readonly rating: number;
 }
 
 export interface CreateBookingInput {
@@ -255,4 +265,21 @@ export function cancelBooking(initData: string, id: string) {
     `/bookings/${encodeURIComponent(id)}`,
     { headers: maxHeaders(initData), method: 'DELETE' },
   );
+}
+
+export function createBookingReview(
+  initData: string,
+  id: string,
+  review: { readonly comment: string; readonly rating: number },
+) {
+  return request<
+    BookingReview & {
+      readonly bookingId: string;
+      readonly experienceId: string;
+    }
+  >(`/bookings/${encodeURIComponent(id)}/review`, {
+    body: JSON.stringify(review),
+    headers: maxHeaders(initData),
+    method: 'POST',
+  });
 }

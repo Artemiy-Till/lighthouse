@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import { cancelBooking, getBookings, type Booking } from '../api/client';
+import {
+  cancelBooking,
+  createBookingReview,
+  getBookings,
+  type Booking,
+} from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { cities } from '../data/cities';
 import { useMaxConnection } from '../features/max/useMaxConnection';
@@ -10,8 +15,8 @@ import { useSettings } from '../features/settings/SettingsContext';
 type OrderTab = 'completed' | 'upcoming';
 
 function isUpcoming(order: Booking) {
-  const today = new Date().toISOString().slice(0, 10);
-  return order.status === 'confirmed' && order.date >= today;
+  const startsAt = new Date(`${order.date}T${order.time}:00`).getTime();
+  return order.status === 'confirmed' && startsAt > Date.now();
 }
 
 function formatDate(order: Booking, locale: string) {
@@ -28,6 +33,9 @@ function formatDate(order: Booking, locale: string) {
 export function OrdersPage() {
   const [activeTab, setActiveTab] = useState<OrderTab>('upcoming');
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [reviewingOrderId, setReviewingOrderId] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
   const { platform, session } = useMaxConnection();
   const { language, t } = useSettings();
   const initData = platform.initData ?? '';
@@ -42,6 +50,23 @@ export function OrdersPage() {
     mutationFn: (id: string) => cancelBooking(initData, id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    },
+  });
+  const review = useMutation({
+    mutationFn: (value: { comment: string; id: string; rating: number }) =>
+      createBookingReview(initData, value.id, {
+        comment: value.comment,
+        rating: value.rating,
+      }),
+    onSuccess: async () => {
+      setReviewingOrderId(null);
+      setReviewRating(5);
+      setReviewComment('');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+        queryClient.invalidateQueries({ queryKey: ['published-experiences'] }),
+        queryClient.invalidateQueries({ queryKey: ['published-experience'] }),
+      ]);
     },
   });
   const allOrders = orders.data?.items ?? [];
@@ -188,6 +213,103 @@ export function OrdersPage() {
                       >
                         {t('orders.cancel')}
                       </button>
+                    ) : order.status === 'confirmed' ? (
+                      order.review ? (
+                        <div className="order-review-summary">
+                          <strong>
+                            {t('orders.yourReview')} ·{' '}
+                            {'★'.repeat(order.review.rating)}
+                          </strong>
+                          <p>{order.review.comment}</p>
+                        </div>
+                      ) : reviewingOrderId === order.id ? (
+                        <form
+                          className="order-review-form"
+                          onSubmit={(event) => {
+                            event.preventDefault();
+                            review.mutate({
+                              comment: reviewComment.trim(),
+                              id: order.id,
+                              rating: reviewRating,
+                            });
+                          }}
+                        >
+                          <fieldset>
+                            <legend>{t('orders.reviewRating')}</legend>
+                            <div className="order-review-stars">
+                              {[1, 2, 3, 4, 5].map((rating) => (
+                                <button
+                                  aria-label={`${rating} ${t('orders.reviewStars')}`}
+                                  aria-pressed={reviewRating === rating}
+                                  className={
+                                    rating <= reviewRating ? 'is-active' : ''
+                                  }
+                                  key={rating}
+                                  onClick={() => setReviewRating(rating)}
+                                  type="button"
+                                >
+                                  ★
+                                </button>
+                              ))}
+                            </div>
+                          </fieldset>
+                          <label>
+                            <span>{t('orders.reviewComment')}</span>
+                            <textarea
+                              maxLength={1000}
+                              minLength={5}
+                              onChange={(event) =>
+                                setReviewComment(event.target.value)
+                              }
+                              placeholder={t('orders.reviewPlaceholder')}
+                              required
+                              rows={4}
+                              value={reviewComment}
+                            />
+                          </label>
+                          {review.isError ? (
+                            <p className="form-error">
+                              {t('orders.reviewError')}
+                            </p>
+                          ) : null}
+                          <div className="order-review-form__actions">
+                            <button
+                              onClick={() => {
+                                review.reset();
+                                setReviewingOrderId(null);
+                                setReviewComment('');
+                              }}
+                              type="button"
+                            >
+                              {t('orders.reviewCancel')}
+                            </button>
+                            <button
+                              disabled={
+                                review.isPending ||
+                                reviewComment.trim().length < 5
+                              }
+                              type="submit"
+                            >
+                              {review.isPending
+                                ? t('orders.reviewSending')
+                                : t('orders.reviewSubmit')}
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <button
+                          className="order-card__review"
+                          onClick={() => {
+                            review.reset();
+                            setReviewRating(5);
+                            setReviewComment('');
+                            setReviewingOrderId(order.id);
+                          }}
+                          type="button"
+                        >
+                          {t('orders.leaveReview')}
+                        </button>
+                      )
                     ) : null}
                   </div>
                 </article>

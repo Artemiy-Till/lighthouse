@@ -31,6 +31,8 @@ const experienceRow = {
   meeting_point: 'У памятника на главной площади',
   photo_urls: ['https://example.com/photo.jpg'],
   price_rub: 1700,
+  rating_avg: 0,
+  review_count: 0,
   title: 'Обновлённое знакомство с городом',
 };
 
@@ -87,6 +89,65 @@ describe('MarketplaceService', () => {
         1700,
       ]),
     );
+  });
+
+  it('creates one review for a completed booking', async () => {
+    const reviewRow = {
+      booking_id: '3c999a75-cf3b-41d3-b13f-996e9f11f8db',
+      comment: 'Отличная экскурсия и очень интересный гид.',
+      created_at: new Date('2026-09-19T10:00:00.000Z'),
+      experience_id: 'experience-1',
+      id: 'review-1',
+      rating: 5,
+    };
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            experience_id: 'experience-1',
+            review_id: null,
+            reviewable: true,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [reviewRow] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    const result = await service.createReview(
+      {
+        firstName: 'Артемий',
+        id: '42',
+        languageCode: 'ru',
+        lastName: 'Иванов',
+        photoUrl: 'https://example.com/avatar.jpg',
+        username: 'artemiy',
+      },
+      reviewRow.booking_id,
+      { comment: `  ${reviewRow.comment}  `, rating: 5 },
+    );
+
+    expect(result).toMatchObject({
+      bookingId: reviewRow.booking_id,
+      comment: reviewRow.comment,
+      rating: 5,
+    });
+    expect(query.mock.calls[6]?.[1]).toEqual([
+      reviewRow.booking_id,
+      '42',
+      'experience-1',
+      'Артемий Иванов',
+      'https://example.com/avatar.jpg',
+      5,
+      reviewRow.comment,
+    ]);
   });
 
   it('upserts a professional profile using the verified MAX id', async () => {
@@ -169,6 +230,8 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.title).toBe('Обновлённое знакомство с городом');
+    expect(result.rating).toBe(0);
+    expect(result.reviewCount).toBe(0);
     expect(query.mock.calls[3]?.[1]).toEqual([
       'experience-1',
       'guide-1',

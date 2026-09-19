@@ -45,24 +45,42 @@ model PublishedExperience {
 }
 
 model ExperienceBooking {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  maxUserId     String   @map("max_user_id")
-  experienceId  String   @map("experience_id")
-  title         String   @db.VarChar(120)
-  cityId        String   @map("city_id") @db.VarChar(40)
-  imageUrl      String   @map("image_url")
-  meetingPoint  String   @map("meeting_point") @db.VarChar(240)
-  bookingDate   DateTime @map("booking_date") @db.Date
-  bookingTime   DateTime @map("booking_time") @db.Time
+  id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  maxUserId     String            @map("max_user_id")
+  experienceId  String            @map("experience_id")
+  title         String            @db.VarChar(120)
+  cityId        String            @map("city_id") @db.VarChar(40)
+  imageUrl      String            @map("image_url")
+  meetingPoint  String            @map("meeting_point") @db.VarChar(240)
+  bookingDate   DateTime          @map("booking_date") @db.Date
+  bookingTime   DateTime          @map("booking_time") @db.Time
   participants  Int
-  unitPriceRub  Int      @map("unit_price_rub")
-  totalPriceRub Int      @map("total_price_rub")
-  status        String   @default("confirmed") @db.VarChar(20)
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz
+  unitPriceRub  Int               @map("unit_price_rub")
+  totalPriceRub Int               @map("total_price_rub")
+  status        String            @default("confirmed") @db.VarChar(20)
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+  review        ExperienceReview?
 
   @@index([maxUserId, bookingDate(sort: Desc), createdAt(sort: Desc)], map: "experience_bookings_user_date_idx")
   @@map("experience_bookings")
+}
+
+model ExperienceReview {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookingId      String            @unique @map("booking_id") @db.Uuid
+  booking        ExperienceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  maxUserId      String            @map("max_user_id")
+  experienceId   String            @map("experience_id")
+  authorName     String            @map("author_name") @db.VarChar(160)
+  authorPhotoUrl String?           @map("author_photo_url")
+  rating         Int
+  comment        String            @db.VarChar(1000)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@index([experienceId, createdAt(sort: Desc)], map: "experience_reviews_experience_created_idx")
+  @@map("experience_reviews")
 }
 
 model ExperienceBookingSlot {

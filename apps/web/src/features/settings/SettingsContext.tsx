@@ -239,6 +239,22 @@ const translations = {
   'orders.hide': { en: 'Hide details', ru: 'Скрыть детали' },
   'orders.details': { en: 'Booking details', ru: 'Подробнее о заказе' },
   'orders.cancel': { en: 'Cancel booking', ru: 'Отменить запись' },
+  'orders.leaveReview': { en: 'Leave a review', ru: 'Оставить отзыв' },
+  'orders.yourReview': { en: 'Your review', ru: 'Ваш отзыв' },
+  'orders.reviewRating': { en: 'Rating', ru: 'Ваша оценка' },
+  'orders.reviewStars': { en: 'stars', ru: 'звёзд' },
+  'orders.reviewComment': { en: 'Review', ru: 'Комментарий' },
+  'orders.reviewPlaceholder': {
+    en: 'Tell us what you liked and what could be better',
+    ru: 'Расскажите, что понравилось и что можно улучшить',
+  },
+  'orders.reviewCancel': { en: 'Cancel', ru: 'Отмена' },
+  'orders.reviewSubmit': { en: 'Publish review', ru: 'Опубликовать' },
+  'orders.reviewSending': { en: 'Publishing…', ru: 'Публикуем…' },
+  'orders.reviewError': {
+    en: 'Could not publish the review. Please try again.',
+    ru: 'Не удалось опубликовать отзыв. Попробуйте ещё раз.',
+  },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

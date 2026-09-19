@@ -16,6 +16,7 @@ import { MaxAuthService } from '../max/max-auth.service.js';
 import {
   CreateBookingDto,
   CreateExperienceDto,
+  CreateReviewDto,
   UploadExperiencePhotoDto,
   UpsertGuideProfileDto,
 } from './marketplace.dto.js';
@@ -69,6 +70,15 @@ export class MarketplaceController {
   ) {
     const user = this.authenticate(initData);
     return this.marketplace.cancelBooking(user.id, id);
+  }
+
+  @Post('bookings/:id/review')
+  createReview(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Param('id') id: string,
+    @Body() body: CreateReviewDto,
+  ) {
+    return this.marketplace.createReview(this.authenticate(initData), id, body);
   }
 
   @Get('professional/profile')

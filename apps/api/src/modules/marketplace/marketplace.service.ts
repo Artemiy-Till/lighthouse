@@ -10,6 +10,7 @@ import type { AuthenticatedMaxUser } from '../max/max-auth.service.js';
 import type {
   CreateExperienceDto,
   CreateBookingDto,
+  CreateReviewDto,
   UpsertGuideProfileDto,
 } from './marketplace.dto.js';
 
@@ -41,6 +42,8 @@ interface ExperienceRow {
   guide_name: string;
   guide_bio: string;
   guide_photo_url: string | null;
+  rating_avg: number | string;
+  review_count: number;
 }
 
 interface BookingRow {
@@ -56,6 +59,19 @@ interface BookingRow {
   unit_price_rub: number;
   total_price_rub: number;
   status: 'cancelled' | 'confirmed';
+  created_at: Date;
+  review_id: string | null;
+  review_rating: number | null;
+  review_comment: string | null;
+  review_created_at: Date | null;
+}
+
+interface ReviewRow {
+  id: string;
+  booking_id: string;
+  experience_id: string;
+  rating: number;
+  comment: string;
   created_at: Date;
 }
 
@@ -92,6 +108,8 @@ function mapExperience(row: ExperienceRow) {
     meetingPoint: row.meeting_point,
     photos: row.photo_urls,
     priceRub: row.price_rub,
+    rating: Number(row.rating_avg),
+    reviewCount: row.review_count,
     status: 'published' as const,
     title: row.title,
   };
@@ -116,6 +134,26 @@ function mapBooking(row: BookingRow) {
     title: row.title,
     totalPriceRub: row.total_price_rub,
     unitPriceRub: row.unit_price_rub,
+    review:
+      row.review_id && row.review_created_at
+        ? {
+            comment: row.review_comment ?? '',
+            createdAt: row.review_created_at.toISOString(),
+            id: row.review_id,
+            rating: row.review_rating ?? 0,
+          }
+        : null,
+  };
+}
+
+function mapReview(row: ReviewRow) {
+  return {
+    bookingId: row.booking_id,
+    comment: row.comment,
+    createdAt: row.created_at.toISOString(),
+    experienceId: row.experience_id,
+    id: row.id,
+    rating: row.rating,
   };
 }
 
@@ -124,6 +162,7 @@ export class MarketplaceService {
   private photoSchemaReady: Promise<void> | null = null;
   private guidePhotoSchemaReady: Promise<void> | null = null;
   private bookingSchemaReady: Promise<void> | null = null;
+  private reviewSchemaReady: Promise<void> | null = null;
 
   constructor(private readonly database: DatabaseService) {}
 
@@ -201,6 +240,38 @@ export class MarketplaceService {
         throw error;
       });
     return this.bookingSchemaReady;
+  }
+
+  private ensureReviewSchema() {
+    this.reviewSchemaReady ??= this.ensureBookingSchema()
+      .then(() =>
+        this.database.query(
+          `create table if not exists experience_reviews (
+            id uuid primary key default gen_random_uuid(),
+            booking_id uuid not null unique references experience_bookings(id) on delete cascade,
+            max_user_id text not null,
+            experience_id text not null,
+            author_name varchar(160) not null,
+            author_photo_url text,
+            rating integer not null check (rating between 1 and 5),
+            comment varchar(1000) not null,
+            created_at timestamptz not null default now(),
+            updated_at timestamptz not null default now()
+          )`,
+        ),
+      )
+      .then(() =>
+        this.database.query(
+          `create index if not exists experience_reviews_experience_created_idx
+           on experience_reviews (experience_id, created_at desc)`,
+        ),
+      )
+      .then(() => undefined)
+      .catch((error: unknown) => {
+        this.reviewSchemaReady = null;
+        throw error;
+      });
+    return this.reviewSchemaReady;
   }
 
   async createBooking(maxUserId: string, input: CreateBookingDto) {
@@ -283,16 +354,79 @@ export class MarketplaceService {
 
   async listBookings(maxUserId: string) {
     await this.ensureBookingSchema();
+    await this.ensureReviewSchema();
     const result = await this.database.query<BookingRow>(
-      `select id, experience_id, title, city_id, image_url, meeting_point,
-         booking_date, booking_time, participants, unit_price_rub,
-         total_price_rub, status, created_at
-       from experience_bookings
-       where max_user_id = $1
-       order by booking_date desc, booking_time desc, created_at desc`,
+      `select b.id, b.experience_id, b.title, b.city_id, b.image_url,
+         b.meeting_point, b.booking_date, b.booking_time, b.participants,
+         b.unit_price_rub, b.total_price_rub, b.status, b.created_at,
+         r.id as review_id, r.rating as review_rating,
+         r.comment as review_comment, r.created_at as review_created_at
+       from experience_bookings b
+       left join experience_reviews r on r.booking_id = b.id
+       where b.max_user_id = $1
+       order by b.booking_date desc, b.booking_time desc, b.created_at desc`,
       [maxUserId],
     );
     return { items: result.rows.map(mapBooking) };
+  }
+
+  async createReview(
+    user: AuthenticatedMaxUser,
+    bookingId: string,
+    input: CreateReviewDto,
+  ) {
+    await this.ensureReviewSchema();
+    const eligibility = await this.database.query<{
+      experience_id: string;
+      review_id: string | null;
+      reviewable: boolean;
+    }>(
+      `select b.experience_id,
+         (b.status = 'confirmed' and
+           b.booking_date + b.booking_time <=
+             now() at time zone 'Europe/Moscow') as reviewable,
+         r.id as review_id
+       from experience_bookings b
+       left join experience_reviews r on r.booking_id = b.id
+       where b.id = $1 and b.max_user_id = $2`,
+      [bookingId, user.id],
+    );
+    const booking = eligibility.rows[0];
+    if (!booking) throw new NotFoundException('Booking not found');
+    if (!booking.reviewable) {
+      throw new BadRequestException(
+        'A review can only be added after a completed experience',
+      );
+    }
+    if (booking.review_id) {
+      throw new ConflictException('A review already exists for this booking');
+    }
+
+    const authorName = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    const result = await this.database.query<ReviewRow>(
+      `insert into experience_reviews (
+         booking_id, max_user_id, experience_id, author_name,
+         author_photo_url, rating, comment
+       ) values ($1, $2, $3, $4, $5, $6, $7)
+       on conflict (booking_id) do nothing
+       returning id, booking_id, experience_id, rating, comment, created_at`,
+      [
+        bookingId,
+        user.id,
+        booking.experience_id,
+        authorName || 'Гость MAX',
+        user.photoUrl,
+        input.rating,
+        input.comment.trim(),
+      ],
+    );
+    if (!result.rows[0]) {
+      throw new ConflictException('A review already exists for this booking');
+    }
+    return mapReview(result.rows[0]);
   }
 
   async cancelBooking(maxUserId: string, id: string) {
@@ -377,7 +511,8 @@ export class MarketplaceService {
          duration_minutes, format, group_size, children_policy,
          meeting_point, price_rub, photo_urls, created_at, guide_id,
          $14::text as guide_name, $15::text as guide_bio,
-         $16::text as guide_photo_url`,
+         $16::text as guide_photo_url, 0 as rating_avg,
+         0::integer as review_count`,
       [
         profile.id,
         input.cityId,
@@ -403,14 +538,21 @@ export class MarketplaceService {
   async listOwnExperiences(maxUserId: string) {
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
+    await this.ensureReviewSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
          e.children_policy, e.meeting_point, e.price_rub, e.photo_urls,
          e.created_at, g.id as guide_id, g.display_name as guide_name,
-         g.bio as guide_bio, g.photo_url as guide_photo_url
+         g.bio as guide_bio, g.photo_url as guide_photo_url,
+         coalesce(review_stats.rating_avg, 0) as rating_avg,
+         coalesce(review_stats.review_count, 0)::integer as review_count
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
+       left join lateral (
+         select avg(r.rating)::numeric as rating_avg, count(*) as review_count
+         from experience_reviews r where r.experience_id = e.id::text
+       ) review_stats on true
        where g.max_user_id = $1 and e.status = 'published'
        order by e.created_at desc`,
       [maxUserId],
@@ -455,7 +597,8 @@ export class MarketplaceService {
          duration_minutes, format, group_size, children_policy,
          meeting_point, price_rub, photo_urls, created_at, guide_id,
          $15::text as guide_name, $16::text as guide_bio,
-         $17::text as guide_photo_url`,
+         $17::text as guide_photo_url, 0 as rating_avg,
+         0::integer as review_count`,
       [
         id,
         profile.id,
@@ -501,15 +644,22 @@ export class MarketplaceService {
   async listExperiences(cityId?: string) {
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
+    await this.ensureReviewSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
          e.children_policy, e.meeting_point, e.price_rub, e.photo_urls,
          e.created_at,
          g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio,
-         g.photo_url as guide_photo_url
+         g.photo_url as guide_photo_url,
+         coalesce(review_stats.rating_avg, 0) as rating_avg,
+         coalesce(review_stats.review_count, 0)::integer as review_count
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
+       left join lateral (
+         select avg(r.rating)::numeric as rating_avg, count(*) as review_count
+         from experience_reviews r where r.experience_id = e.id::text
+       ) review_stats on true
        where e.status = 'published' and ($1::text is null or e.city_id = $1)
        order by e.created_at desc`,
       [cityId ?? null],
@@ -520,15 +670,22 @@ export class MarketplaceService {
   async getExperience(id: string) {
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
+    await this.ensureReviewSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
          e.children_policy, e.meeting_point, e.price_rub, e.photo_urls,
          e.created_at,
          g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio,
-         g.photo_url as guide_photo_url
+         g.photo_url as guide_photo_url,
+         coalesce(review_stats.rating_avg, 0) as rating_avg,
+         coalesce(review_stats.review_count, 0)::integer as review_count
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
+       left join lateral (
+         select avg(r.rating)::numeric as rating_avg, count(*) as review_count
+         from experience_reviews r where r.experience_id = e.id::text
+       ) review_stats on true
        where e.id = $1 and e.status = 'published'`,
       [id],
     );

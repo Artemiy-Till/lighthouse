@@ -24,6 +24,7 @@ function cityImage(cityId: CityId) {
 }
 
 export function toExperience(item: PublishedExperience): Experience {
+  const reviews = item.reviewCount ?? 0;
   return {
     badge: 'Новая',
     category: item.category,
@@ -32,8 +33,14 @@ export function toExperience(item: PublishedExperience): Experience {
     id: item.id,
     image: item.photos[0] ?? cityImage(item.cityId),
     price: `от ${item.priceRub.toLocaleString('ru-RU')} ₽`,
-    rating: '0,0',
-    reviews: 0,
+    rating:
+      reviews > 0
+        ? (item.rating ?? 0).toLocaleString('ru-RU', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 1,
+          })
+        : '0,0',
+    reviews,
     title: item.title,
   };
 }

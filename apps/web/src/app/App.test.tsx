@@ -351,6 +351,117 @@ describe('App navigation', () => {
     ).toBeInTheDocument();
   });
 
+  it('publishes a review from a completed booking', async () => {
+    window.WebApp = {
+      BackButton: {
+        hide() {},
+        offClick() {},
+        onClick() {},
+        show() {},
+      },
+      initData: 'auth_date=1&hash=signed',
+      platform: 'desktop',
+      version: '26.20.0',
+      getViewportSize() {
+        return Promise.resolve({ height: '800px', width: '390px' });
+      },
+    };
+    let savedReview: { comment: string; rating: number } | null = null;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        let payload: unknown;
+
+        if (requestUrl.endsWith('/auth/max')) {
+          payload = {
+            authenticated: true,
+            user: {
+              firstName: 'Мария',
+              id: '42',
+              languageCode: 'ru',
+              lastName: null,
+              photoUrl: null,
+              username: 'maria',
+            },
+          };
+        } else if (requestUrl.endsWith('/bookings/booking-1/review')) {
+          if (typeof init?.body !== 'string') {
+            throw new Error('Expected a JSON review body');
+          }
+          savedReview = JSON.parse(init.body) as {
+            comment: string;
+            rating: number;
+          };
+          payload = {
+            bookingId: 'booking-1',
+            createdAt: '2026-09-19T10:00:00.000Z',
+            experienceId: 'experience-1',
+            id: 'review-1',
+            ...savedReview,
+          };
+        } else if (requestUrl.endsWith('/bookings')) {
+          payload = {
+            items: [
+              {
+                cityId: 'saint-petersburg',
+                createdAt: '2026-09-10T10:00:00.000Z',
+                date: '2000-01-01',
+                experienceId: 'experience-1',
+                id: 'booking-1',
+                imageUrl: '/images/saint-petersburg-hero.webp',
+                meetingPoint: 'Дворцовая площадь',
+                participants: 2,
+                review: savedReview
+                  ? {
+                      createdAt: '2026-09-19T10:00:00.000Z',
+                      id: 'review-1',
+                      ...savedReview,
+                    }
+                  : null,
+                status: 'confirmed',
+                time: '12:00',
+                title: 'Петербург: первое знакомство',
+                totalPriceRub: 2580,
+                unitPriceRub: 1290,
+              },
+            ],
+          };
+        } else {
+          payload = {
+            bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+            configured: true,
+            connected: true,
+          };
+        }
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
+    );
+
+    renderApp('/orders');
+    fireEvent.click(await screen.findByRole('button', { name: 'История 1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Оставить отзыв' }));
+    fireEvent.click(screen.getByRole('button', { name: '4 звёзд' }));
+    fireEvent.change(screen.getByLabelText('Комментарий'), {
+      target: { value: 'Очень интересная экскурсия.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Опубликовать' }));
+
+    expect(await screen.findByText(/Ваш отзыв · ★★★★/)).toBeInTheDocument();
+    expect(savedReview).toEqual({
+      comment: 'Очень интересная экскурсия.',
+      rating: 4,
+    });
+  });
+
   it('removes saved experiences and shows the empty state', () => {
     renderApp('/favorites');
 

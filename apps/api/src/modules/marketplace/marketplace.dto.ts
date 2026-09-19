@@ -152,3 +152,15 @@ export class CreateBookingDto {
   @Max(100)
   groupSize!: number;
 }
+
+export class CreateReviewDto {
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating!: number;
+
+  @IsString()
+  @MinLength(5)
+  @MaxLength(1000)
+  comment!: string;
+}

@@ -2293,6 +2293,110 @@ main {
   font-weight: 700;
 }
 
+.order-card__review {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 800;
+}
+
+.order-review-form,
+.order-review-summary {
+  padding: 15px;
+  margin-top: 12px;
+  border: 1px solid #e1e4f8;
+  border-radius: 16px;
+  background: #f7f7ff;
+}
+
+.order-review-form fieldset {
+  padding: 0;
+  margin: 0 0 12px;
+  border: 0;
+}
+
+.order-review-form legend,
+.order-review-form label > span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.order-review-stars {
+  display: flex;
+  gap: 5px;
+}
+
+.order-review-stars button {
+  padding: 0;
+  border: 0;
+  color: #cfd3dc;
+  background: transparent;
+  font-size: 29px;
+  line-height: 1;
+}
+
+.order-review-stars button.is-active {
+  color: #f5a524;
+}
+
+.order-review-form textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.order-review-form__actions {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.order-review-form__actions button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: #fff;
+  font-weight: 750;
+}
+
+.order-review-form__actions button:last-child {
+  border-color: var(--accent);
+  color: #fff;
+  background: var(--accent);
+}
+
+.order-review-form__actions button:disabled {
+  opacity: 0.5;
+}
+
+.order-review-summary strong {
+  color: #c77d00;
+  font-size: 12px;
+}
+
+.order-review-summary p {
+  margin: 7px 0 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .orders-empty {
   display: grid;
   justify-items: center;
@@ -3358,6 +3462,18 @@ html[data-theme='dark'] .status-confirmed {
 html[data-theme='dark'] .order-details {
   border-color: #343a60;
   background: #22263c;
+}
+
+html[data-theme='dark'] .order-review-form,
+html[data-theme='dark'] .order-review-summary {
+  border-color: #343a60;
+  background: #22263c;
+}
+
+html[data-theme='dark'] .order-review-form textarea,
+html[data-theme='dark'] .order-review-form__actions button:first-child {
+  color: var(--ink);
+  background: #242833;
 }
 
 html[data-theme='dark'] .order-card__action {
