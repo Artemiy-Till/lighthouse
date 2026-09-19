@@ -4,15 +4,16 @@ import { Link } from 'react-router-dom';
 import { getBookings } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { useMaxConnection } from '../features/max/useMaxConnection';
+import { useSettings } from '../features/settings/SettingsContext';
 import { useTheme } from '../features/theme/ThemeContext';
 
 const profileMenu = [
   { icon: '💬', label: 'Поддержка', meta: 'Ответим в чате' },
-  { icon: '⚙️', label: 'Настройки', meta: 'Язык и уведомления' },
 ] as const;
 
 export function ProfilePage() {
   const { theme, toggleTheme } = useTheme();
+  const { t } = useSettings();
   const { integration, platform, session } = useMaxConnection();
   const isDark = theme === 'dark';
   const hasMaxLaunchData = Boolean(platform.isAvailable && platform.initData);
@@ -122,8 +123,8 @@ export function ProfilePage() {
               🧭
             </span>
             <span>
-              <strong>Кабинет гида</strong>
-              <small>Создавать и публиковать экскурсии</small>
+              <strong>{t('profile.guide')}</strong>
+              <small>{t('profile.guideHint')}</small>
             </span>
             <span aria-hidden="true" className="profile-menu__arrow">
               ›
@@ -134,11 +135,9 @@ export function ProfilePage() {
               🎟️
             </span>
             <span>
-              <strong>Мои заказы</strong>
+              <strong>{t('profile.orders')}</strong>
               <small>
-                {nextBooking
-                  ? 'Есть предстоящая экскурсия'
-                  : 'Пока нет записей'}
+                {nextBooking ? t('profile.hasOrder') : t('profile.noOrders')}
               </small>
             </span>
             <span aria-hidden="true" className="profile-menu__arrow">
@@ -156,13 +155,25 @@ export function ProfilePage() {
               {isDark ? '🌙' : '☀️'}
             </span>
             <span>
-              <strong>Тёмная тема</strong>
-              <small>{isDark ? 'Включена' : 'Выключена'}</small>
+              <strong>{t('profile.theme')}</strong>
+              <small>{isDark ? t('common.on') : t('common.off')}</small>
             </span>
             <span aria-hidden="true" className="theme-switch">
               <span />
             </span>
           </button>
+          <Link to="/settings">
+            <span aria-hidden="true" className="profile-menu__icon">
+              ⚙️
+            </span>
+            <span>
+              <strong>{t('profile.settings')}</strong>
+              <small>{t('profile.settingsHint')}</small>
+            </span>
+            <span aria-hidden="true" className="profile-menu__arrow">
+              ›
+            </span>
+          </Link>
           {profileMenu.map((item) => (
             <button key={item.label} type="button">
               <span aria-hidden="true" className="profile-menu__icon">

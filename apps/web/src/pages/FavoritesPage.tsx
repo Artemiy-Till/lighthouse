@@ -4,9 +4,11 @@ import { AppLayout } from '../components/AppLayout';
 import { ExperienceCard } from '../components/ExperienceCard';
 import { experiences } from '../data/experiences';
 import { useFavorites } from '../features/favorites/FavoritesContext';
+import { useSettings } from '../features/settings/SettingsContext';
 
 export function FavoritesPage() {
   const { favoriteIds } = useFavorites();
+  const { t } = useSettings();
   const favoriteExperiences = experiences.filter((experience) =>
     favoriteIds.has(experience.id),
   );
@@ -15,9 +17,9 @@ export function FavoritesPage() {
     <AppLayout>
       <main className="secondary-page">
         <header className="page-header">
-          <p className="section-kicker">Сохранённое</p>
-          <h1>Избранное</h1>
-          <p>Все идеи для будущих прогулок в одном месте.</p>
+          <p className="section-kicker">{t('favorites.kicker')}</p>
+          <h1>{t('favorites.title')}</h1>
+          <p>{t('favorites.subtitle')}</p>
         </header>
 
         {favoriteExperiences.length > 0 ? (
@@ -25,8 +27,9 @@ export function FavoritesPage() {
             <div className="favorites-note">
               <span aria-hidden="true">💜</span>
               <p>
-                Сохранено: <strong>{favoriteExperiences.length}</strong>.
-                Нажмите на сердце в карточке, чтобы удалить экскурсию.
+                {t('favorites.saved')}{' '}
+                <strong>{favoriteExperiences.length}</strong>.{' '}
+                {t('favorites.hint')}
               </p>
             </div>
             <div className="catalog-grid">
@@ -38,12 +41,10 @@ export function FavoritesPage() {
         ) : (
           <div className="empty-state empty-state--large">
             <span aria-hidden="true">♡</span>
-            <h2>Здесь пока пусто</h2>
-            <p>
-              Сохраняйте понравившиеся экскурсии, чтобы вернуться к ним позже.
-            </p>
+            <h2>{t('favorites.emptyTitle')}</h2>
+            <p>{t('favorites.emptyText')}</p>
             <Link className="primary-link" to="/catalog">
-              Перейти в каталог
+              {t('favorites.toCatalog')}
             </Link>
           </div>
         )}

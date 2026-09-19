@@ -1,12 +1,14 @@
+import { useSettings } from '../features/settings/SettingsContext';
 import { useTheme } from '../features/theme/ThemeContext';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const { t } = useSettings();
   const isDark = theme === 'dark';
 
   return (
     <button
-      aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
+      aria-label={isDark ? t('theme.toLight') : t('theme.toDark')}
       aria-pressed={isDark}
       className="topbar-action theme-toggle"
       onClick={toggleTheme}

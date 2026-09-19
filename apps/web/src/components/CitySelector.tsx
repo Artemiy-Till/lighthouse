@@ -4,9 +4,11 @@ import { createPortal } from 'react-dom';
 import { cities, type CityId } from '../data/cities';
 import { formatOfferCount, getExperiencesForCity } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
+import { useSettings } from '../features/settings/SettingsContext';
 
 export function CitySelector() {
   const { city, selectCity } = useCity();
+  const { language, t } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export function CitySelector() {
   return (
     <>
       <button
-        aria-label={`Выбрать город. Сейчас ${city.name}`}
+        aria-label={`${t('city.choose')} ${city.name}`}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         className="location-button"
@@ -49,7 +51,7 @@ export function CitySelector() {
           width="40"
         />
         <span>
-          <small>Ваш город</small>
+          <small>{t('city.your')}</small>
           <strong>{city.name}</strong>
         </span>
         <span aria-hidden="true" className="chevron">
@@ -75,11 +77,11 @@ export function CitySelector() {
                 <div className="city-dialog__handle" />
                 <header>
                   <div>
-                    <p className="section-kicker">Направление</p>
-                    <h2 id="city-dialog-title">Выберите город</h2>
+                    <p className="section-kicker">{t('city.destination')}</p>
+                    <h2 id="city-dialog-title">{t('city.title')}</h2>
                   </div>
                   <button
-                    aria-label="Закрыть выбор города"
+                    aria-label={t('city.close')}
                     className="city-dialog__close"
                     onClick={() => setIsOpen(false)}
                     type="button"
@@ -94,7 +96,11 @@ export function CitySelector() {
 
                     return (
                       <button
-                        aria-label={`${item.name}. ${formatOfferCount(offerCount)}`}
+                        aria-label={`${item.name}. ${
+                          language === 'en'
+                            ? `${offerCount} experiences`
+                            : formatOfferCount(offerCount)
+                        }`}
                         aria-pressed={isSelected}
                         className={isSelected ? 'is-selected' : ''}
                         key={item.id}
@@ -115,7 +121,11 @@ export function CitySelector() {
                         </span>
                         <span>
                           <strong>{item.name}</strong>
-                          <small>{formatOfferCount(offerCount)}</small>
+                          <small>
+                            {language === 'en'
+                              ? `${offerCount} experiences`
+                              : formatOfferCount(offerCount)}
+                          </small>
                         </span>
                         <span
                           aria-hidden="true"

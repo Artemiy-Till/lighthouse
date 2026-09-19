@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useSettings } from '../features/settings/SettingsContext';
 import { Icon } from './Icon';
 
 interface DateSelectorProps {
@@ -29,12 +30,12 @@ function getNextSaturday(date: Date) {
   return addDays(date, daysUntilSaturday);
 }
 
-function formatDate(value: string) {
+function formatDate(value: string, locale: string) {
   const [year, month, day] = value.split('-').map(Number);
   const date = new Date(year!, month! - 1, day);
   const includeYear = year !== new Date().getFullYear();
 
-  return new Intl.DateTimeFormat('ru-RU', {
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'long',
     ...(includeYear ? { year: 'numeric' } : {}),
@@ -42,20 +43,24 @@ function formatDate(value: string) {
 }
 
 export function DateSelector({
-  defaultLabel = 'Любая дата',
+  defaultLabel,
   onChange,
   value,
 }: DateSelectorProps) {
+  const { language, t } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [draftDate, setDraftDate] = useState(value ?? '');
   const today = useMemo(() => new Date(), []);
   const quickDates = useMemo(
     () => [
-      { label: 'Сегодня', value: toLocalIsoDate(today) },
-      { label: 'Завтра', value: toLocalIsoDate(addDays(today, 1)) },
-      { label: 'В выходные', value: toLocalIsoDate(getNextSaturday(today)) },
+      { label: t('date.today'), value: toLocalIsoDate(today) },
+      { label: t('date.tomorrow'), value: toLocalIsoDate(addDays(today, 1)) },
+      {
+        label: t('date.weekend'),
+        value: toLocalIsoDate(getNextSaturday(today)),
+      },
     ],
-    [today],
+    [t, today],
   );
 
   useEffect(() => {
@@ -102,7 +107,11 @@ export function DateSelector({
         type="button"
       >
         <Icon name="calendar" />
-        <span>{value ? formatDate(value) : defaultLabel}</span>
+        <span>
+          {value
+            ? formatDate(value, language === 'en' ? 'en-US' : 'ru-RU')
+            : (defaultLabel ?? t('date.any'))}
+        </span>
       </button>
 
       {isOpen
@@ -123,11 +132,11 @@ export function DateSelector({
                 <div className="date-dialog__handle" />
                 <header>
                   <div>
-                    <p className="section-kicker">Когда отправимся</p>
-                    <h2 id="date-dialog-title">Выберите дату</h2>
+                    <p className="section-kicker">{t('date.kicker')}</p>
+                    <h2 id="date-dialog-title">{t('date.title')}</h2>
                   </div>
                   <button
-                    aria-label="Закрыть выбор даты"
+                    aria-label={t('date.close')}
                     className="date-dialog__close"
                     onClick={() => setIsOpen(false)}
                     type="button"
@@ -137,7 +146,7 @@ export function DateSelector({
                 </header>
 
                 <div
-                  aria-label="Быстрый выбор даты"
+                  aria-label={t('date.quick')}
                   className="date-quick-options"
                 >
                   {quickDates.map((option) => (
@@ -151,13 +160,18 @@ export function DateSelector({
                       type="button"
                     >
                       <strong>{option.label}</strong>
-                      <span>{formatDate(option.value)}</span>
+                      <span>
+                        {formatDate(
+                          option.value,
+                          language === 'en' ? 'en-US' : 'ru-RU',
+                        )}
+                      </span>
                     </button>
                   ))}
                 </div>
 
                 <label className="date-input-field">
-                  <span>Или выберите день в календаре</span>
+                  <span>{t('date.calendar')}</span>
                   <input
                     min={toLocalIsoDate(today)}
                     onChange={(event) => setDraftDate(event.target.value)}
@@ -172,7 +186,7 @@ export function DateSelector({
                     onClick={clearDate}
                     type="button"
                   >
-                    Любая дата
+                    {t('date.any')}
                   </button>
                   <button
                     className="date-dialog__apply"
@@ -180,7 +194,7 @@ export function DateSelector({
                     onClick={applyDate}
                     type="button"
                   >
-                    Показать варианты
+                    {t('date.show')}
                   </button>
                 </div>
               </section>

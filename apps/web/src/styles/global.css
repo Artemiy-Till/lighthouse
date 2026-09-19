@@ -1516,6 +1516,126 @@ main {
   text-align: center;
 }
 
+.settings-page {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  max-width: 720px;
+}
+
+.settings-section {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #fff;
+}
+
+.settings-section h2 {
+  padding: 16px 18px 9px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.settings-option {
+  display: flex;
+  width: 100%;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 18px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+}
+
+.settings-option__copy {
+  display: grid;
+  gap: 5px;
+}
+
+.settings-option__copy strong {
+  font-size: 14px;
+}
+
+.settings-option__copy small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.settings-option--toggle {
+  cursor: pointer;
+}
+
+.settings-segmented {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: #eef0f5;
+}
+
+.settings-segmented button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  color: #6f7684;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.settings-segmented button[aria-pressed='true'] {
+  color: var(--accent-dark);
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(29 36 51 / 10%);
+}
+
+.settings-toggle {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  flex: 0 0 46px;
+  border-radius: 999px;
+  background: #d9dce4;
+  transition: background 160ms ease;
+}
+
+.settings-toggle > span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(29 36 51 / 18%);
+  transition: transform 180ms ease;
+}
+
+.settings-option--toggle[aria-checked='true'] .settings-toggle {
+  background: var(--accent);
+}
+
+.settings-option--toggle[aria-checked='true'] .settings-toggle > span {
+  transform: translateX(18px);
+}
+
+.settings-saved {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
 .professional-page {
   display: grid;
   align-content: start;

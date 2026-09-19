@@ -12,6 +12,7 @@ export type Theme = 'dark' | 'light';
 const storageKey = 'marketplace-theme';
 
 interface ThemeContextValue {
+  readonly setTheme: (theme: Theme) => void;
   readonly theme: Theme;
   readonly toggleTheme: () => void;
 }
@@ -39,6 +40,7 @@ export function ThemeProvider({ children }: { readonly children: ReactNode }) {
 
   const value = useMemo<ThemeContextValue>(
     () => ({
+      setTheme,
       theme,
       toggleTheme: () =>
         setTheme((current) => (current === 'light' ? 'dark' : 'light')),

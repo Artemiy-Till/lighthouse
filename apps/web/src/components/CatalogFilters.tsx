@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useSettings } from '../features/settings/SettingsContext';
+
 export interface CatalogFilterState {
   readonly children: 'any' | 'family';
   readonly duration: 'any' | 'long' | 'medium' | 'short';
@@ -33,6 +35,7 @@ interface CatalogFiltersProps {
 }
 
 export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
+  const { t } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState(value);
   const activeCount = countActiveCatalogFilters(value);
@@ -80,9 +83,9 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
         type="button"
       >
         <span aria-hidden="true">☷</span>
-        Фильтры
+        {t('filter.button')}
         {activeCount > 0 ? (
-          <strong aria-label={`${activeCount} активных фильтра`}>
+          <strong aria-label={`${activeCount} ${t('filter.active')}`}>
             {activeCount}
           </strong>
         ) : null}
@@ -106,11 +109,11 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 <div className="catalog-filter-dialog__handle" />
                 <header>
                   <div>
-                    <p className="section-kicker">Настройте выдачу</p>
-                    <h2 id="catalog-filter-title">Фильтры</h2>
+                    <p className="section-kicker">{t('filter.kicker')}</p>
+                    <h2 id="catalog-filter-title">{t('filter.button')}</h2>
                   </div>
                   <button
-                    aria-label="Закрыть фильтры"
+                    aria-label={t('filter.close')}
                     className="catalog-filter-dialog__close"
                     onClick={() => setIsOpen(false)}
                     type="button"
@@ -120,13 +123,13 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </header>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>Цена за человека</legend>
+                  <legend>{t('filter.price')}</legend>
                   <div className="catalog-filter-options">
                     {[
-                      { label: 'Любая', value: null },
-                      { label: 'До 1 500 ₽', value: 1500 },
-                      { label: 'До 2 000 ₽', value: 2000 },
-                      { label: 'До 3 000 ₽', value: 3000 },
+                      { label: t('filter.anyFeminine'), value: null },
+                      { label: t('filter.under1500'), value: 1500 },
+                      { label: t('filter.under2000'), value: 2000 },
+                      { label: t('filter.under3000'), value: 3000 },
                     ].map((option) => (
                       <label key={option.label}>
                         <input
@@ -144,13 +147,13 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>Длительность</legend>
+                  <legend>{t('filter.duration')}</legend>
                   <div className="catalog-filter-options">
                     {[
-                      { label: 'Любая', value: 'any' },
-                      { label: 'До 2 часов', value: 'short' },
-                      { label: '2–3 часа', value: 'medium' },
-                      { label: 'Более 3 часов', value: 'long' },
+                      { label: t('filter.anyFeminine'), value: 'any' },
+                      { label: t('filter.under2h'), value: 'short' },
+                      { label: t('filter.twoThreeH'), value: 'medium' },
+                      { label: t('filter.over3h'), value: 'long' },
                     ].map((option) => (
                       <label key={option.value}>
                         <input
@@ -172,13 +175,13 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>Формат</legend>
+                  <legend>{t('filter.format')}</legend>
                   <div className="catalog-filter-options">
                     {[
-                      { label: 'Любой', value: 'any' },
-                      { label: 'Пешком', value: 'walking' },
-                      { label: 'По воде', value: 'water' },
-                      { label: 'На транспорте', value: 'transport' },
+                      { label: t('filter.anyMasculine'), value: 'any' },
+                      { label: t('filter.walking'), value: 'walking' },
+                      { label: t('filter.water'), value: 'water' },
+                      { label: t('filter.transport'), value: 'transport' },
                     ].map((option) => (
                       <label key={option.value}>
                         <input
@@ -200,12 +203,12 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>Рейтинг</legend>
+                  <legend>{t('filter.rating')}</legend>
                   <div className="catalog-filter-options catalog-filter-options--rating">
                     {[
-                      { label: 'Любой', value: null },
-                      { label: 'От 4,90', value: 4.9 },
-                      { label: 'От 4,95', value: 4.95 },
+                      { label: t('filter.anyMasculine'), value: null },
+                      { label: t('filter.from49'), value: 4.9 },
+                      { label: t('filter.from495'), value: 4.95 },
                     ].map((option) => (
                       <label key={option.label}>
                         <input
@@ -223,11 +226,11 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>С детьми</legend>
+                  <legend>{t('filter.children')}</legend>
                   <div className="catalog-filter-options">
                     {[
-                      { label: 'Неважно', value: 'any' },
-                      { label: 'Подходит с детьми', value: 'family' },
+                      { label: t('filter.doesNotMatter'), value: 'any' },
+                      { label: t('filter.family'), value: 'family' },
                     ].map((option) => (
                       <label key={option.value}>
                         <input
@@ -250,10 +253,10 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
 
                 <div className="catalog-filter-dialog__actions">
                   <button onClick={resetFilters} type="button">
-                    Сбросить
+                    {t('filter.reset')}
                   </button>
                   <button onClick={applyFilters} type="button">
-                    Показать варианты
+                    {t('date.show')}
                   </button>
                 </div>
               </section>

@@ -20,6 +20,7 @@ import {
   toExperienceDetails,
   usePublishedExperiences,
 } from '../features/marketplace/usePublishedExperiences';
+import { useSettings } from '../features/settings/SettingsContext';
 
 type CatalogSort = 'popular' | 'price' | 'rating';
 
@@ -77,6 +78,7 @@ export function CatalogPage() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CatalogSort>('popular');
   const { city } = useCity();
+  const { language, t } = useSettings();
   const published = usePublishedExperiences(city.id);
 
   const filteredExperiences = useMemo(() => {
@@ -143,28 +145,28 @@ export function CatalogPage() {
       <main className="secondary-page">
         <header className="page-header">
           <p className="section-kicker">{city.name}</p>
-          <h1>Каталог впечатлений</h1>
-          <p>Экскурсии, прогулки и необычные маршруты по городу.</p>
+          <h1>{t('catalog.title')}</h1>
+          <p>{t('catalog.subtitle')}</p>
         </header>
 
         <label className="search-field catalog-search">
           <Icon name="search" />
           <input
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Найти экскурсию"
+            placeholder={t('catalog.search')}
             type="search"
             value={query}
           />
         </label>
 
-        <div aria-label="Категории" className="filter-chips">
+        <div aria-label={t('catalog.categories')} className="filter-chips">
           <button
             aria-pressed={activeCategory === null}
             className={activeCategory === null ? 'is-active' : ''}
             onClick={() => setActiveCategory(null)}
             type="button"
           >
-            Все
+            {t('common.all')}
           </button>
           {categories.map((category) => (
             <button
@@ -180,19 +182,23 @@ export function CatalogPage() {
         </div>
 
         <div className="catalog-summary">
-          <strong>{formatOfferCount(filteredExperiences.length)}</strong>
+          <strong>
+            {language === 'en'
+              ? `${filteredExperiences.length} experiences`
+              : formatOfferCount(filteredExperiences.length)}
+          </strong>
           <div className="catalog-summary__actions">
             <CatalogFilters onChange={setFilters} value={filters} />
             <label className="catalog-sort">
-              <span className="visually-hidden">Сортировка</span>
+              <span className="visually-hidden">{t('catalog.sort')}</span>
               <select
-                aria-label="Сортировка"
+                aria-label={t('catalog.sort')}
                 onChange={(event) => setSort(event.target.value as CatalogSort)}
                 value={sort}
               >
-                <option value="popular">Популярные</option>
-                <option value="rating">По рейтингу</option>
-                <option value="price">Сначала дешевле</option>
+                <option value="popular">{t('catalog.popular')}</option>
+                <option value="rating">{t('catalog.rating')}</option>
+                <option value="price">{t('catalog.price')}</option>
               </select>
             </label>
           </div>
@@ -207,8 +213,8 @@ export function CatalogPage() {
         ) : (
           <div className="empty-state">
             <span aria-hidden="true">🔎</span>
-            <h2>Ничего не найдено</h2>
-            <p>Измените запрос или выберите другую категорию.</p>
+            <h2>{t('catalog.emptyTitle')}</h2>
+            <p>{t('catalog.emptyText')}</p>
             <button
               onClick={() => {
                 setActiveCategory(null);
@@ -217,7 +223,7 @@ export function CatalogPage() {
               }}
               type="button"
             >
-              Сбросить фильтры
+              {t('common.reset')}
             </button>
           </div>
         )}

@@ -13,12 +13,14 @@ import {
   toExperience,
   usePublishedExperiences,
 } from '../features/marketplace/usePublishedExperiences';
+import { useSettings } from '../features/settings/SettingsContext';
 
 export function HomePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const { city } = useCity();
+  const { t } = useSettings();
   const published = usePublishedExperiences(city.id);
 
   const filteredExperiences = useMemo(() => {
@@ -49,7 +51,7 @@ export function HomePage() {
         <div className="topbar-actions">
           <ThemeToggle />
           <Link
-            aria-label="Избранное"
+            aria-label={t('home.favorite')}
             className="topbar-action"
             to="/favorites"
           >
@@ -61,7 +63,7 @@ export function HomePage() {
       <main>
         <section className="hero">
           <img
-            alt={`Панорама города ${city.name}`}
+            alt={`${t('home.heroAlt')} ${city.name}`}
             className="hero__image"
             fetchPriority="high"
             height="1024"
@@ -70,18 +72,18 @@ export function HomePage() {
           />
           <div className="hero__scrim" />
           <div className="hero__content">
-            <p className="hero__eyebrow">Впечатления рядом</p>
-            <h1>Откройте город по‑новому</h1>
-            <p>Экскурсии и прогулки с теми, кто знает каждую его историю</p>
+            <p className="hero__eyebrow">{t('home.eyebrow')}</p>
+            <h1>{t('home.title')}</h1>
+            <p>{t('home.subtitle')}</p>
           </div>
         </section>
 
-        <section aria-label="Поиск впечатлений" className="search-panel">
+        <section aria-label={t('home.searchAria')} className="search-panel">
           <label className="search-field">
             <Icon name="search" />
             <input
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Куда или что хотите посмотреть?"
+              placeholder={t('home.search')}
               type="search"
               value={query}
             />
@@ -92,8 +94,8 @@ export function HomePage() {
         <section className="content-section categories-section">
           <div className="section-heading">
             <div>
-              <p className="section-kicker">Выберите настроение</p>
-              <h2>Чем заняться</h2>
+              <p className="section-kicker">{t('home.mood')}</p>
+              <h2>{t('home.activities')}</h2>
             </div>
           </div>
           <div className="category-list">
@@ -121,11 +123,13 @@ export function HomePage() {
         <section className="content-section experiences-section">
           <div className="section-heading">
             <div>
-              <p className="section-kicker">Выбор путешественников</p>
-              <h2>Популярное в {city.prepositionalName}</h2>
+              <p className="section-kicker">{t('home.travelers')}</p>
+              <h2>
+                {t('home.popular')} {city.prepositionalName}
+              </h2>
             </div>
             <Link className="text-button" to="/catalog">
-              Все
+              {t('common.all')}
             </Link>
           </div>
 
@@ -138,8 +142,8 @@ export function HomePage() {
           ) : (
             <div className="empty-state">
               <span aria-hidden="true">🧭</span>
-              <h3>Пока ничего не нашли</h3>
-              <p>Попробуйте другой запрос или сбросьте выбранную категорию.</p>
+              <h3>{t('home.emptyTitle')}</h3>
+              <p>{t('home.emptyText')}</p>
               <button
                 onClick={() => {
                   setActiveCategory(null);
@@ -147,7 +151,7 @@ export function HomePage() {
                 }}
                 type="button"
               >
-                Сбросить фильтры
+                {t('common.reset')}
               </button>
             </div>
           )}
@@ -155,12 +159,12 @@ export function HomePage() {
 
         <section className="content-section local-banner">
           <div>
-            <p className="section-kicker">Совет от местных</p>
-            <h2>Не знаете, что выбрать?</h2>
-            <p>Собрали маршруты для первого знакомства с городом.</p>
+            <p className="section-kicker">{t('home.localTip')}</p>
+            <h2>{t('home.helpTitle')}</h2>
+            <p>{t('home.helpText')}</p>
           </div>
           <Link className="primary-link" to="/catalog">
-            Посмотреть подборку
+            {t('home.collection')}
           </Link>
         </section>
       </main>

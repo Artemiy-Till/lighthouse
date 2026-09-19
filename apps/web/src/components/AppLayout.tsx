@@ -1,28 +1,33 @@
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 
+import {
+  type TranslationKey,
+  useSettings,
+} from '../features/settings/SettingsContext';
 import { getMaxPlatform } from '../platform/max/max-platform';
 import { Icon, type IconName } from './Icon';
 
 const navigation: readonly {
   readonly icon: IconName;
-  readonly label: string;
+  readonly label: TranslationKey;
   readonly to: string;
 }[] = [
-  { icon: 'home', label: 'Главная', to: '/' },
-  { icon: 'map', label: 'Каталог', to: '/catalog' },
-  { icon: 'heart', label: 'Избранное', to: '/favorites' },
-  { icon: 'orders', label: 'Заказы', to: '/orders' },
-  { icon: 'profile', label: 'Профиль', to: '/profile' },
+  { icon: 'home', label: 'nav.home', to: '/' },
+  { icon: 'map', label: 'nav.catalog', to: '/catalog' },
+  { icon: 'heart', label: 'nav.favorites', to: '/favorites' },
+  { icon: 'orders', label: 'nav.orders', to: '/orders' },
+  { icon: 'profile', label: 'nav.profile', to: '/profile' },
 ];
 
 export function AppLayout({ children }: { readonly children: ReactNode }) {
   const maxPlatform = getMaxPlatform();
+  const { t } = useSettings();
 
   return (
     <div className="app-shell" id="top">
       {children}
-      <nav aria-label="Основная навигация" className="bottom-navigation">
+      <nav aria-label={t('nav.main')} className="bottom-navigation">
         {navigation.map((item) => (
           <NavLink
             className={({ isActive }) =>
@@ -33,7 +38,7 @@ export function AppLayout({ children }: { readonly children: ReactNode }) {
             to={item.to}
           >
             <Icon name={item.icon} />
-            <span>{item.label}</span>
+            <span>{t(item.label)}</span>
           </NavLink>
         ))}
       </nav>

@@ -1,5 +1,6 @@
 import { type Experience } from '../data/experiences';
 import { useFavorites } from '../features/favorites/FavoritesContext';
+import { useSettings } from '../features/settings/SettingsContext';
 import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
 
@@ -9,12 +10,13 @@ export function ExperienceCard({
   readonly experience: Experience;
 }) {
   const { favoriteIds, toggleFavorite } = useFavorites();
+  const { language, t } = useSettings();
   const isFavorite = favoriteIds.has(experience.id);
 
   return (
     <article className="experience-card">
       <Link
-        aria-label={`Подробнее об экскурсии «${experience.title}»`}
+        aria-label={`${t('card.details')} «${experience.title}»`}
         className="experience-card__link"
         to={`/experiences/${experience.id}`}
       />
@@ -32,8 +34,12 @@ export function ExperienceCard({
         <button
           aria-label={
             isFavorite
-              ? `Удалить «${experience.title}» из избранного`
-              : `Добавить «${experience.title}» в избранное`
+              ? language === 'en'
+                ? `${t('card.removeFavorite')} “${experience.title}”`
+                : `Удалить «${experience.title}» из избранного`
+              : language === 'en'
+                ? `${t('card.addFavorite')} “${experience.title}”`
+                : `Добавить «${experience.title}» в избранное`
           }
           aria-pressed={isFavorite}
           className={`favorite-button${isFavorite ? ' is-favorite' : ''}`}
@@ -52,7 +58,9 @@ export function ExperienceCard({
         <div className="experience-card__rating">
           <span aria-hidden="true">★</span>
           <strong>{experience.rating}</strong>
-          <span>{experience.reviews} отзывов</span>
+          <span>
+            {experience.reviews} {t('card.reviews')}
+          </span>
         </div>
         <p className="experience-card__price">{experience.price}</p>
       </div>

@@ -75,6 +75,36 @@ describe('App navigation', () => {
     ).toBeInTheDocument();
   });
 
+  it('opens settings and applies the English interface', () => {
+    renderApp('/profile');
+
+    fireEvent.click(screen.getByRole('link', { name: /Настройки/ }));
+    expect(
+      screen.getByRole('heading', { name: 'Настройки' }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'EN' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Settings' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute('lang', 'en');
+    expect(window.localStorage.getItem('marketplace-language')).toBe('en');
+
+    fireEvent.click(screen.getByRole('switch', { name: /Offers and news/ }));
+    expect(window.localStorage.getItem('marketplace-offers')).toBe('true');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Home' }));
+    expect(
+      screen.getByRole('heading', { name: 'See the city in a new way' }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Profile' }));
+    fireEvent.click(screen.getByRole('link', { name: /Settings/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'RU' }));
+    fireEvent.click(screen.getByRole('switch', { name: /Скидки и новости/ }));
+  });
+
   it('shows the verified MAX user returned by the backend', async () => {
     window.WebApp = {
       BackButton: {
