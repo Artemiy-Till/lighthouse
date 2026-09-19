@@ -4319,10 +4319,13 @@ body {
 }
 
 .experience-card h3 {
+  max-width: 100%;
   min-height: 36px;
   font-size: 14px;
   letter-spacing: -0.025em;
   line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .experience-card__rating {
