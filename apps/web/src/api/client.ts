@@ -46,6 +46,7 @@ export interface GuideProfile {
 }
 
 export interface PublishedExperience {
+  readonly availableSlots: readonly ExperienceScheduleSlot[];
   readonly category: string;
   readonly children: string;
   readonly cityId: 'kazan' | 'kostroma' | 'moscow' | 'saint-petersburg';
@@ -68,6 +69,13 @@ export interface PublishedExperience {
   readonly title: string;
 }
 
+export interface ExperienceScheduleSlot {
+  readonly date: string;
+  readonly remaining: number;
+  readonly status: 'completed' | 'scheduled';
+  readonly time: string;
+}
+
 export interface CreateExperienceInput {
   readonly category: string;
   readonly childrenPolicy: string;
@@ -80,6 +88,18 @@ export interface CreateExperienceInput {
   readonly meetingPoint: string;
   readonly photoUrls: readonly string[];
   readonly priceRub: number;
+  readonly scheduleSlots: readonly string[];
+  readonly title: string;
+}
+
+export interface GuideScheduleItem {
+  readonly bookingCount: number;
+  readonly capacity: number;
+  readonly date: string;
+  readonly experienceId: string;
+  readonly participants: number;
+  readonly status: 'completed' | 'scheduled';
+  readonly time: string;
   readonly title: string;
 }
 
@@ -93,7 +113,7 @@ export interface Booking {
   readonly meetingPoint: string;
   readonly participants: number;
   readonly review: BookingReview | null;
-  readonly status: 'cancelled' | 'confirmed';
+  readonly status: 'cancelled' | 'completed' | 'confirmed';
   readonly time: string;
   readonly title: string;
   readonly totalPriceRub: number;
@@ -208,6 +228,24 @@ export function getOwnPublishedExperiences(initData: string) {
     '/professional/experiences',
     { headers: maxHeaders(initData) },
   );
+}
+
+export function getGuideSchedule(initData: string) {
+  return request<{ readonly items: readonly GuideScheduleItem[] }>(
+    '/professional/schedule',
+    { headers: maxHeaders(initData) },
+  );
+}
+
+export function completeGuideSchedule(
+  initData: string,
+  slot: Pick<GuideScheduleItem, 'date' | 'experienceId' | 'time'>,
+) {
+  return request<{ readonly completed: true }>('/professional/schedule/complete', {
+    body: JSON.stringify(slot),
+    headers: maxHeaders(initData),
+    method: 'POST',
+  });
 }
 
 export function updatePublishedExperience(

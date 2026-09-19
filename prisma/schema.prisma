@@ -89,6 +89,7 @@ model ExperienceBookingSlot {
   bookingTime  DateTime @map("booking_time") @db.Time
   capacity     Int
   booked       Int      @default(0)
+  status       String   @default("scheduled") @db.VarChar(20)
 
   @@id([experienceId, bookingDate, bookingTime])
   @@map("experience_booking_slots")

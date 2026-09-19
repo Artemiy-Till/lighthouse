@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom';
 
 import {
   createPublishedExperience,
+  completeGuideSchedule,
   deletePublishedExperience,
   getGuideProfile,
+  getGuideSchedule,
   getOwnPublishedExperiences,
   saveGuideProfile,
   type CreateExperienceInput,
@@ -30,6 +32,19 @@ function formValue(form: FormData, key: string) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function todayInputValue() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+function formatScheduleDate(date: string, time: string) {
+  const [year, month, day] = date.split('-').map(Number);
+  return `${new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date(year!, month! - 1, day))}, ${time}`;
+}
+
 export function ProfessionalPage() {
   const queryClient = useQueryClient();
   const { platform, session } = useMaxConnection();
@@ -44,6 +59,10 @@ export function ProfessionalPage() {
   const [deleting, setDeleting] = useState<PublishedExperience | null>(null);
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('12:00');
+  const [scheduleSlots, setScheduleSlots] = useState<string[]>([]);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
   const profile = useQuery({
     enabled: Boolean(initData && session.data?.authenticated),
     queryFn: () => getGuideProfile(initData),
@@ -88,6 +107,25 @@ export function ProfessionalPage() {
     queryKey: ['own-published-experiences'],
     retry: false,
   });
+  const guideSchedule = useQuery({
+    enabled: Boolean(initData && profile.data),
+    queryFn: () => getGuideSchedule(initData),
+    queryKey: ['guide-schedule'],
+    retry: false,
+  });
+  const completeSchedule = useMutation({
+    mutationFn: (slot: {
+      date: string;
+      experienceId: string;
+      time: string;
+    }) => completeGuideSchedule(initData, slot),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['guide-schedule'] }),
+        queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+      ]);
+    },
+  });
   const saveExperience = useMutation({
     mutationFn: async ({
       existingUrls,
@@ -119,12 +157,17 @@ export function ProfessionalPage() {
       setExistingPhotoUrls([]);
       setEditing(null);
       setPhotoError(null);
+      setScheduleSlots([]);
+      setScheduleDate('');
+      setScheduleTime('12:00');
+      setScheduleError(null);
       void queryClient.invalidateQueries({
         queryKey: ['published-experiences'],
       });
       void queryClient.invalidateQueries({
         queryKey: ['own-published-experiences'],
       });
+      void queryClient.invalidateQueries({ queryKey: ['guide-schedule'] });
     },
   });
   const deleteExperience = useMutation({
@@ -163,6 +206,10 @@ export function ProfessionalPage() {
       setPhotoError('Добавьте хотя бы одну фотографию экскурсии.');
       return;
     }
+    if (scheduleSlots.length === 0) {
+      setScheduleError('Добавьте хотя бы одну доступную дату и время.');
+      return;
+    }
     const form = new FormData(event.currentTarget);
     setPhotoError(null);
     saveExperience.mutate({
@@ -180,6 +227,7 @@ export function ProfessionalPage() {
         intro: formValue(form, 'intro'),
         meetingPoint: formValue(form, 'meetingPoint'),
         priceRub: Number(formValue(form, 'priceRub')),
+        scheduleSlots,
         title: formValue(form, 'title'),
       },
     });
@@ -218,6 +266,10 @@ export function ProfessionalPage() {
     setExistingPhotoUrls([]);
     setEditing(null);
     setPhotoError(null);
+    setScheduleSlots([]);
+    setScheduleDate('');
+    setScheduleTime('12:00');
+    setScheduleError(null);
   }
 
   function editExperience(experience: PublishedExperience) {
@@ -225,6 +277,11 @@ export function ProfessionalPage() {
     setCreated(null);
     setEditing(experience);
     setExistingPhotoUrls([...experience.photos]);
+    setScheduleSlots(
+      (experience.availableSlots ?? []).map(
+        (slot) => `${slot.date}T${slot.time}`,
+      ),
+    );
     window.setTimeout(() => {
       document
         .getElementById('professional-experience-editor')
@@ -402,6 +459,60 @@ export function ProfessionalPage() {
                 </button>
               </section>
             )}
+            <section className="professional-card professional-schedule">
+              <div>
+                <p className="section-kicker">Записи пользователей</p>
+                <h2>Актуальные экскурсии</h2>
+                <p>
+                  Здесь подсвечиваются даты, на которые уже записались гости.
+                </p>
+              </div>
+              {guideSchedule.isPending ? (
+                <p className="professional-experiences__empty">
+                  Загружаем расписание…
+                </p>
+              ) : (guideSchedule.data?.items ?? []).filter(
+                  (slot) => slot.status === 'scheduled' && slot.bookingCount > 0,
+                ).length === 0 ? (
+                <p className="professional-experiences__empty">
+                  Пока нет актуальных записей.
+                </p>
+              ) : (
+                <div className="professional-schedule__active-list">
+                  {(guideSchedule.data?.items ?? [])
+                    .filter(
+                      (slot) =>
+                        slot.status === 'scheduled' && slot.bookingCount > 0,
+                    )
+                    .map((slot) => (
+                      <article
+                        key={`${slot.experienceId}-${slot.date}-${slot.time}`}
+                      >
+                        <span aria-hidden="true">●</span>
+                        <div>
+                          <strong>{slot.title}</strong>
+                          <small>
+                            {formatScheduleDate(slot.date, slot.time)} ·{' '}
+                            {slot.participants} чел.
+                          </small>
+                        </div>
+                        <button
+                          disabled={completeSchedule.isPending}
+                          onClick={() => completeSchedule.mutate(slot)}
+                          type="button"
+                        >
+                          Пометить завершённой
+                        </button>
+                      </article>
+                    ))}
+                </div>
+              )}
+              {completeSchedule.isError ? (
+                <p className="form-error">
+                  Не удалось завершить экскурсию. Повторите ещё раз.
+                </p>
+              ) : null}
+            </section>
             <section className="professional-card professional-experiences">
               <div className="professional-experiences__header">
                 <div>
@@ -691,6 +802,73 @@ export function ProfessionalPage() {
                   required
                 />
               </label>
+              <div className="professional-availability">
+                <div>
+                  <strong>Доступные даты и время</strong>
+                  <small>
+                    Пользователь сможет выбрать только добавленные слоты.
+                  </small>
+                </div>
+                <div className="professional-availability__picker">
+                  <label>
+                    Дата
+                    <input
+                      min={todayInputValue()}
+                      onChange={(event) => setScheduleDate(event.target.value)}
+                      type="date"
+                      value={scheduleDate}
+                    />
+                  </label>
+                  <label>
+                    Время
+                    <input
+                      onChange={(event) => setScheduleTime(event.target.value)}
+                      type="time"
+                      value={scheduleTime}
+                    />
+                  </label>
+                  <button
+                    onClick={() => {
+                      if (!scheduleDate) {
+                        setScheduleError('Сначала выберите дату.');
+                        return;
+                      }
+                      const slot = `${scheduleDate}T${scheduleTime}`;
+                      setScheduleSlots((current) =>
+                        [...new Set([...current, slot])].sort(),
+                      );
+                      setScheduleError(null);
+                      setScheduleDate('');
+                    }}
+                    type="button"
+                  >
+                    ＋ Добавить
+                  </button>
+                </div>
+                {scheduleSlots.length > 0 ? (
+                  <div className="professional-availability__slots">
+                    {scheduleSlots.map((slot) => (
+                      <span key={slot}>
+                        {formatScheduleDate(slot.slice(0, 10), slot.slice(11))}
+                        <button
+                          aria-label="Удалить дату"
+                          onClick={() =>
+                            setScheduleSlots((current) =>
+                              current.filter((item) => item !== slot),
+                            )
+                          }
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                {scheduleError ? (
+                  <p className="form-error">{scheduleError}</p>
+                ) : null}
+              </div>
               {saveExperience.isError ? (
                 <p className="form-error">
                   Не удалось сохранить экскурсию. Проверьте поля и повторите.

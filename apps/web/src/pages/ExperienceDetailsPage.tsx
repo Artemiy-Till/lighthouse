@@ -62,6 +62,18 @@ export function ExperienceDetailsPage() {
     setPhotoIndex(0);
   }, [experienceId]);
 
+  useEffect(() => {
+    if (staticExperience || !published.data) return;
+    const availableSlots = published.data.availableSlots;
+    const firstSlot = availableSlots?.[0];
+    if (!firstSlot) {
+      setSelectedDate(null);
+      return;
+    }
+    setSelectedDate(firstSlot.date);
+    setSelectedTime(firstSlot.time);
+  }, [published.data, staticExperience]);
+
   if (!staticExperience && published.isPending) {
     return (
       <main className="experience-not-found">
@@ -95,6 +107,17 @@ export function ExperienceDetailsPage() {
   const groupSize =
     published.data?.groupSize ??
     Number(details.groupSize.match(/\d+/)?.[0] ?? 1);
+  const availableSlots = published.data?.availableSlots ?? [];
+  const availableDates = [...new Set(availableSlots.map((slot) => slot.date))];
+  const timesForDate = availableSlots.filter(
+    (slot) => slot.date === selectedDate,
+  );
+  const selectedSlot = timesForDate.find(
+    (slot) => slot.time === selectedTime,
+  );
+  const participantLimit = published.data
+    ? Math.max(1, selectedSlot?.remaining ?? 1)
+    : groupSize;
 
   return (
     <main className="experience-details-page">
@@ -199,22 +222,71 @@ export function ExperienceDetailsPage() {
             <p>
               {experience.price} <span>за человека</span>
             </p>
-            <DateSelector
-              defaultLabel="Выбрать дату"
-              onChange={setSelectedDate}
-              value={selectedDate}
-            />
+            {published.data ? (
+              availableDates.length > 0 ? (
+                <label className="booking-field">
+                  <span>Доступная дата</span>
+                  <select
+                    aria-label="Доступная дата"
+                    onChange={(event) => {
+                      const date = event.target.value;
+                      setSelectedDate(date);
+                      setSelectedTime(
+                        availableSlots.find((slot) => slot.date === date)
+                          ?.time ?? '',
+                      );
+                      setParticipants(1);
+                    }}
+                    value={selectedDate ?? ''}
+                  >
+                    {availableDates.map((date) => (
+                      <option key={date} value={date}>
+                        {new Intl.DateTimeFormat('ru-RU', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        }).format(new Date(`${date}T12:00:00`))}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <p className="booking-no-slots">
+                  Гид пока не добавил свободные даты.
+                </p>
+              )
+            ) : (
+              <DateSelector
+                defaultLabel="Выбрать дату"
+                onChange={setSelectedDate}
+                value={selectedDate}
+              />
+            )}
             <label className="booking-field">
               <span>Время начала</span>
               <select
                 aria-label="Время начала"
-                onChange={(event) => setSelectedTime(event.target.value)}
+                disabled={Boolean(published.data && timesForDate.length === 0)}
+                onChange={(event) => {
+                  setSelectedTime(event.target.value);
+                  setParticipants(1);
+                }}
                 value={selectedTime}
               >
-                <option value="10:00">10:00</option>
-                <option value="12:00">12:00</option>
-                <option value="15:00">15:00</option>
-                <option value="18:00">18:00</option>
+                {published.data ? (
+                  timesForDate.map((slot) => (
+                    <option key={slot.time} value={slot.time}>
+                      {slot.time} · {slot.remaining} мест
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="10:00">10:00</option>
+                    <option value="12:00">12:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="18:00">18:00</option>
+                  </>
+                )}
               </select>
             </label>
             <div className="participant-picker">
@@ -231,7 +303,7 @@ export function ExperienceDetailsPage() {
                 <strong>{participants}</strong>
                 <button
                   aria-label="Увеличить количество участников"
-                  disabled={participants === groupSize}
+                  disabled={participants === participantLimit}
                   onClick={() => setParticipants((value) => value + 1)}
                   type="button"
                 >
@@ -256,6 +328,7 @@ export function ExperienceDetailsPage() {
                 className="booking-submit"
                 disabled={
                   !selectedDate ||
+                  (Boolean(published.data) && !selectedSlot) ||
                   !platform.initData ||
                   !session.data?.authenticated ||
                   booking.isPending

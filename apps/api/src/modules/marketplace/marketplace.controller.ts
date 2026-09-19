@@ -14,6 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { MaxAuthService } from '../max/max-auth.service.js';
 import {
+  CompleteScheduleSlotDto,
   CreateBookingDto,
   CreateExperienceDto,
   CreateReviewDto,
@@ -111,6 +112,24 @@ export class MarketplaceController {
   listOwnExperiences(@Headers('x-max-init-data') initData: string | undefined) {
     const user = this.authenticate(initData);
     return this.marketplace.listOwnExperiences(user.id);
+  }
+
+  @Get('professional/schedule')
+  listGuideSchedule(
+    @Headers('x-max-init-data') initData: string | undefined,
+  ) {
+    return this.marketplace.listGuideSchedule(this.authenticate(initData).id);
+  }
+
+  @Post('professional/schedule/complete')
+  completeGuideSchedule(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Body() body: CompleteScheduleSlotDto,
+  ) {
+    return this.marketplace.completeGuideSchedule(
+      this.authenticate(initData).id,
+      body,
+    );
   }
 
   @Put('professional/experiences/:id')

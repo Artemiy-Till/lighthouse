@@ -8,6 +8,7 @@ import {
 import { DatabaseService } from '../database/database.service.js';
 import type { AuthenticatedMaxUser } from '../max/max-auth.service.js';
 import type {
+  CompleteScheduleSlotDto,
   CreateExperienceDto,
   CreateBookingDto,
   CreateReviewDto,
@@ -24,6 +25,12 @@ interface GuideRow {
 }
 
 interface ExperienceRow {
+  available_slots: Array<{
+    date: string;
+    remaining: number;
+    status: 'completed' | 'scheduled';
+    time: string;
+  }> | null;
   id: string;
   city_id: string;
   category: string;
@@ -58,7 +65,7 @@ interface BookingRow {
   participants: number;
   unit_price_rub: number;
   total_price_rub: number;
-  status: 'cancelled' | 'confirmed';
+  status: 'cancelled' | 'completed' | 'confirmed';
   created_at: Date;
   review_id: string | null;
   review_rating: number | null;
@@ -87,6 +94,7 @@ function mapGuide(row: GuideRow) {
 
 function mapExperience(row: ExperienceRow) {
   return {
+    availableSlots: row.available_slots ?? [],
     category: row.category,
     children: row.children_policy,
     cityId: row.city_id,
@@ -163,6 +171,7 @@ export class MarketplaceService {
   private guidePhotoSchemaReady: Promise<void> | null = null;
   private bookingSchemaReady: Promise<void> | null = null;
   private reviewSchemaReady: Promise<void> | null = null;
+  private scheduleSchemaReady: Promise<void> | null = null;
 
   constructor(private readonly database: DatabaseService) {}
 
@@ -224,6 +233,8 @@ export class MarketplaceService {
             booking_time time not null,
             capacity integer not null check (capacity between 1 and 100),
             booked integer not null default 0 check (booked >= 0),
+            status varchar(20) not null default 'scheduled'
+              check (status in ('scheduled', 'completed')),
             primary key (experience_id, booking_date, booking_time)
           )`,
         ),
@@ -242,8 +253,75 @@ export class MarketplaceService {
     return this.bookingSchemaReady;
   }
 
+  private ensureScheduleSchema() {
+    this.scheduleSchemaReady ??= this.ensureBookingSchema()
+      .then(() =>
+        this.database.query(
+          `alter table experience_booking_slots
+           add column if not exists status varchar(20) not null default 'scheduled'`,
+        ),
+      )
+      .then(() =>
+        this.database.query(
+          `create index if not exists experience_booking_slots_status_idx
+           on experience_booking_slots
+             (experience_id, booking_date, booking_time, status)`,
+        ),
+      )
+      .then(() => undefined)
+      .catch((error: unknown) => {
+        this.scheduleSchemaReady = null;
+        throw error;
+      });
+    return this.scheduleSchemaReady;
+  }
+
+  private async replaceExperienceSchedule(
+    experienceId: string,
+    capacity: number,
+    slots: readonly string[],
+  ) {
+    const uniqueSlots = [...new Set(slots)].sort();
+    this.assertFutureSchedule(uniqueSlots);
+
+    await this.database.query(
+      `delete from experience_booking_slots
+       where experience_id = $1
+         and status = 'scheduled'
+         and booked = 0
+         and not (
+           booking_date::text || 'T' || to_char(booking_time, 'HH24:MI') =
+             any($2::text[])
+         )`,
+      [experienceId, uniqueSlots],
+    );
+    await this.database.query(
+      `insert into experience_booking_slots (
+         experience_id, booking_date, booking_time, capacity, booked, status
+       )
+       select $1, left(slot, 10)::date, substring(slot from 12)::time,
+         $3, 0, 'scheduled'
+       from unnest($2::text[]) slot
+       on conflict (experience_id, booking_date, booking_time) do update
+       set capacity = greatest(excluded.capacity, experience_booking_slots.booked)
+       where experience_booking_slots.status = 'scheduled'`,
+      [experienceId, uniqueSlots, capacity],
+    );
+  }
+
+  private assertFutureSchedule(slots: readonly string[]) {
+    const now = new Date();
+    if (
+      slots.some(
+        (slot) => new Date(`${slot}:00+03:00`).getTime() <= now.getTime(),
+      )
+    ) {
+      throw new BadRequestException('Schedule dates must be in the future');
+    }
+  }
+
   private ensureReviewSchema() {
-    this.reviewSchemaReady ??= this.ensureBookingSchema()
+    this.reviewSchemaReady ??= this.ensureScheduleSchema()
       .then(() =>
         this.database.query(
           `create table if not exists experience_reviews (
@@ -277,6 +355,7 @@ export class MarketplaceService {
   async createBooking(maxUserId: string, input: CreateBookingDto) {
     await this.ensurePhotoSchema();
     await this.ensureBookingSchema();
+    await this.ensureScheduleSchema();
     const today = new Date().toISOString().slice(0, 10);
     if (input.date < today) {
       throw new BadRequestException('Choose a future date');
@@ -309,17 +388,28 @@ export class MarketplaceService {
       throw new ConflictException('Not enough available places');
     }
 
-    const result = await this.database.query<BookingRow>(
-      `with reserved_slot as (
-         insert into experience_booking_slots (
-           experience_id, booking_date, booking_time, capacity, booked
-         ) values ($1, $2::date, $3::time, $11, $9)
+    const reservation = source
+      ? `update experience_booking_slots
+         set booked = booked + $9
+         where experience_id = $1
+           and booking_date = $2::date
+           and booking_time = $3::time
+           and status = 'scheduled'
+           and booked + $9 <= capacity
+         returning experience_id`
+      : `insert into experience_booking_slots (
+           experience_id, booking_date, booking_time, capacity, booked, status
+         ) values ($1, $2::date, $3::time, $11, $9, 'scheduled')
          on conflict (experience_id, booking_date, booking_time) do update
          set booked = experience_booking_slots.booked + excluded.booked,
              capacity = least(experience_booking_slots.capacity, excluded.capacity)
          where experience_booking_slots.booked + excluded.booked <=
            least(experience_booking_slots.capacity, excluded.capacity)
-         returning experience_id
+           and experience_booking_slots.status = 'scheduled'
+         returning experience_id`;
+    const result = await this.database.query<BookingRow>(
+      `with reserved_slot as (
+         ${reservation}
        )
        insert into experience_bookings (
          max_user_id, experience_id, title, city_id, image_url,
@@ -358,11 +448,18 @@ export class MarketplaceService {
     const result = await this.database.query<BookingRow>(
       `select b.id, b.experience_id, b.title, b.city_id, b.image_url,
          b.meeting_point, b.booking_date, b.booking_time, b.participants,
-         b.unit_price_rub, b.total_price_rub, b.status, b.created_at,
+         b.unit_price_rub, b.total_price_rub,
+         case when b.status = 'confirmed' and s.status = 'completed'
+           then 'completed' else b.status end as status,
+         b.created_at,
          r.id as review_id, r.rating as review_rating,
          r.comment as review_comment, r.created_at as review_created_at
        from experience_bookings b
        left join experience_reviews r on r.booking_id = b.id
+       left join experience_booking_slots s
+         on s.experience_id = b.experience_id
+        and s.booking_date = b.booking_date
+        and s.booking_time = b.booking_time
        where b.max_user_id = $1
        order by b.booking_date desc, b.booking_time desc, b.created_at desc`,
       [maxUserId],
@@ -382,12 +479,16 @@ export class MarketplaceService {
       reviewable: boolean;
     }>(
       `select b.experience_id,
-         (b.status = 'confirmed' and
-           b.booking_date + b.booking_time <=
-             now() at time zone 'Europe/Moscow') as reviewable,
+         (b.status = 'confirmed' and (
+           s.status = 'completed' or b.booking_date + b.booking_time <=
+             now() at time zone 'Europe/Moscow')) as reviewable,
          r.id as review_id
        from experience_bookings b
        left join experience_reviews r on r.booking_id = b.id
+       left join experience_booking_slots s
+         on s.experience_id = b.experience_id
+        and s.booking_date = b.booking_date
+        and s.booking_time = b.booking_time
        where b.id = $1 and b.max_user_id = $2`,
       [bookingId, user.id],
     );
@@ -489,8 +590,10 @@ export class MarketplaceService {
   }
 
   async createExperience(maxUserId: string, input: CreateExperienceDto) {
+    this.assertFutureSchedule(input.scheduleSlots);
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
+    await this.ensureScheduleSchema();
     const guide = await this.database.query<GuideRow>(
       `select id, max_user_id, display_name, bio, photo_url, created_at
        from guide_profiles where max_user_id = $1`,
@@ -512,7 +615,7 @@ export class MarketplaceService {
          meeting_point, price_rub, photo_urls, created_at, guide_id,
          $14::text as guide_name, $15::text as guide_bio,
          $16::text as guide_photo_url, 0 as rating_avg,
-         0::integer as review_count`,
+         0::integer as review_count, '[]'::json as available_slots`,
       [
         profile.id,
         input.cityId,
@@ -532,13 +635,26 @@ export class MarketplaceService {
         profile.photo_url,
       ],
     );
-    return mapExperience(result.rows[0]!);
+    const created = result.rows[0]!;
+    await this.replaceExperienceSchedule(
+      created.id,
+      input.groupSize,
+      input.scheduleSlots,
+    );
+    created.available_slots = input.scheduleSlots.map((slot) => ({
+      date: slot.slice(0, 10),
+      remaining: input.groupSize,
+      status: 'scheduled',
+      time: slot.slice(11),
+    }));
+    return mapExperience(created);
   }
 
   async listOwnExperiences(maxUserId: string) {
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
     await this.ensureReviewSchema();
+    await this.ensureScheduleSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
@@ -546,13 +662,27 @@ export class MarketplaceService {
          e.created_at, g.id as guide_id, g.display_name as guide_name,
          g.bio as guide_bio, g.photo_url as guide_photo_url,
          coalesce(review_stats.rating_avg, 0) as rating_avg,
-         coalesce(review_stats.review_count, 0)::integer as review_count
+         coalesce(review_stats.review_count, 0)::integer as review_count,
+         schedule_stats.available_slots
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
        left join lateral (
          select avg(r.rating)::numeric as rating_avg, count(*) as review_count
          from experience_reviews r where r.experience_id = e.id::text
        ) review_stats on true
+       left join lateral (
+         select coalesce(json_agg(json_build_object(
+           'date', s.booking_date::text,
+           'time', to_char(s.booking_time, 'HH24:MI'),
+           'remaining', greatest(0, s.capacity - s.booked),
+           'status', s.status
+         ) order by s.booking_date, s.booking_time), '[]'::json) available_slots
+         from experience_booking_slots s
+         where s.experience_id = e.id::text
+           and s.status = 'scheduled'
+           and s.booking_date + s.booking_time >
+             now() at time zone 'Europe/Moscow'
+       ) schedule_stats on true
        where g.max_user_id = $1 and e.status = 'published'
        order by e.created_at desc`,
       [maxUserId],
@@ -565,8 +695,10 @@ export class MarketplaceService {
     id: string,
     input: CreateExperienceDto,
   ) {
+    this.assertFutureSchedule(input.scheduleSlots);
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
+    await this.ensureScheduleSchema();
     const guide = await this.database.query<GuideRow>(
       `select id, max_user_id, display_name, bio, photo_url, created_at
        from guide_profiles where max_user_id = $1`,
@@ -598,7 +730,7 @@ export class MarketplaceService {
          meeting_point, price_rub, photo_urls, created_at, guide_id,
          $15::text as guide_name, $16::text as guide_bio,
          $17::text as guide_photo_url, 0 as rating_avg,
-         0::integer as review_count`,
+         0::integer as review_count, '[]'::json as available_slots`,
       [
         id,
         profile.id,
@@ -622,6 +754,13 @@ export class MarketplaceService {
     if (!result.rows[0]) {
       throw new NotFoundException('Experience not found');
     }
+    await this.replaceExperienceSchedule(id, input.groupSize, input.scheduleSlots);
+    result.rows[0].available_slots = input.scheduleSlots.map((slot) => ({
+      date: slot.slice(0, 10),
+      remaining: input.groupSize,
+      status: 'scheduled',
+      time: slot.slice(11),
+    }));
     return mapExperience(result.rows[0]);
   }
 
@@ -645,6 +784,7 @@ export class MarketplaceService {
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
     await this.ensureReviewSchema();
+    await this.ensureScheduleSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
@@ -653,13 +793,28 @@ export class MarketplaceService {
          g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio,
          g.photo_url as guide_photo_url,
          coalesce(review_stats.rating_avg, 0) as rating_avg,
-         coalesce(review_stats.review_count, 0)::integer as review_count
+         coalesce(review_stats.review_count, 0)::integer as review_count,
+         schedule_stats.available_slots
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
        left join lateral (
          select avg(r.rating)::numeric as rating_avg, count(*) as review_count
          from experience_reviews r where r.experience_id = e.id::text
        ) review_stats on true
+       left join lateral (
+         select coalesce(json_agg(json_build_object(
+           'date', s.booking_date::text,
+           'time', to_char(s.booking_time, 'HH24:MI'),
+           'remaining', greatest(0, s.capacity - s.booked),
+           'status', s.status
+         ) order by s.booking_date, s.booking_time), '[]'::json) available_slots
+         from experience_booking_slots s
+         where s.experience_id = e.id::text
+           and s.status = 'scheduled'
+           and s.booking_date + s.booking_time >
+             now() at time zone 'Europe/Moscow'
+           and s.booked < s.capacity
+       ) schedule_stats on true
        where e.status = 'published' and ($1::text is null or e.city_id = $1)
        order by e.created_at desc`,
       [cityId ?? null],
@@ -671,6 +826,7 @@ export class MarketplaceService {
     await this.ensurePhotoSchema();
     await this.ensureGuidePhotoSchema();
     await this.ensureReviewSchema();
+    await this.ensureScheduleSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
@@ -679,17 +835,107 @@ export class MarketplaceService {
          g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio,
          g.photo_url as guide_photo_url,
          coalesce(review_stats.rating_avg, 0) as rating_avg,
-         coalesce(review_stats.review_count, 0)::integer as review_count
+         coalesce(review_stats.review_count, 0)::integer as review_count,
+         schedule_stats.available_slots
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
        left join lateral (
          select avg(r.rating)::numeric as rating_avg, count(*) as review_count
          from experience_reviews r where r.experience_id = e.id::text
        ) review_stats on true
+       left join lateral (
+         select coalesce(json_agg(json_build_object(
+           'date', s.booking_date::text,
+           'time', to_char(s.booking_time, 'HH24:MI'),
+           'remaining', greatest(0, s.capacity - s.booked),
+           'status', s.status
+         ) order by s.booking_date, s.booking_time), '[]'::json) available_slots
+         from experience_booking_slots s
+         where s.experience_id = e.id::text
+           and s.status = 'scheduled'
+           and s.booking_date + s.booking_time >
+             now() at time zone 'Europe/Moscow'
+           and s.booked < s.capacity
+       ) schedule_stats on true
        where e.id = $1 and e.status = 'published'`,
       [id],
     );
     if (!result.rows[0]) throw new NotFoundException('Experience not found');
     return mapExperience(result.rows[0]);
+  }
+
+  async listGuideSchedule(maxUserId: string) {
+    await this.ensureScheduleSchema();
+    const result = await this.database.query<{
+      booking_count: number;
+      booking_date: string | Date;
+      booking_time: string;
+      capacity: number;
+      experience_id: string;
+      participants: number;
+      status: 'completed' | 'scheduled';
+      title: string;
+    }>(
+      `select e.id::text as experience_id, e.title,
+         s.booking_date, s.booking_time, s.capacity, s.status,
+         count(b.id)::integer as booking_count,
+         coalesce(sum(b.participants), 0)::integer as participants
+       from experience_booking_slots s
+       join published_experiences e on e.id::text = s.experience_id
+       join guide_profiles g on g.id = e.guide_id
+       left join experience_bookings b
+         on b.experience_id = s.experience_id
+        and b.booking_date = s.booking_date
+        and b.booking_time = s.booking_time
+        and b.status = 'confirmed'
+       where g.max_user_id = $1 and e.status = 'published'
+         and (s.status = 'completed' or s.booking_date >= current_date)
+       group by e.id, e.title, s.booking_date, s.booking_time,
+         s.capacity, s.status
+       order by case when s.status = 'scheduled' then 0 else 1 end,
+         s.booking_date, s.booking_time`,
+      [maxUserId],
+    );
+    return {
+      items: result.rows.map((row) => ({
+        bookingCount: row.booking_count,
+        capacity: row.capacity,
+        date:
+          row.booking_date instanceof Date
+            ? row.booking_date.toISOString().slice(0, 10)
+            : String(row.booking_date).slice(0, 10),
+        experienceId: row.experience_id,
+        participants: row.participants,
+        status: row.status,
+        time: row.booking_time.slice(0, 5),
+        title: row.title,
+      })),
+    };
+  }
+
+  async completeGuideSchedule(
+    maxUserId: string,
+    input: CompleteScheduleSlotDto,
+  ) {
+    await this.ensureScheduleSchema();
+    const result = await this.database.query<{ experience_id: string }>(
+      `update experience_booking_slots s
+       set status = 'completed'
+       from published_experiences e, guide_profiles g
+       where s.experience_id = $1
+         and s.booking_date = $2::date
+         and s.booking_time = $3::time
+         and s.status = 'scheduled'
+         and s.booked > 0
+         and e.id::text = s.experience_id
+         and e.guide_id = g.id
+         and g.max_user_id = $4
+       returning s.experience_id`,
+      [input.experienceId, input.date, input.time, maxUserId],
+    );
+    if (!result.rows[0]) {
+      throw new NotFoundException('Active scheduled experience not found');
+    }
+    return { completed: true as const };
   }
 }

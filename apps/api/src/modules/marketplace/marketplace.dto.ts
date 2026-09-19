@@ -97,6 +97,14 @@ export class CreateExperienceDto {
   @ArrayMaxSize(6)
   @IsUrl({ require_protocol: true }, { each: true })
   photoUrls!: string[];
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(60)
+  @Matches(/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/, {
+    each: true,
+  })
+  scheduleSlots!: string[];
 }
 
 export class UploadExperiencePhotoDto {
@@ -163,4 +171,16 @@ export class CreateReviewDto {
   @MinLength(5)
   @MaxLength(1000)
   comment!: string;
+}
+
+export class CompleteScheduleSlotDto {
+  @IsString()
+  @MaxLength(120)
+  experienceId!: string;
+
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  date!: string;
+
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+  time!: string;
 }

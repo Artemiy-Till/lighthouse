@@ -213,7 +213,8 @@ export function OrdersPage() {
                       >
                         {t('orders.cancel')}
                       </button>
-                    ) : order.status === 'confirmed' ? (
+                    ) : order.status === 'confirmed' ||
+                      order.status === 'completed' ? (
                       order.review ? (
                         <div className="order-review-summary">
                           <strong>

@@ -59,6 +59,8 @@ describe('MarketplaceService', () => {
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [experienceRow] })
       .mockResolvedValueOnce({ rows: [bookingRow] });
     const service = new MarketplaceService({
@@ -79,7 +81,7 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.totalPriceRub).toBe(3400);
-    expect(query.mock.calls[5]?.[1]).toEqual(
+    expect(query.mock.calls[7]?.[1]).toEqual(
       expect.arrayContaining([
         'experience-1',
         '2026-10-10',
@@ -102,6 +104,8 @@ describe('MarketplaceService', () => {
     };
     const query = vi
       .fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
@@ -139,7 +143,7 @@ describe('MarketplaceService', () => {
       comment: reviewRow.comment,
       rating: 5,
     });
-    expect(query.mock.calls[6]?.[1]).toEqual([
+    expect(query.mock.calls[8]?.[1]).toEqual([
       reviewRow.booking_id,
       '42',
       'experience-1',
@@ -198,6 +202,7 @@ describe('MarketplaceService', () => {
         meetingPoint: 'У памятника на главной площади',
         photoUrls: ['https://example.com/photo.jpg'],
         priceRub: 1500,
+        scheduleSlots: ['2027-09-21T12:00'],
         title: 'Первое знакомство с городом',
       }),
     ).rejects.toBeInstanceOf(NotFoundException);
@@ -208,8 +213,15 @@ describe('MarketplaceService', () => {
       .fn()
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [guideRow] })
-      .mockResolvedValueOnce({ rows: [experienceRow] });
+      .mockResolvedValueOnce({ rows: [experienceRow] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
     const service = new MarketplaceService({
       query,
     } as unknown as DatabaseService);
@@ -226,13 +238,14 @@ describe('MarketplaceService', () => {
       meetingPoint: experienceRow.meeting_point,
       photoUrls: experienceRow.photo_urls,
       priceRub: experienceRow.price_rub,
+      scheduleSlots: ['2027-09-21T12:00'],
       title: experienceRow.title,
     });
 
     expect(result.title).toBe('Обновлённое знакомство с городом');
     expect(result.rating).toBe(0);
     expect(result.reviewCount).toBe(0);
-    expect(query.mock.calls[3]?.[1]).toEqual([
+    expect(query.mock.calls[8]?.[1]).toEqual([
       'experience-1',
       'guide-1',
       'kostroma',
@@ -252,6 +265,35 @@ describe('MarketplaceService', () => {
       guideRow.photo_url,
     ]);
     expect(result.guide.photoUrl).toBe(guideRow.photo_url);
+  });
+
+  it('lets only the verified guide complete a booked schedule slot', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [{ experience_id: 'experience-1' }] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await expect(
+      service.completeGuideSchedule('42', {
+        date: '2026-10-10',
+        experienceId: 'experience-1',
+        time: '12:00',
+      }),
+    ).resolves.toEqual({ completed: true });
+    expect(query.mock.calls[5]?.[0]).toContain("s.status = 'scheduled'");
+    expect(query.mock.calls[5]?.[1]).toEqual([
+      'experience-1',
+      '2026-10-10',
+      '12:00',
+      '42',
+    ]);
   });
 
   it('deletes only an experience owned by the verified guide', async () => {

@@ -1907,6 +1907,143 @@ main {
   gap: 15px;
 }
 
+.professional-schedule {
+  display: grid;
+  gap: 15px;
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--accent) 10%, #fff),
+    #fff 65%
+  );
+}
+
+.professional-schedule h2 {
+  margin: 3px 0 6px;
+}
+
+.professional-schedule > div:first-child > p:last-child {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.professional-schedule__active-list {
+  display: grid;
+  gap: 10px;
+}
+
+.professional-schedule__active-list article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  padding: 13px;
+  border: 1px solid color-mix(in srgb, #25ad62 35%, var(--line));
+  border-radius: 16px;
+  background: color-mix(in srgb, #25ad62 8%, #fff);
+}
+
+.professional-schedule__active-list article > span {
+  color: #25ad62;
+}
+
+.professional-schedule__active-list article > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.professional-schedule__active-list small {
+  color: var(--muted);
+}
+
+.professional-schedule__active-list button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  background: #25ad62;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.professional-availability {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--accent) 5%, #fff);
+}
+
+.professional-availability > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.professional-availability small {
+  color: var(--muted);
+}
+
+.professional-availability__picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+.professional-availability__picker button {
+  min-height: 48px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 800;
+}
+
+.professional-availability__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.professional-availability__slots > span {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 11px;
+  border-radius: 999px;
+  color: var(--accent-dark);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.professional-availability__slots button {
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: inherit;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  font-size: 17px;
+}
+
+.booking-no-slots {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: #a34b22;
+  background: #fff3ea;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .professional-experiences__header {
   display: flex;
   align-items: center;
@@ -3300,6 +3437,12 @@ html[data-theme='dark'] .professional-form select {
   background: #20242d;
 }
 
+html[data-theme='dark'] .professional-schedule,
+html[data-theme='dark'] .professional-availability,
+html[data-theme='dark'] .professional-schedule__active-list article {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
 html[data-theme='dark'] .professional-status__edit,
 html[data-theme='dark']
   .professional-profile-editor__actions
@@ -3320,6 +3463,11 @@ html[data-theme='dark']
   }
 
   .professional-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .professional-availability__picker,
+  .professional-schedule__active-list article {
     grid-template-columns: 1fr;
   }
 
