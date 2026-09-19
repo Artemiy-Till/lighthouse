@@ -71,14 +71,28 @@ export function HomePage() {
           <DateSelector onChange={setSelectedDate} value={selectedDate} />
         </section>
 
-        <section className="content-section categories-section">
+        <section className="content-section experiences-section">
           <div className="section-heading">
             <div>
-              <p className="section-kicker">{t('home.mood')}</p>
-              <h2>{t('home.activities')}</h2>
+              <p className="section-kicker">{t('home.travelers')}</p>
+              <h2>
+                {t('home.popular')} {city.prepositionalName}
+              </h2>
             </div>
+            <Link className="text-button" to="/catalog">
+              {t('common.all')}
+            </Link>
           </div>
-          <div className="category-list">
+
+          <div aria-label={t('home.mood')} className="category-list">
+            <button
+              aria-pressed={activeCategory === null}
+              className={`category-item${activeCategory === null ? ' category-item--active' : ''}`}
+              onClick={() => setActiveCategory(null)}
+              type="button"
+            >
+              <span>{t('common.all')}</span>
+            </button>
             {categories.map((category) => {
               const isActive = activeCategory === category.label;
 
@@ -92,25 +106,10 @@ export function HomePage() {
                   }
                   type="button"
                 >
-                  <span className="category-item__icon">{category.emoji}</span>
                   <span>{category.label}</span>
                 </button>
               );
             })}
-          </div>
-        </section>
-
-        <section className="content-section experiences-section">
-          <div className="section-heading">
-            <div>
-              <p className="section-kicker">{t('home.travelers')}</p>
-              <h2>
-                {t('home.popular')} {city.prepositionalName}
-              </h2>
-            </div>
-            <Link className="text-button" to="/catalog">
-              {t('common.all')}
-            </Link>
           </div>
 
           {filteredExperiences.length > 0 ? (

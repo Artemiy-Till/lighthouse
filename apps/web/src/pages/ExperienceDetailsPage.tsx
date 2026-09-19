@@ -112,9 +112,7 @@ export function ExperienceDetailsPage() {
   const timesForDate = availableSlots.filter(
     (slot) => slot.date === selectedDate,
   );
-  const selectedSlot = timesForDate.find(
-    (slot) => slot.time === selectedTime,
-  );
+  const selectedSlot = timesForDate.find((slot) => slot.time === selectedTime);
   const participantLimit = published.data
     ? Math.max(1, selectedSlot?.remaining ?? 1)
     : groupSize;
@@ -192,8 +190,16 @@ export function ExperienceDetailsPage() {
               <span>{t('card.noReviews')}</span>
             )}
           </p>
-          <h1>{experience.title}</h1>
-          <p className="experience-details-intro">{details.intro}</p>
+          <div className="experience-details-title-row">
+            <div>
+              <h1>{experience.title}</h1>
+              <p className="experience-details-intro">{details.intro}</p>
+            </div>
+            <p className="experience-details-price">
+              <strong>{experience.price}</strong>
+              <span>за человека</span>
+            </p>
+          </div>
           <p className="experience-details-location">⌖ {city.name}</p>
         </header>
 
@@ -219,9 +225,6 @@ export function ExperienceDetailsPage() {
           </dl>
 
           <div className="experience-booking-cta">
-            <p>
-              {experience.price} <span>за человека</span>
-            </p>
             {published.data ? (
               availableDates.length > 0 ? (
                 <label className="booking-field">
