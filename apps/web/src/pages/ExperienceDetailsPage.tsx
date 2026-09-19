@@ -339,9 +339,19 @@ export function ExperienceDetailsPage() {
           <section className="experience-guide">
             <h2>Ваш гид</h2>
             <div className="experience-guide__card">
-              <span aria-hidden="true" className="experience-guide__avatar">
-                {published.data.guide.displayName.charAt(0).toUpperCase()}
-              </span>
+              {published.data.guide.photoUrl ? (
+                <img
+                  alt={`Фото гида ${published.data.guide.displayName}`}
+                  className="experience-guide__avatar experience-guide__avatar--image"
+                  height="128"
+                  src={published.data.guide.photoUrl}
+                  width="128"
+                />
+              ) : (
+                <span aria-hidden="true" className="experience-guide__avatar">
+                  {published.data.guide.displayName.charAt(0).toUpperCase()}
+                </span>
+              )}
               <span className="experience-guide__info">
                 <strong>{published.data.guide.displayName}</strong>
                 <small>{published.data.guide.bio}</small>

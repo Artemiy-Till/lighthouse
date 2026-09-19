@@ -10,6 +10,7 @@ const guideRow = {
   display_name: 'Артемий',
   id: 'guide-1',
   max_user_id: '42',
+  photo_url: 'https://example.com/artemiy.jpg',
 };
 
 const experienceRow = {
@@ -24,6 +25,7 @@ const experienceRow = {
   guide_bio: guideRow.bio,
   guide_id: guideRow.id,
   guide_name: guideRow.display_name,
+  guide_photo_url: guideRow.photo_url,
   id: 'experience-1',
   intro: 'Главные истории города за два часа.',
   meeting_point: 'У памятника на главной площади',
@@ -99,7 +101,7 @@ describe('MarketplaceService', () => {
         id: '42',
         languageCode: 'ru',
         lastName: null,
-        photoUrl: null,
+        photoUrl: guideRow.photo_url,
         username: null,
       },
       { bio: guideRow.bio, displayName: 'Артемий' },
@@ -110,7 +112,9 @@ describe('MarketplaceService', () => {
       '42',
       'Артемий',
       guideRow.bio,
+      guideRow.photo_url,
     ]);
+    expect(result.photoUrl).toBe(guideRow.photo_url);
   });
 
   it('requires a professional profile before publishing', async () => {
@@ -142,6 +146,7 @@ describe('MarketplaceService', () => {
     const query = vi
       .fn()
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [guideRow] })
       .mockResolvedValueOnce({ rows: [experienceRow] });
     const service = new MarketplaceService({
@@ -164,7 +169,7 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.title).toBe('Обновлённое знакомство с городом');
-    expect(query.mock.calls[2]?.[1]).toEqual([
+    expect(query.mock.calls[3]?.[1]).toEqual([
       'experience-1',
       'guide-1',
       'kostroma',
@@ -181,7 +186,9 @@ describe('MarketplaceService', () => {
       experienceRow.photo_urls,
       'Артемий',
       guideRow.bio,
+      guideRow.photo_url,
     ]);
+    expect(result.guide.photoUrl).toBe(guideRow.photo_url);
   });
 
   it('deletes only an experience owned by the verified guide', async () => {

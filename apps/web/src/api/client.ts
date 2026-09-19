@@ -42,6 +42,7 @@ export interface GuideProfile {
   readonly createdAt: string;
   readonly displayName: string;
   readonly id: string;
+  readonly photoUrl: string | null;
 }
 
 export interface PublishedExperience {
@@ -54,7 +55,7 @@ export interface PublishedExperience {
   readonly format: string;
   readonly groupSize: number;
   readonly groupType: string;
-  readonly guide: Pick<GuideProfile, 'bio' | 'displayName' | 'id'>;
+  readonly guide: Pick<GuideProfile, 'bio' | 'displayName' | 'id' | 'photoUrl'>;
   readonly highlights: readonly string[];
   readonly id: string;
   readonly intro: string;

@@ -257,7 +257,7 @@ describe('App navigation', () => {
               id: '42',
               languageCode: 'ru',
               lastName: null,
-              photoUrl: null,
+              photoUrl: 'https://example.com/artemiy.jpg',
               username: 'artemiy',
             },
           };
@@ -269,12 +269,14 @@ describe('App navigation', () => {
                   createdAt: '2026-09-19T09:00:00.000Z',
                   displayName: 'Артемий Экскурсовод',
                   id: 'guide-1',
+                  photoUrl: 'https://example.com/artemiy.jpg',
                 }
               : {
                   bio: 'Профессиональный гид по Санкт-Петербургу.',
                   createdAt: '2026-09-19T09:00:00.000Z',
                   displayName: 'Артемий',
                   id: 'guide-1',
+                  photoUrl: 'https://example.com/artemiy.jpg',
                 };
         } else if (requestUrl.endsWith('/professional/experiences')) {
           payload = { items: [] };
@@ -298,6 +300,7 @@ describe('App navigation', () => {
         bio: 'Старое описание.',
         displayName: 'Артемий',
         id: 'guide-1',
+        photoUrl: 'https://example.com/artemiy.jpg',
       },
       id: 'tour-1',
     });
@@ -322,6 +325,11 @@ describe('App navigation', () => {
     expect(
       screen.getByRole('button', { name: 'Редактировать профиль' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', {
+        name: 'Фото профиля Артемий Экскурсовод',
+      }),
+    ).toHaveAttribute('src', 'https://example.com/artemiy.jpg');
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])
@@ -391,6 +399,7 @@ describe('App navigation', () => {
                     bio: 'Гид по Петербургу',
                     displayName: 'Артемий',
                     id: 'guide-1',
+                    photoUrl: 'https://example.com/artemiy.jpg',
                   },
                   highlights: ['Новая Голландия'],
                   id: 'published-user-tour',

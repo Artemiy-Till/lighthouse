@@ -65,6 +65,7 @@ export function ProfessionalPage() {
                   ...experience.guide,
                   bio: value.bio,
                   displayName: value.displayName,
+                  photoUrl: value.photoUrl,
                 },
               }
             : experience,
@@ -373,7 +374,17 @@ export function ProfessionalPage() {
               </form>
             ) : (
               <section className="professional-card professional-status">
-                <span aria-hidden="true">✓</span>
+                {profile.data.photoUrl ? (
+                  <img
+                    alt={`Фото профиля ${profile.data.displayName}`}
+                    className="professional-status__avatar"
+                    height="96"
+                    src={profile.data.photoUrl}
+                    width="96"
+                  />
+                ) : (
+                  <span aria-hidden="true">✓</span>
+                )}
                 <div className="professional-status__copy">
                   <p>Профиль гида активен</p>
                   <h2>{profile.data.displayName}</h2>

@@ -12,6 +12,7 @@ model GuideProfile {
   maxUserId   String                @unique @map("max_user_id")
   displayName String                @map("display_name") @db.VarChar(80)
   bio         String                @db.VarChar(1000)
+  photoUrl    String?               @map("photo_url")
   createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime              @default(now()) @map("updated_at") @db.Timestamptz
   experiences PublishedExperience[]

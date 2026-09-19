@@ -74,7 +74,7 @@ export class MarketplaceController {
   @Get('professional/profile')
   profile(@Headers('x-max-init-data') initData?: string) {
     const user = this.authenticate(initData);
-    return this.marketplace.getGuideProfile(user.id);
+    return this.marketplace.getGuideProfile(user);
   }
 
   @Put('professional/profile')
