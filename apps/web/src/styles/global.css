@@ -3075,6 +3075,7 @@ html[data-theme='dark'] .catalog-filter-dialog__actions,
 html[data-theme='dark'] .empty-state,
 html[data-theme='dark'] .profile-card,
 html[data-theme='dark'] .profile-menu,
+html[data-theme='dark'] .settings-section,
 html[data-theme='dark'] .max-connection,
 html[data-theme='dark'] .order-card,
 html[data-theme='dark'] .experience-details-page,
@@ -3084,6 +3085,44 @@ html[data-theme='dark'] .guide-section,
 html[data-theme='dark'] .experience-guide__card {
   color: var(--ink);
   background: var(--surface);
+}
+
+html[data-theme='dark'] .settings-section {
+  border-color: #343946;
+  box-shadow: 0 14px 38px rgb(0 0 0 / 18%);
+}
+
+html[data-theme='dark'] .settings-option {
+  color: var(--ink);
+  border-color: #343946;
+}
+
+html[data-theme='dark'] .settings-segmented {
+  background: #242832;
+}
+
+html[data-theme='dark'] .settings-segmented button {
+  color: #aab1bf;
+}
+
+html[data-theme='dark'] .settings-segmented button[aria-pressed='true'] {
+  color: #d9ddff;
+  background: #3a4052;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 24%);
+}
+
+html[data-theme='dark'] .settings-toggle {
+  background: #3a3f4b;
+}
+
+html[data-theme='dark']
+  .settings-option--toggle[aria-checked='true']
+  .settings-toggle {
+  background: var(--accent);
+}
+
+html[data-theme='dark'] .settings-saved {
+  color: #aeb5c3;
 }
 
 html[data-theme='dark'] .professional-card {
