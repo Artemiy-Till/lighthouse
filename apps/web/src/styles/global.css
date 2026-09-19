@@ -1906,6 +1906,31 @@ main {
   gap: 12px;
 }
 
+.professional-catalog-parameters {
+  display: grid;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--accent) 5%, #fff);
+}
+
+.professional-catalog-parameters > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.professional-catalog-parameters > div:first-child strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.professional-catalog-parameters > div:first-child small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 .professional-photos {
   display: grid;
   gap: 12px;
@@ -3552,6 +3577,7 @@ html[data-theme='dark'] .professional-form select {
 
 html[data-theme='dark'] .professional-schedule,
 html[data-theme='dark'] .professional-availability,
+html[data-theme='dark'] .professional-catalog-parameters,
 html[data-theme='dark'] .professional-schedule__active-list article {
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }

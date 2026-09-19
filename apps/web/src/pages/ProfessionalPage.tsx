@@ -27,6 +27,19 @@ interface SelectedPhoto {
   readonly preview: string;
 }
 
+const durationOptions = [60, 90, 120, 150, 180, 240, 300];
+const formatOptions = ['Пешком', 'По воде', 'На транспорте'];
+const childrenOptions = [
+  'Можно с детьми любого возраста',
+  'Можно с детьми от 7 лет',
+  'Только для взрослых',
+];
+
+function formatDurationOption(minutes: number) {
+  const hours = minutes / 60;
+  return `${Number.isInteger(hours) ? hours : hours.toLocaleString('ru-RU')} ч`;
+}
+
 function formValue(form: FormData, key: string) {
   const value = form.get(key);
   return typeof value === 'string' ? value.trim() : '';
@@ -750,18 +763,75 @@ export function ProfessionalPage() {
                 ) : null}
                 {photoError ? <p className="form-error">{photoError}</p> : null}
               </div>
-              <div className="professional-form__row">
+              <div className="professional-catalog-parameters">
+                <div>
+                  <strong>Параметры каталога</strong>
+                  <small>
+                    По ним пользователи смогут найти экскурсию в фильтрах.
+                  </small>
+                </div>
+                <div className="professional-form__row">
+                  <label>
+                    Длительность
+                    <select
+                      defaultValue={editing?.durationMinutes ?? 120}
+                      name="durationMinutes"
+                      required
+                    >
+                      {editing &&
+                      !durationOptions.includes(editing.durationMinutes) ? (
+                        <option value={editing.durationMinutes}>
+                          {formatDurationOption(editing.durationMinutes)}
+                        </option>
+                      ) : null}
+                      {durationOptions.map((minutes) => (
+                        <option key={minutes} value={minutes}>
+                          {formatDurationOption(minutes)}
+                          {minutes <= 120
+                            ? ' · до 2 часов'
+                            : minutes <= 180
+                              ? ' · 2–3 часа'
+                              : ' · более 3 часов'}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Формат
+                    <select
+                      defaultValue={editing?.format ?? 'Пешком'}
+                      name="format"
+                      required
+                    >
+                      {editing && !formatOptions.includes(editing.format) ? (
+                        <option>{editing.format}</option>
+                      ) : null}
+                      {formatOptions.map((format) => (
+                        <option key={format}>{format}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
                 <label>
-                  Длительность, мин
-                  <input
-                    defaultValue={editing?.durationMinutes ?? 120}
-                    max={720}
-                    min={30}
-                    name="durationMinutes"
+                  Посещение с детьми
+                  <select
+                    defaultValue={
+                      editing?.children ?? 'Можно с детьми от 7 лет'
+                    }
+                    name="childrenPolicy"
                     required
-                    type="number"
-                  />
+                  >
+                    {editing &&
+                    !childrenOptions.includes(editing.children) ? (
+                      <option>{editing.children}</option>
+                    ) : null}
+                    {childrenOptions.map((option) => (
+                      <option key={option}>{option}</option>
+                    ))}
+                  </select>
                 </label>
+              </div>
+              <div className="professional-form__row">
                 <label>
                   Цена, ₽
                   <input
@@ -771,18 +841,6 @@ export function ProfessionalPage() {
                     name="priceRub"
                     required
                     type="number"
-                  />
-                </label>
-              </div>
-              <div className="professional-form__row">
-                <label>
-                  Формат
-                  <input
-                    defaultValue={editing?.format ?? 'Пешком'}
-                    maxLength={80}
-                    minLength={3}
-                    name="format"
-                    required
                   />
                 </label>
                 <label>
@@ -797,16 +855,6 @@ export function ProfessionalPage() {
                   />
                 </label>
               </div>
-              <label>
-                Можно ли с детьми
-                <input
-                  defaultValue={editing?.children ?? 'Можно с детьми от 7 лет'}
-                  maxLength={160}
-                  minLength={3}
-                  name="childrenPolicy"
-                  required
-                />
-              </label>
               <label>
                 Место встречи
                 <input
