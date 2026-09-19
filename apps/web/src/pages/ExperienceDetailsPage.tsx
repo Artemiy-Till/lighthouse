@@ -457,7 +457,9 @@ export function ExperienceDetailsPage() {
           </details>
           <details>
             <summary>Место встречи</summary>
-            <p>{details.meetingPoint}</p>
+            <ul>
+              <li>{details.meetingPoint}</li>
+            </ul>
           </details>
           {restrictions.length > 0 ? (
             <details className="experience-more__restrictions">

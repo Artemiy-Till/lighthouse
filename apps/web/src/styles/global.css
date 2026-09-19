@@ -5106,7 +5106,7 @@ html[data-theme='dark'] .order-review-stars button.is-active {
 }
 
 .experience-more details[open] summary {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0;
 }
 
 .experience-more details[open] summary::after {
