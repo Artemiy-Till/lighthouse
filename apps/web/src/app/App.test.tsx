@@ -612,6 +612,19 @@ describe('App navigation', () => {
     fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Сбросить' }));
     fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
+    fireEvent.click(screen.getByLabelText('Без детей'));
+    fireEvent.click(screen.getByRole('button', { name: 'Показать варианты' }));
+    expect(screen.getByText('1 предложение')).toBeInTheDocument();
+    expect(
+      screen.getByText('Дворы, парадные и старые истории'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Петербург: первое знакомство'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Сбросить' }));
+    fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
     fireEvent.click(screen.getByLabelText('До 1 500 ₽'));
     fireEvent.click(screen.getByRole('button', { name: 'Показать варианты' }));
 

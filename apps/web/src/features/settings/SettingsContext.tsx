@@ -196,6 +196,7 @@ const translations = {
   'filter.from495': { en: '4.95+', ru: 'От 4,95' },
   'filter.doesNotMatter': { en: 'Does not matter', ru: 'Неважно' },
   'filter.family': { en: 'Family friendly', ru: 'Подходит с детьми' },
+  'filter.adults': { en: 'Adults only', ru: 'Без детей' },
   'filter.reset': { en: 'Reset', ru: 'Сбросить' },
   'orders.kicker': { en: 'Your trips', ru: 'Ваши поездки' },
   'orders.title': { en: 'My bookings', ru: 'Мои заказы' },

@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { useSettings } from '../features/settings/SettingsContext';
 
 export interface CatalogFilterState {
-  readonly children: 'any' | 'family';
+  readonly children: 'adults' | 'any' | 'family';
   readonly duration: 'any' | 'long' | 'medium' | 'short';
   readonly format: 'any' | 'transport' | 'walking' | 'water';
   readonly maxPrice: number | null;
@@ -164,14 +164,18 @@ export function CatalogFilters({
                               : null,
                           })
                         }
-                        placeholder={language === 'en' ? 'No limit' : 'Без лимита'}
+                        placeholder={
+                          language === 'en' ? 'No limit' : 'Без лимита'
+                        }
                         type="number"
                         value={draft.maxPrice ?? ''}
                       />
                     </label>
                   </div>
                   <div
-                    aria-label={language === 'en' ? 'Quick price' : 'Быстрая цена'}
+                    aria-label={
+                      language === 'en' ? 'Quick price' : 'Быстрая цена'
+                    }
                     className="catalog-filter-presets"
                   >
                     {[1500, 3000, 5000].map((price) => (
@@ -180,7 +184,11 @@ export function CatalogFilters({
                         className={draft.maxPrice === price ? 'is-active' : ''}
                         key={price}
                         onClick={() =>
-                          setDraft({ ...draft, maxPrice: price, minPrice: null })
+                          setDraft({
+                            ...draft,
+                            maxPrice: price,
+                            minPrice: null,
+                          })
                         }
                         type="button"
                       >
@@ -272,10 +280,11 @@ export function CatalogFilters({
 
                 <fieldset className="catalog-filter-group">
                   <legend>☀ {t('filter.children')}</legend>
-                  <div className="catalog-filter-options">
+                  <div className="catalog-filter-options catalog-filter-options--children">
                     {[
                       { label: t('filter.doesNotMatter'), value: 'any' },
                       { label: t('filter.family'), value: 'family' },
+                      { label: t('filter.adults'), value: 'adults' },
                     ].map((option) => (
                       <label key={option.value}>
                         <input

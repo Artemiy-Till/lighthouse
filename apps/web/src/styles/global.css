@@ -1247,6 +1247,10 @@ main {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.catalog-filter-options--children {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .catalog-filter-options label {
   position: relative;
   cursor: pointer;

@@ -71,6 +71,15 @@ function isSuitableForChildren(id: string) {
   return isChildrenTextSuitable(children);
 }
 
+function matchesChildrenFilter(
+  isSuitable: boolean,
+  filter: CatalogFilterState['children'],
+) {
+  if (filter === 'family') return isSuitable;
+  if (filter === 'adults') return !isSuitable;
+  return true;
+}
+
 export function CatalogPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [filters, setFilters] =
@@ -115,11 +124,12 @@ export function CatalogPage() {
         const matchesRating =
           filters.minRating === null ||
           getRating(experience.rating) >= filters.minRating;
-        const matchesChildren =
-          filters.children === 'any' ||
-          (remoteDetails.get(experience.id)
+        const matchesChildren = matchesChildrenFilter(
+          remoteDetails.get(experience.id)
             ? isChildrenTextSuitable(remoteDetails.get(experience.id)!.children)
-            : isSuitableForChildren(experience.id));
+            : isSuitableForChildren(experience.id),
+          filters.children,
+        );
 
         return (
           matchesCategory &&
@@ -148,32 +158,35 @@ export function CatalogPage() {
     const remoteDetails = new Map(
       remoteItems.map((item) => [item.id, toExperienceDetails(item)]),
     );
-    return [...remoteItems.map(toExperience), ...getExperiencesForCity(city.id)].filter(
-      (experience) => {
-        const price = getPrice(experience.price);
-        const details = remoteDetails.get(experience.id);
-        return (
-          (activeCategory === null || experience.category === activeCategory) &&
-          (normalizedQuery === '' ||
-            `${experience.title} ${experience.category}`
-              .toLocaleLowerCase('ru')
-              .includes(normalizedQuery)) &&
-          (draft.minPrice === null || price >= draft.minPrice) &&
-          (draft.maxPrice === null || price <= draft.maxPrice) &&
-          matchesDuration(getDuration(experience.duration), draft.duration) &&
-          (draft.format === 'any' ||
-            (details
-              ? getFormatFromDetails(details.format)
-              : getFormat(experience.id)) === draft.format) &&
-          (draft.minRating === null ||
-            getRating(experience.rating) >= draft.minRating) &&
-          (draft.children === 'any' ||
-            (details
-              ? isChildrenTextSuitable(details.children)
-              : isSuitableForChildren(experience.id)))
-        );
-      },
-    ).length;
+    return [
+      ...remoteItems.map(toExperience),
+      ...getExperiencesForCity(city.id),
+    ].filter((experience) => {
+      const price = getPrice(experience.price);
+      const details = remoteDetails.get(experience.id);
+      return (
+        (activeCategory === null || experience.category === activeCategory) &&
+        (normalizedQuery === '' ||
+          `${experience.title} ${experience.category}`
+            .toLocaleLowerCase('ru')
+            .includes(normalizedQuery)) &&
+        (draft.minPrice === null || price >= draft.minPrice) &&
+        (draft.maxPrice === null || price <= draft.maxPrice) &&
+        matchesDuration(getDuration(experience.duration), draft.duration) &&
+        (draft.format === 'any' ||
+          (details
+            ? getFormatFromDetails(details.format)
+            : getFormat(experience.id)) === draft.format) &&
+        (draft.minRating === null ||
+          getRating(experience.rating) >= draft.minRating) &&
+        matchesChildrenFilter(
+          details
+            ? isChildrenTextSuitable(details.children)
+            : isSuitableForChildren(experience.id),
+          draft.children,
+        )
+      );
+    }).length;
   };
 
   const activeFilterLabels = [
@@ -215,7 +228,13 @@ export function CatalogPage() {
       ? { key: 'minRating', label: `★ ${filters.minRating.toFixed(1)}+` }
       : null,
     filters.children !== 'any'
-      ? { key: 'children', label: t('filter.family') }
+      ? {
+          key: 'children',
+          label:
+            filters.children === 'family'
+              ? t('filter.family')
+              : t('filter.adults'),
+        }
       : null,
   ].filter((item): item is { key: string; label: string } => Boolean(item));
 
@@ -297,7 +316,10 @@ export function CatalogPage() {
         </div>
 
         {activeFilterLabels.length > 0 ? (
-          <div aria-label={t('filter.active')} className="catalog-active-filters">
+          <div
+            aria-label={t('filter.active')}
+            className="catalog-active-filters"
+          >
             {activeFilterLabels.map((filter) => (
               <button
                 aria-label={`${filter.label} — ${language === 'en' ? 'remove' : 'убрать'}`}
