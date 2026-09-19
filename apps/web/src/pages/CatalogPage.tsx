@@ -99,8 +99,10 @@ export function CatalogPage() {
             .toLocaleLowerCase('ru')
             .includes(normalizedQuery);
         const matchesPrice =
-          filters.maxPrice === null ||
-          getPrice(experience.price) <= filters.maxPrice;
+          (filters.minPrice === null ||
+            getPrice(experience.price) >= filters.minPrice) &&
+          (filters.maxPrice === null ||
+            getPrice(experience.price) <= filters.maxPrice);
         const matchesDurationFilter = matchesDuration(
           getDuration(experience.duration),
           filters.duration,
@@ -139,6 +141,92 @@ export function CatalogPage() {
         return second.reviews - first.reviews;
       });
   }, [activeCategory, city.id, filters, published.data, query, sort]);
+
+  const previewFilterCount = (draft: CatalogFilterState) => {
+    const normalizedQuery = query.trim().toLocaleLowerCase('ru');
+    const remoteItems = published.data?.items ?? [];
+    const remoteDetails = new Map(
+      remoteItems.map((item) => [item.id, toExperienceDetails(item)]),
+    );
+    return [...remoteItems.map(toExperience), ...getExperiencesForCity(city.id)].filter(
+      (experience) => {
+        const price = getPrice(experience.price);
+        const details = remoteDetails.get(experience.id);
+        return (
+          (activeCategory === null || experience.category === activeCategory) &&
+          (normalizedQuery === '' ||
+            `${experience.title} ${experience.category}`
+              .toLocaleLowerCase('ru')
+              .includes(normalizedQuery)) &&
+          (draft.minPrice === null || price >= draft.minPrice) &&
+          (draft.maxPrice === null || price <= draft.maxPrice) &&
+          matchesDuration(getDuration(experience.duration), draft.duration) &&
+          (draft.format === 'any' ||
+            (details
+              ? getFormatFromDetails(details.format)
+              : getFormat(experience.id)) === draft.format) &&
+          (draft.minRating === null ||
+            getRating(experience.rating) >= draft.minRating) &&
+          (draft.children === 'any' ||
+            (details
+              ? isChildrenTextSuitable(details.children)
+              : isSuitableForChildren(experience.id)))
+        );
+      },
+    ).length;
+  };
+
+  const activeFilterLabels = [
+    filters.minPrice !== null
+      ? {
+          key: 'minPrice',
+          label: `${language === 'en' ? 'From' : 'От'} ${filters.minPrice.toLocaleString('ru-RU')} ₽`,
+        }
+      : null,
+    filters.maxPrice !== null
+      ? {
+          key: 'maxPrice',
+          label: `${language === 'en' ? 'Up to' : 'До'} ${filters.maxPrice.toLocaleString('ru-RU')} ₽`,
+        }
+      : null,
+    filters.duration !== 'any'
+      ? {
+          key: 'duration',
+          label:
+            filters.duration === 'short'
+              ? t('filter.under2h')
+              : filters.duration === 'medium'
+                ? t('filter.twoThreeH')
+                : t('filter.over3h'),
+        }
+      : null,
+    filters.format !== 'any'
+      ? {
+          key: 'format',
+          label:
+            filters.format === 'walking'
+              ? t('filter.walking')
+              : filters.format === 'water'
+                ? t('filter.water')
+                : t('filter.transport'),
+        }
+      : null,
+    filters.minRating !== null
+      ? { key: 'minRating', label: `★ ${filters.minRating.toFixed(1)}+` }
+      : null,
+    filters.children !== 'any'
+      ? { key: 'children', label: t('filter.family') }
+      : null,
+  ].filter((item): item is { key: string; label: string } => Boolean(item));
+
+  const removeFilter = (key: string) => {
+    if (key === 'minPrice') setFilters({ ...filters, minPrice: null });
+    if (key === 'maxPrice') setFilters({ ...filters, maxPrice: null });
+    if (key === 'duration') setFilters({ ...filters, duration: 'any' });
+    if (key === 'format') setFilters({ ...filters, format: 'any' });
+    if (key === 'minRating') setFilters({ ...filters, minRating: null });
+    if (key === 'children') setFilters({ ...filters, children: 'any' });
+  };
 
   return (
     <AppLayout>
@@ -188,7 +276,11 @@ export function CatalogPage() {
               : formatOfferCount(filteredExperiences.length)}
           </strong>
           <div className="catalog-summary__actions">
-            <CatalogFilters onChange={setFilters} value={filters} />
+            <CatalogFilters
+              getResultCount={previewFilterCount}
+              onChange={setFilters}
+              value={filters}
+            />
             <label className="catalog-sort">
               <span className="visually-hidden">{t('catalog.sort')}</span>
               <select
@@ -203,6 +295,33 @@ export function CatalogPage() {
             </label>
           </div>
         </div>
+
+        {activeFilterLabels.length > 0 ? (
+          <div aria-label={t('filter.active')} className="catalog-active-filters">
+            {activeFilterLabels.map((filter) => (
+              <button
+                aria-label={`${filter.label} — ${language === 'en' ? 'remove' : 'убрать'}`}
+                key={filter.key}
+                onClick={() => removeFilter(filter.key)}
+                type="button"
+              >
+                {filter.label} <span aria-hidden="true">×</span>
+              </button>
+            ))}
+            <button
+              aria-label={
+                language === 'en'
+                  ? 'Reset all active filters'
+                  : 'Сбросить все активные фильтры'
+              }
+              className="catalog-active-filters__reset"
+              onClick={() => setFilters(emptyCatalogFilters)}
+              type="button"
+            >
+              {t('filter.reset')}
+            </button>
+          </div>
+        ) : null}
 
         {filteredExperiences.length > 0 ? (
           <div className="catalog-grid">

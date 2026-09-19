@@ -995,6 +995,42 @@ main {
   font-size: 14px;
 }
 
+.catalog-active-filters {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 0 0 14px;
+  scrollbar-width: none;
+}
+
+.catalog-active-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.catalog-active-filters button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: 999px;
+  color: var(--accent-dark);
+  background: color-mix(in srgb, var(--accent) 9%, #fff);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.catalog-active-filters button span {
+  margin-left: 4px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.catalog-active-filters button.catalog-active-filters__reset {
+  border-color: transparent;
+  color: var(--muted);
+  background: transparent;
+}
+
 .catalog-summary button {
   padding: 6px 0;
   color: var(--muted);
@@ -1136,6 +1172,71 @@ main {
   font-weight: 800;
 }
 
+.catalog-filter-price-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.catalog-filter-price-inputs label {
+  position: relative;
+  display: block;
+}
+
+.catalog-filter-price-inputs label > span {
+  position: absolute;
+  top: 8px;
+  left: 13px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.catalog-filter-price-inputs input {
+  width: 100%;
+  min-height: 58px;
+  padding: 22px 13px 7px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  outline: 0;
+  color: var(--ink);
+  background: #f7f8fb;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.catalog-filter-price-inputs input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.catalog-filter-presets {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-top: 8px;
+  scrollbar-width: none;
+}
+
+.catalog-filter-presets button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #555d6c;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.catalog-filter-presets button.is-active {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  background: #f0f2ff;
+}
+
 .catalog-filter-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1208,6 +1309,11 @@ main {
 .catalog-filter-dialog__actions button:last-child {
   color: #fff;
   background: var(--accent);
+}
+
+.catalog-filter-dialog__actions button:last-child:disabled {
+  color: #8d94a3;
+  background: #e2e4ea;
 }
 
 .catalog-grid {
@@ -3385,6 +3491,13 @@ html[data-theme='dark'] .guide-section,
 html[data-theme='dark'] .experience-guide__card {
   color: var(--ink);
   background: var(--surface);
+}
+
+html[data-theme='dark'] .catalog-filter-price-inputs input,
+html[data-theme='dark'] .catalog-filter-presets button,
+html[data-theme='dark'] .catalog-active-filters button {
+  color: var(--ink);
+  background: var(--surface-soft);
 }
 
 html[data-theme='dark'] .settings-section {

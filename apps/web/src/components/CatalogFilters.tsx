@@ -8,6 +8,7 @@ export interface CatalogFilterState {
   readonly duration: 'any' | 'long' | 'medium' | 'short';
   readonly format: 'any' | 'transport' | 'walking' | 'water';
   readonly maxPrice: number | null;
+  readonly minPrice: number | null;
   readonly minRating: number | null;
 }
 
@@ -16,12 +17,13 @@ export const emptyCatalogFilters: CatalogFilterState = {
   duration: 'any',
   format: 'any',
   maxPrice: null,
+  minPrice: null,
   minRating: null,
 };
 
 export function countActiveCatalogFilters(filters: CatalogFilterState) {
   return [
-    filters.maxPrice !== null,
+    filters.maxPrice !== null || filters.minPrice !== null,
     filters.duration !== 'any',
     filters.format !== 'any',
     filters.minRating !== null,
@@ -30,15 +32,21 @@ export function countActiveCatalogFilters(filters: CatalogFilterState) {
 }
 
 interface CatalogFiltersProps {
+  readonly getResultCount: (filters: CatalogFilterState) => number;
   readonly onChange: (filters: CatalogFilterState) => void;
   readonly value: CatalogFilterState;
 }
 
-export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
-  const { t } = useSettings();
+export function CatalogFilters({
+  getResultCount,
+  onChange,
+  value,
+}: CatalogFiltersProps) {
+  const { language, t } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState(value);
   const activeCount = countActiveCatalogFilters(value);
+  const draftResultCount = getResultCount(draft);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -123,31 +131,67 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </header>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>{t('filter.price')}</legend>
-                  <div className="catalog-filter-options">
-                    {[
-                      { label: t('filter.anyFeminine'), value: null },
-                      { label: t('filter.under1500'), value: 1500 },
-                      { label: t('filter.under2000'), value: 2000 },
-                      { label: t('filter.under3000'), value: 3000 },
-                    ].map((option) => (
-                      <label key={option.label}>
-                        <input
-                          checked={draft.maxPrice === option.value}
-                          name="price-filter"
-                          onChange={() =>
-                            setDraft({ ...draft, maxPrice: option.value })
-                          }
-                          type="radio"
-                        />
-                        <span>{option.label}</span>
-                      </label>
+                  <legend>₽ {t('filter.price')}</legend>
+                  <div className="catalog-filter-price-inputs">
+                    <label>
+                      <span>{language === 'en' ? 'From' : 'От'}</span>
+                      <input
+                        inputMode="numeric"
+                        min={0}
+                        onChange={(event) =>
+                          setDraft({
+                            ...draft,
+                            minPrice: event.target.value
+                              ? Number(event.target.value)
+                              : null,
+                          })
+                        }
+                        placeholder="0"
+                        type="number"
+                        value={draft.minPrice ?? ''}
+                      />
+                    </label>
+                    <label>
+                      <span>{language === 'en' ? 'To' : 'До'}</span>
+                      <input
+                        inputMode="numeric"
+                        min={0}
+                        onChange={(event) =>
+                          setDraft({
+                            ...draft,
+                            maxPrice: event.target.value
+                              ? Number(event.target.value)
+                              : null,
+                          })
+                        }
+                        placeholder={language === 'en' ? 'No limit' : 'Без лимита'}
+                        type="number"
+                        value={draft.maxPrice ?? ''}
+                      />
+                    </label>
+                  </div>
+                  <div
+                    aria-label={language === 'en' ? 'Quick price' : 'Быстрая цена'}
+                    className="catalog-filter-presets"
+                  >
+                    {[1500, 3000, 5000].map((price) => (
+                      <button
+                        aria-label={`${language === 'en' ? 'Up to' : 'До'} ${price.toLocaleString('ru-RU')} ₽`}
+                        className={draft.maxPrice === price ? 'is-active' : ''}
+                        key={price}
+                        onClick={() =>
+                          setDraft({ ...draft, maxPrice: price, minPrice: null })
+                        }
+                        type="button"
+                      >
+                        ≤ {price.toLocaleString('ru-RU')} ₽
+                      </button>
                     ))}
                   </div>
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>{t('filter.duration')}</legend>
+                  <legend>◷ {t('filter.duration')}</legend>
                   <div className="catalog-filter-options">
                     {[
                       { label: t('filter.anyFeminine'), value: 'any' },
@@ -175,7 +219,7 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>{t('filter.format')}</legend>
+                  <legend>⌖ {t('filter.format')}</legend>
                   <div className="catalog-filter-options">
                     {[
                       { label: t('filter.anyMasculine'), value: 'any' },
@@ -203,12 +247,13 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>{t('filter.rating')}</legend>
+                  <legend>★ {t('filter.rating')}</legend>
                   <div className="catalog-filter-options catalog-filter-options--rating">
                     {[
                       { label: t('filter.anyMasculine'), value: null },
-                      { label: t('filter.from49'), value: 4.9 },
-                      { label: t('filter.from495'), value: 4.95 },
+                      { label: '4,0+', value: 4 },
+                      { label: '4,5+', value: 4.5 },
+                      { label: '4,8+', value: 4.8 },
                     ].map((option) => (
                       <label key={option.label}>
                         <input
@@ -226,7 +271,7 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>{t('filter.children')}</legend>
+                  <legend>☀ {t('filter.children')}</legend>
                   <div className="catalog-filter-options">
                     {[
                       { label: t('filter.doesNotMatter'), value: 'any' },
@@ -255,8 +300,19 @@ export function CatalogFilters({ onChange, value }: CatalogFiltersProps) {
                   <button onClick={resetFilters} type="button">
                     {t('filter.reset')}
                   </button>
-                  <button onClick={applyFilters} type="button">
-                    {t('date.show')}
+                  <button
+                    aria-label={t('date.show')}
+                    disabled={draftResultCount === 0}
+                    onClick={applyFilters}
+                    type="button"
+                  >
+                    {draftResultCount === 0
+                      ? language === 'en'
+                        ? 'No matches'
+                        : 'Ничего не найдено'
+                      : language === 'en'
+                        ? `Show ${draftResultCount}`
+                        : `Показать · ${draftResultCount}`}
                   </button>
                 </div>
               </section>
