@@ -1754,8 +1754,21 @@ main {
 
 .professional-page {
   display: grid;
+  min-width: 0;
   align-content: start;
   gap: 18px;
+}
+
+.professional-page .page-header,
+.professional-page .page-header > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.professional-page .page-header h1 {
+  font-size: clamp(28px, 8vw, 34px);
+  line-height: 1.04;
 }
 
 .professional-card {
@@ -1807,6 +1820,12 @@ main {
   gap: 14px;
 }
 
+.professional-status {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+}
+
 .professional-step > span,
 .professional-status > span {
   display: grid;
@@ -1841,9 +1860,16 @@ main {
   flex: 1;
 }
 
+.professional-status__copy h2,
+.professional-status__copy small {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .professional-status__edit {
   min-height: 40px;
-  flex: 0 0 auto;
+  width: 100%;
+  grid-column: 1 / -1;
   padding: 0 14px;
   border: 1px solid #dfe3ff;
   border-radius: 12px;
@@ -1908,7 +1934,7 @@ main {
 
 .professional-form__row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 }
 
@@ -2037,6 +2063,8 @@ main {
 
 .professional-schedule h2 {
   margin: 3px 0 6px;
+  font-size: 24px;
+  overflow-wrap: anywhere;
 }
 
 .professional-schedule > div:first-child > p:last-child {
@@ -2052,7 +2080,7 @@ main {
 
 .professional-schedule__active-list article {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 11px;
   padding: 13px;
@@ -2071,12 +2099,19 @@ main {
   gap: 3px;
 }
 
+.professional-schedule__active-list strong,
+.professional-schedule__active-list small {
+  overflow-wrap: anywhere;
+}
+
 .professional-schedule__active-list small {
   color: var(--muted);
 }
 
 .professional-schedule__active-list button {
   min-height: 38px;
+  width: 100%;
+  grid-column: 1 / -1;
   padding: 0 12px;
   border: 0;
   border-radius: 12px;
@@ -2106,7 +2141,7 @@ main {
 
 .professional-availability__picker {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: end;
   gap: 8px;
 }
@@ -2163,6 +2198,7 @@ main {
 
 .professional-experiences__header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -2201,7 +2237,7 @@ main {
 
 .professional-experiences__list article {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) auto;
+  grid-template-columns: 56px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   padding: 10px;
@@ -2210,8 +2246,8 @@ main {
 }
 
 .professional-experiences__list img {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 12px;
   object-fit: cover;
 }
@@ -2236,11 +2272,13 @@ main {
 
 .professional-experiences__actions {
   display: flex;
+  grid-column: 1 / -1;
   gap: 6px;
 }
 
 .professional-experiences__actions button {
   min-height: 38px;
+  flex: 1;
   padding: 0 11px;
   font-size: 11px;
 }
@@ -3574,43 +3612,6 @@ html[data-theme='dark']
   color: #d9ddff;
   border-color: #3e4665;
   background: #292e49;
-}
-
-@media (max-width: 520px) {
-  .professional-status {
-    flex-wrap: wrap;
-  }
-
-  .professional-status__edit {
-    width: 100%;
-    margin-left: 52px;
-  }
-
-  .professional-form__row {
-    grid-template-columns: 1fr;
-  }
-
-  .professional-availability__picker,
-  .professional-schedule__active-list article {
-    grid-template-columns: 1fr;
-  }
-
-  .professional-experiences__list article {
-    grid-template-columns: 56px minmax(0, 1fr);
-  }
-
-  .professional-experiences__list img {
-    width: 56px;
-    height: 56px;
-  }
-
-  .professional-experiences__actions {
-    grid-column: 1 / -1;
-  }
-
-  .professional-experiences__actions button {
-    flex: 1;
-  }
 }
 
 html[data-theme='dark'] .search-panel {
