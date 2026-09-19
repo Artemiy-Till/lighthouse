@@ -151,6 +151,28 @@ export function createPublishedExperience(
   });
 }
 
+export function getOwnPublishedExperiences(initData: string) {
+  return request<{ readonly items: readonly PublishedExperience[] }>(
+    '/professional/experiences',
+    { headers: maxHeaders(initData) },
+  );
+}
+
+export function updatePublishedExperience(
+  initData: string,
+  id: string,
+  experience: CreateExperienceInput,
+) {
+  return request<PublishedExperience>(
+    `/professional/experiences/${encodeURIComponent(id)}`,
+    {
+      body: JSON.stringify(experience),
+      headers: maxHeaders(initData),
+      method: 'PUT',
+    },
+  );
+}
+
 export function uploadExperiencePhoto(
   initData: string,
   photo: { readonly dataUrl: string; readonly filename: string },

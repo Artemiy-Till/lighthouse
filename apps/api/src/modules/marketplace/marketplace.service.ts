@@ -160,6 +160,84 @@ export class MarketplaceService {
     return mapExperience(result.rows[0]!);
   }
 
+  async listOwnExperiences(maxUserId: string) {
+    await this.ensurePhotoSchema();
+    const result = await this.database.query<ExperienceRow>(
+      `select e.id, e.city_id, e.category, e.title, e.intro,
+         e.description, e.duration_minutes, e.format, e.group_size,
+         e.children_policy, e.meeting_point, e.price_rub, e.photo_urls,
+         e.created_at, g.id as guide_id, g.display_name as guide_name,
+         g.bio as guide_bio
+       from published_experiences e
+       join guide_profiles g on g.id = e.guide_id
+       where g.max_user_id = $1 and e.status = 'published'
+       order by e.created_at desc`,
+      [maxUserId],
+    );
+    return { items: result.rows.map(mapExperience) };
+  }
+
+  async updateExperience(
+    maxUserId: string,
+    id: string,
+    input: CreateExperienceDto,
+  ) {
+    await this.ensurePhotoSchema();
+    const guide = await this.database.query<GuideRow>(
+      `select id, max_user_id, display_name, bio, created_at
+       from guide_profiles where max_user_id = $1`,
+      [maxUserId],
+    );
+    const profile = guide.rows[0];
+    if (!profile) {
+      throw new NotFoundException('Professional profile not found');
+    }
+
+    const result = await this.database.query<ExperienceRow>(
+      `update published_experiences
+       set city_id = $3,
+           category = $4,
+           title = $5,
+           intro = $6,
+           description = $7,
+           duration_minutes = $8,
+           format = $9,
+           group_size = $10,
+           children_policy = $11,
+           meeting_point = $12,
+           price_rub = $13,
+           photo_urls = $14,
+           updated_at = now()
+       where id = $1 and guide_id = $2 and status = 'published'
+       returning id, city_id, category, title, intro, description,
+         duration_minutes, format, group_size, children_policy,
+         meeting_point, price_rub, photo_urls, created_at, guide_id,
+         $15::text as guide_name, $16::text as guide_bio`,
+      [
+        id,
+        profile.id,
+        input.cityId,
+        input.category,
+        input.title.trim(),
+        input.intro.trim(),
+        input.description.trim(),
+        input.durationMinutes,
+        input.format.trim(),
+        input.groupSize,
+        input.childrenPolicy.trim(),
+        input.meetingPoint.trim(),
+        input.priceRub,
+        input.photoUrls,
+        profile.display_name,
+        profile.bio,
+      ],
+    );
+    if (!result.rows[0]) {
+      throw new NotFoundException('Experience not found');
+    }
+    return mapExperience(result.rows[0]);
+  }
+
   async listExperiences(cityId?: string) {
     await this.ensurePhotoSchema();
     const result = await this.database.query<ExperienceRow>(

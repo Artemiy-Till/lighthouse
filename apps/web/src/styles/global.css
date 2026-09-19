@@ -1731,6 +1731,106 @@ main {
   font-weight: 800;
 }
 
+.professional-experiences {
+  display: grid;
+  gap: 15px;
+}
+
+.professional-experiences__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.professional-experiences__header h2 {
+  margin: 3px 0 0;
+}
+
+.professional-experiences__header button,
+.professional-editing-bar button,
+.professional-experiences__list article > button {
+  border: 0;
+  border-radius: 12px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.professional-experiences__header button {
+  min-height: 42px;
+  padding: 0 14px;
+}
+
+.professional-experiences__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.professional-experiences__list {
+  display: grid;
+  gap: 10px;
+}
+
+.professional-experiences__list article {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.professional-experiences__list img {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.professional-experiences__list article > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.professional-experiences__list strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.professional-experiences__list small {
+  color: var(--muted);
+}
+
+.professional-experiences__list article > button {
+  min-height: 38px;
+  padding: 0 11px;
+  font-size: 11px;
+}
+
+.professional-editing-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.professional-editing-bar button {
+  min-height: 32px;
+  padding: 0 10px;
+}
+
 .form-error {
   color: #d63b48;
   font-size: 12px;
@@ -2674,6 +2774,19 @@ html[data-theme='dark'] .professional-form select {
 @media (max-width: 520px) {
   .professional-form__row {
     grid-template-columns: 1fr;
+  }
+
+  .professional-experiences__list article {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .professional-experiences__list img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .professional-experiences__list article > button {
+    grid-column: 1 / -1;
   }
 }
 

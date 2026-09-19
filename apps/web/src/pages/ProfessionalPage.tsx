@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import {
   createPublishedExperience,
   getGuideProfile,
+  getOwnPublishedExperiences,
   saveGuideProfile,
   type CreateExperienceInput,
   type PublishedExperience,
   uploadExperiencePhoto,
+  updatePublishedExperience,
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { categories } from '../data/experiences';
@@ -32,6 +34,11 @@ export function ProfessionalPage() {
   const { platform, session } = useMaxConnection();
   const initData = platform.initData ?? '';
   const [created, setCreated] = useState<PublishedExperience | null>(null);
+  const [editing, setEditing] = useState<PublishedExperience | null>(null);
+  const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
+  const [lastAction, setLastAction] = useState<'created' | 'updated'>(
+    'created',
+  );
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const profile = useQuery({
@@ -47,29 +54,48 @@ export function ProfessionalPage() {
       queryClient.setQueryData(['guide-profile'], value);
     },
   });
-  const createExperience = useMutation({
+  const ownExperiences = useQuery({
+    enabled: Boolean(initData && profile.data),
+    queryFn: () => getOwnPublishedExperiences(initData),
+    queryKey: ['own-published-experiences'],
+    retry: false,
+  });
+  const saveExperience = useMutation({
     mutationFn: async ({
+      existingUrls,
       files,
+      id,
       value,
     }: {
+      existingUrls: readonly string[];
       files: readonly File[];
+      id?: string;
       value: Omit<CreateExperienceInput, 'photoUrls'>;
     }) => {
-      const photoUrls: string[] = [];
+      const photoUrls = [...existingUrls];
       for (const file of files) {
         const prepared = await prepareExperiencePhoto(file);
         const uploaded = await uploadExperiencePhoto(initData, prepared);
         photoUrls.push(uploaded.url);
       }
-      return createPublishedExperience(initData, { ...value, photoUrls });
+      const payload = { ...value, photoUrls };
+      return id
+        ? updatePublishedExperience(initData, id, payload)
+        : createPublishedExperience(initData, payload);
     },
-    onSuccess: (value) => {
+    onSuccess: (value, variables) => {
       setCreated(value);
+      setLastAction(variables.id ? 'updated' : 'created');
       photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
       setPhotos([]);
+      setExistingPhotoUrls([]);
+      setEditing(null);
       setPhotoError(null);
       void queryClient.invalidateQueries({
         queryKey: ['published-experiences'],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['own-published-experiences'],
       });
     },
   });
@@ -91,14 +117,16 @@ export function ProfessionalPage() {
 
   function handleExperience(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (photos.length === 0) {
+    if (photos.length + existingPhotoUrls.length === 0) {
       setPhotoError('Добавьте хотя бы одну фотографию экскурсии.');
       return;
     }
     const form = new FormData(event.currentTarget);
     setPhotoError(null);
-    createExperience.mutate({
+    saveExperience.mutate({
+      existingUrls: existingPhotoUrls,
       files: photos.map((photo) => photo.file),
+      id: editing?.id,
       value: {
         category: formValue(form, 'category'),
         childrenPolicy: formValue(form, 'childrenPolicy'),
@@ -117,7 +145,7 @@ export function ProfessionalPage() {
 
   function selectPhotos(files: FileList | null) {
     if (!files) return;
-    const available = Math.max(0, 6 - photos.length);
+    const available = Math.max(0, 6 - photos.length - existingPhotoUrls.length);
     const selected = Array.from(files).slice(0, available);
     if (selected.length < files.length) {
       setPhotoError('Можно добавить не больше 6 фотографий.');
@@ -139,6 +167,26 @@ export function ProfessionalPage() {
       const removed = current.find((photo) => photo.id === id);
       if (removed) URL.revokeObjectURL(removed.preview);
       return current.filter((photo) => photo.id !== id);
+    });
+  }
+
+  function resetEditor() {
+    photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
+    setPhotos([]);
+    setExistingPhotoUrls([]);
+    setEditing(null);
+    setPhotoError(null);
+  }
+
+  function editExperience(experience: PublishedExperience) {
+    resetEditor();
+    setCreated(null);
+    setEditing(experience);
+    setExistingPhotoUrls([...experience.photos]);
+    window.setTimeout(() => {
+      document
+        .getElementById('professional-experience-editor')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
@@ -232,31 +280,105 @@ export function ProfessionalPage() {
                 <small>{profile.data.bio}</small>
               </div>
             </section>
+            <section className="professional-card professional-experiences">
+              <div className="professional-experiences__header">
+                <div>
+                  <p className="section-kicker">Ваши публикации</p>
+                  <h2>Мои экскурсии</h2>
+                </div>
+                <button onClick={resetEditor} type="button">
+                  ＋ Новая
+                </button>
+              </div>
+              {ownExperiences.isPending ? (
+                <p className="professional-experiences__empty">
+                  Загружаем экскурсии…
+                </p>
+              ) : ownExperiences.isError ? (
+                <p className="form-error">Не удалось загрузить экскурсии.</p>
+              ) : ownExperiences.data.items.length === 0 ? (
+                <p className="professional-experiences__empty">
+                  Здесь появятся созданные вами экскурсии.
+                </p>
+              ) : (
+                <div className="professional-experiences__list">
+                  {ownExperiences.data.items.map((experience) => (
+                    <article key={experience.id}>
+                      <img
+                        alt=""
+                        src={
+                          experience.photos[0] ??
+                          '/images/saint-petersburg-hero.webp'
+                        }
+                      />
+                      <div>
+                        <strong>{experience.title}</strong>
+                        <small>
+                          {cities.find((city) => city.id === experience.cityId)
+                            ?.name ?? experience.cityId}
+                          {' · '}
+                          {experience.priceRub.toLocaleString('ru-RU')} ₽
+                        </small>
+                      </div>
+                      <button
+                        onClick={() => editExperience(experience)}
+                        type="button"
+                      >
+                        Редактировать
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
             {created ? (
               <section aria-live="polite" className="professional-success">
-                <strong>Экскурсия опубликована</strong>
-                <p>Она уже доступна всем пользователям.</p>
+                <strong>
+                  {lastAction === 'updated'
+                    ? 'Изменения сохранены'
+                    : 'Экскурсия опубликована'}
+                </strong>
+                <p>Обновлённая карточка уже доступна всем пользователям.</p>
                 <Link to={`/experiences/${created.id}`}>Открыть карточку</Link>
               </section>
             ) : null}
             <form
+              id="professional-experience-editor"
+              key={editing?.id ?? 'new-experience'}
               className="professional-card professional-form"
               onSubmit={handleExperience}
             >
               <div className="professional-step">
                 <span>2</span>
                 <div>
-                  <h2>Создайте экскурсию</h2>
+                  <h2>
+                    {editing
+                      ? 'Редактирование экскурсии'
+                      : 'Создайте экскурсию'}
+                  </h2>
                   <p>
-                    После публикации она появится на главной и в каталоге
-                    выбранного города.
+                    {editing
+                      ? 'Изменения сразу появятся в общей карточке.'
+                      : 'После публикации она появится на главной и в каталоге выбранного города.'}
                   </p>
                 </div>
               </div>
+              {editing ? (
+                <div className="professional-editing-bar">
+                  <span>Вы редактируете опубликованную экскурсию</span>
+                  <button onClick={resetEditor} type="button">
+                    Отменить
+                  </button>
+                </div>
+              ) : null}
               <div className="professional-form__row">
                 <label>
                   Город
-                  <select name="cityId" required>
+                  <select
+                    defaultValue={editing?.cityId ?? 'saint-petersburg'}
+                    name="cityId"
+                    required
+                  >
                     {cities.map((city) => (
                       <option key={city.id} value={city.id}>
                         {city.name}
@@ -266,7 +388,11 @@ export function ProfessionalPage() {
                 </label>
                 <label>
                   Категория
-                  <select name="category" required>
+                  <select
+                    defaultValue={editing?.category ?? 'Обзорные'}
+                    name="category"
+                    required
+                  >
                     {categories.map((category) => (
                       <option key={category.label}>{category.label}</option>
                     ))}
@@ -275,15 +401,28 @@ export function ProfessionalPage() {
               </div>
               <label>
                 Название
-                <input maxLength={120} minLength={6} name="title" required />
+                <input
+                  defaultValue={editing?.title ?? ''}
+                  maxLength={120}
+                  minLength={6}
+                  name="title"
+                  required
+                />
               </label>
               <label>
                 Коротко о маршруте
-                <input maxLength={240} minLength={10} name="intro" required />
+                <input
+                  defaultValue={editing?.intro ?? ''}
+                  maxLength={240}
+                  minLength={10}
+                  name="intro"
+                  required
+                />
               </label>
               <label>
                 Подробное описание
                 <textarea
+                  defaultValue={editing?.description ?? ''}
                   maxLength={3000}
                   minLength={40}
                   name="description"
@@ -296,12 +435,31 @@ export function ProfessionalPage() {
                   <strong>Фотографии</strong>
                   <small>До 6 фото · JPEG, PNG или WebP</small>
                 </div>
-                {photos.length > 0 ? (
+                {existingPhotoUrls.length + photos.length > 0 ? (
                   <div className="professional-photos__grid">
+                    {existingPhotoUrls.map((url, index) => (
+                      <figure key={url}>
+                        <img
+                          alt={`Фотография экскурсии ${index + 1}`}
+                          src={url}
+                        />
+                        <button
+                          aria-label={`Удалить фотографию ${index + 1}`}
+                          onClick={() =>
+                            setExistingPhotoUrls((current) =>
+                              current.filter((item) => item !== url),
+                            )
+                          }
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </figure>
+                    ))}
                     {photos.map((photo, index) => (
                       <figure key={photo.id}>
                         <img
-                          alt={`Фотография экскурсии ${index + 1}`}
+                          alt={`Новая фотография экскурсии ${index + 1}`}
                           src={photo.preview}
                         />
                         <button
@@ -315,7 +473,7 @@ export function ProfessionalPage() {
                     ))}
                   </div>
                 ) : null}
-                {photos.length < 6 ? (
+                {existingPhotoUrls.length + photos.length < 6 ? (
                   <label className="professional-photo-picker">
                     <input
                       accept="image/jpeg,image/png,image/webp"
@@ -336,7 +494,7 @@ export function ProfessionalPage() {
                 <label>
                   Длительность, мин
                   <input
-                    defaultValue={120}
+                    defaultValue={editing?.durationMinutes ?? 120}
                     max={720}
                     min={30}
                     name="durationMinutes"
@@ -347,7 +505,7 @@ export function ProfessionalPage() {
                 <label>
                   Цена, ₽
                   <input
-                    defaultValue={1500}
+                    defaultValue={editing?.priceRub ?? 1500}
                     max={1000000}
                     min={100}
                     name="priceRub"
@@ -360,7 +518,7 @@ export function ProfessionalPage() {
                 <label>
                   Формат
                   <input
-                    defaultValue="Пешком"
+                    defaultValue={editing?.format ?? 'Пешком'}
                     maxLength={80}
                     minLength={3}
                     name="format"
@@ -370,7 +528,7 @@ export function ProfessionalPage() {
                 <label>
                   До скольки человек
                   <input
-                    defaultValue={10}
+                    defaultValue={editing?.groupSize ?? 10}
                     max={100}
                     min={1}
                     name="groupSize"
@@ -382,7 +540,7 @@ export function ProfessionalPage() {
               <label>
                 Можно ли с детьми
                 <input
-                  defaultValue="Можно с детьми от 7 лет"
+                  defaultValue={editing?.children ?? 'Можно с детьми от 7 лет'}
                   maxLength={160}
                   minLength={3}
                   name="childrenPolicy"
@@ -392,25 +550,28 @@ export function ProfessionalPage() {
               <label>
                 Место встречи
                 <input
+                  defaultValue={editing?.meetingPoint ?? ''}
                   maxLength={240}
                   minLength={5}
                   name="meetingPoint"
                   required
                 />
               </label>
-              {createExperience.isError ? (
+              {saveExperience.isError ? (
                 <p className="form-error">
-                  Не удалось опубликовать. Проверьте поля и повторите.
+                  Не удалось сохранить экскурсию. Проверьте поля и повторите.
                 </p>
               ) : null}
               <button
                 className="professional-submit"
-                disabled={createExperience.isPending}
+                disabled={saveExperience.isPending}
                 type="submit"
               >
-                {createExperience.isPending
+                {saveExperience.isPending
                   ? 'Загружаем фото и публикуем…'
-                  : 'Опубликовать в общем каталоге'}
+                  : editing
+                    ? 'Сохранить изменения'
+                    : 'Опубликовать в общем каталоге'}
               </button>
             </form>
           </>

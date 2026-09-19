@@ -71,6 +71,22 @@ export class MarketplaceController {
     return this.marketplace.createExperience(user.id, body);
   }
 
+  @Get('professional/experiences')
+  listOwnExperiences(@Headers('x-max-init-data') initData: string | undefined) {
+    const user = this.authenticate(initData);
+    return this.marketplace.listOwnExperiences(user.id);
+  }
+
+  @Put('professional/experiences/:id')
+  updateExperience(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Param('id') id: string,
+    @Body() body: CreateExperienceDto,
+  ) {
+    const user = this.authenticate(initData);
+    return this.marketplace.updateExperience(user.id, id, body);
+  }
+
   @Post('professional/photos')
   uploadPhoto(
     @Headers('x-max-init-data') initData: string | undefined,

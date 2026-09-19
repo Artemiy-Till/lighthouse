@@ -12,6 +12,26 @@ const guideRow = {
   max_user_id: '42',
 };
 
+const experienceRow = {
+  category: 'Обзорные' as const,
+  children_policy: 'Можно с детьми от 7 лет',
+  city_id: 'kostroma',
+  created_at: new Date('2026-09-18T19:00:00.000Z'),
+  description: 'Большая авторская прогулка по историческому центру города.',
+  duration_minutes: 120,
+  format: 'Пешком',
+  group_size: 10,
+  guide_bio: guideRow.bio,
+  guide_id: guideRow.id,
+  guide_name: guideRow.display_name,
+  id: 'experience-1',
+  intro: 'Главные истории города за два часа.',
+  meeting_point: 'У памятника на главной площади',
+  photo_urls: ['https://example.com/photo.jpg'],
+  price_rub: 1700,
+  title: 'Обновлённое знакомство с городом',
+};
+
 describe('MarketplaceService', () => {
   it('upserts a professional profile using the verified MAX id', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [guideRow] });
@@ -62,5 +82,51 @@ describe('MarketplaceService', () => {
         title: 'Первое знакомство с городом',
       }),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('updates an experience through its verified guide profile', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [guideRow] })
+      .mockResolvedValueOnce({ rows: [experienceRow] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    const result = await service.updateExperience('42', 'experience-1', {
+      category: experienceRow.category,
+      childrenPolicy: experienceRow.children_policy,
+      cityId: 'kostroma',
+      description: experienceRow.description,
+      durationMinutes: experienceRow.duration_minutes,
+      format: experienceRow.format,
+      groupSize: experienceRow.group_size,
+      intro: experienceRow.intro,
+      meetingPoint: experienceRow.meeting_point,
+      photoUrls: experienceRow.photo_urls,
+      priceRub: experienceRow.price_rub,
+      title: experienceRow.title,
+    });
+
+    expect(result.title).toBe('Обновлённое знакомство с городом');
+    expect(query.mock.calls[2]?.[1]).toEqual([
+      'experience-1',
+      'guide-1',
+      'kostroma',
+      'Обзорные',
+      experienceRow.title,
+      experienceRow.intro,
+      experienceRow.description,
+      120,
+      'Пешком',
+      10,
+      experienceRow.children_policy,
+      experienceRow.meeting_point,
+      1700,
+      experienceRow.photo_urls,
+      'Артемий',
+      guideRow.bio,
+    ]);
   });
 });
