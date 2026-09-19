@@ -5200,3 +5200,93 @@ body * {
   min-height: 60px;
   font-size: 14px;
 }
+
+@media (max-width: 360px) {
+  .experience-details-page {
+    width: calc(100% - 8px);
+    margin: 4px auto;
+    border-radius: 24px;
+  }
+
+  .experience-details-hero {
+    margin: 8px;
+    border-radius: 24px;
+  }
+
+  .experience-details-content {
+    padding: 14px 16px 38px;
+  }
+
+  .experience-details-title-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .experience-details-header h1 {
+    font-size: 22px;
+  }
+
+  .experience-details-price {
+    margin: 0;
+    text-align: left;
+  }
+
+  .experience-details-price strong,
+  .experience-details-price span {
+    display: inline;
+  }
+
+  .experience-details-price span {
+    margin-left: 5px;
+  }
+
+  .experience-facts-card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .experience-facts-card h2 {
+    font-size: 18px;
+  }
+
+  .experience-facts-card dl {
+    gap: 14px 10px;
+  }
+
+  .experience-facts-card dt {
+    font-size: 10px;
+  }
+
+  .experience-facts-card dd {
+    font-size: 12px;
+  }
+
+  .booking-field,
+  .participant-picker,
+  .booking-total {
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .booking-field select {
+    max-width: 60%;
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .participant-picker > div {
+    gap: 8px;
+  }
+
+  .participant-picker button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .experience-description h2,
+  .experience-guide h2,
+  .experience-more h2,
+  .experience-terms h2 {
+    font-size: 18px;
+  }
+}
