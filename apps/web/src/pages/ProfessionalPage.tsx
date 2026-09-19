@@ -55,9 +55,26 @@ export function ProfessionalPage() {
       saveGuideProfile(initData, value),
     onSuccess: (value) => {
       queryClient.setQueryData(['guide-profile'], value);
+      queryClient.setQueriesData<PublishedExperience>(
+        { queryKey: ['published-experience'] },
+        (experience) =>
+          experience
+            ? {
+                ...experience,
+                guide: {
+                  ...experience.guide,
+                  bio: value.bio,
+                  displayName: value.displayName,
+                },
+              }
+            : experience,
+      );
       setEditingProfile(false);
       void queryClient.invalidateQueries({
         queryKey: ['published-experiences'],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['published-experience'],
       });
       void queryClient.invalidateQueries({
         queryKey: ['own-published-experiences'],

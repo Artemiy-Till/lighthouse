@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,13 +10,15 @@ function renderApp(initialEntry = '/') {
     defaultOptions: { queries: { retry: false } },
   });
 
-  return render(
+  const view = render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[initialEntry]}>
         <App />
       </MemoryRouter>
     </QueryClientProvider>,
   );
+
+  return { ...view, queryClient };
 }
 
 describe('App navigation', () => {
@@ -290,7 +292,15 @@ describe('App navigation', () => {
       }),
     );
 
-    renderApp('/professional');
+    const { queryClient } = renderApp('/professional');
+    queryClient.setQueryData(['published-experience', 'tour-1'], {
+      guide: {
+        bio: 'Старое описание.',
+        displayName: 'Артемий',
+        id: 'guide-1',
+      },
+      id: 'tour-1',
+    });
 
     fireEvent.click(
       await screen.findByRole('button', { name: 'Редактировать профиль' }),
@@ -312,6 +322,18 @@ describe('App navigation', () => {
     expect(
       screen.getByRole('button', { name: 'Редактировать профиль' }),
     ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryState(['published-experience', 'tour-1'])
+          ?.isInvalidated,
+      ).toBe(true),
+    );
+    expect(
+      queryClient.getQueryData<{ guide: { displayName: string } }>([
+        'published-experience',
+        'tour-1',
+      ])?.guide.displayName,
+    ).toBe('Артемий Экскурсовод');
   });
 
   it('asks to open MAX before showing private orders', () => {
