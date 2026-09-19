@@ -1,8 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
   IsIn,
   IsInt,
   IsString,
+  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -86,4 +90,20 @@ export class CreateExperienceDto {
   @Min(100)
   @Max(1_000_000)
   priceRub!: number;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(6)
+  @IsUrl({ require_protocol: true }, { each: true })
+  photoUrls!: string[];
+}
+
+export class UploadExperiencePhotoDto {
+  @IsString()
+  @MaxLength(180)
+  filename!: string;
+
+  @IsString()
+  @MaxLength(4_200_000)
+  dataUrl!: string;
 }

@@ -34,6 +34,7 @@ model PublishedExperience {
   childrenPolicy  String       @map("children_policy") @db.VarChar(160)
   meetingPoint    String       @map("meeting_point") @db.VarChar(240)
   priceRub        Int          @map("price_rub")
+  photoUrls       String[]     @default([]) @map("photo_urls")
   status          String       @default("published") @db.VarChar(20)
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz

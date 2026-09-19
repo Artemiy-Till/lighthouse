@@ -8,11 +8,19 @@ import {
   saveGuideProfile,
   type CreateExperienceInput,
   type PublishedExperience,
+  uploadExperiencePhoto,
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { categories } from '../data/experiences';
 import { cities, type CityId } from '../data/cities';
 import { useMaxConnection } from '../features/max/useMaxConnection';
+import { prepareExperiencePhoto } from '../features/marketplace/prepareExperiencePhoto';
+
+interface SelectedPhoto {
+  readonly file: File;
+  readonly id: string;
+  readonly preview: string;
+}
 
 function formValue(form: FormData, key: string) {
   const value = form.get(key);
@@ -24,6 +32,8 @@ export function ProfessionalPage() {
   const { platform, session } = useMaxConnection();
   const initData = platform.initData ?? '';
   const [created, setCreated] = useState<PublishedExperience | null>(null);
+  const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const profile = useQuery({
     enabled: Boolean(initData && session.data?.authenticated),
     queryFn: () => getGuideProfile(initData),
@@ -38,10 +48,26 @@ export function ProfessionalPage() {
     },
   });
   const createExperience = useMutation({
-    mutationFn: (value: CreateExperienceInput) =>
-      createPublishedExperience(initData, value),
+    mutationFn: async ({
+      files,
+      value,
+    }: {
+      files: readonly File[];
+      value: Omit<CreateExperienceInput, 'photoUrls'>;
+    }) => {
+      const photoUrls: string[] = [];
+      for (const file of files) {
+        const prepared = await prepareExperiencePhoto(file);
+        const uploaded = await uploadExperiencePhoto(initData, prepared);
+        photoUrls.push(uploaded.url);
+      }
+      return createPublishedExperience(initData, { ...value, photoUrls });
+    },
     onSuccess: (value) => {
       setCreated(value);
+      photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
+      setPhotos([]);
+      setPhotoError(null);
       void queryClient.invalidateQueries({
         queryKey: ['published-experiences'],
       });
@@ -65,19 +91,54 @@ export function ProfessionalPage() {
 
   function handleExperience(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (photos.length === 0) {
+      setPhotoError('Добавьте хотя бы одну фотографию экскурсии.');
+      return;
+    }
     const form = new FormData(event.currentTarget);
+    setPhotoError(null);
     createExperience.mutate({
-      category: formValue(form, 'category'),
-      childrenPolicy: formValue(form, 'childrenPolicy'),
-      cityId: formValue(form, 'cityId') as CityId,
-      description: formValue(form, 'description'),
-      durationMinutes: Number(formValue(form, 'durationMinutes')),
-      format: formValue(form, 'format'),
-      groupSize: Number(formValue(form, 'groupSize')),
-      intro: formValue(form, 'intro'),
-      meetingPoint: formValue(form, 'meetingPoint'),
-      priceRub: Number(formValue(form, 'priceRub')),
-      title: formValue(form, 'title'),
+      files: photos.map((photo) => photo.file),
+      value: {
+        category: formValue(form, 'category'),
+        childrenPolicy: formValue(form, 'childrenPolicy'),
+        cityId: formValue(form, 'cityId') as CityId,
+        description: formValue(form, 'description'),
+        durationMinutes: Number(formValue(form, 'durationMinutes')),
+        format: formValue(form, 'format'),
+        groupSize: Number(formValue(form, 'groupSize')),
+        intro: formValue(form, 'intro'),
+        meetingPoint: formValue(form, 'meetingPoint'),
+        priceRub: Number(formValue(form, 'priceRub')),
+        title: formValue(form, 'title'),
+      },
+    });
+  }
+
+  function selectPhotos(files: FileList | null) {
+    if (!files) return;
+    const available = Math.max(0, 6 - photos.length);
+    const selected = Array.from(files).slice(0, available);
+    if (selected.length < files.length) {
+      setPhotoError('Можно добавить не больше 6 фотографий.');
+    } else {
+      setPhotoError(null);
+    }
+    setPhotos((current) => [
+      ...current,
+      ...selected.map((file) => ({
+        file,
+        id: crypto.randomUUID(),
+        preview: URL.createObjectURL(file),
+      })),
+    ]);
+  }
+
+  function removePhoto(id: string) {
+    setPhotos((current) => {
+      const removed = current.find((photo) => photo.id === id);
+      if (removed) URL.revokeObjectURL(removed.preview);
+      return current.filter((photo) => photo.id !== id);
     });
   }
 
@@ -230,6 +291,47 @@ export function ProfessionalPage() {
                   rows={6}
                 />
               </label>
+              <div className="professional-photos">
+                <div>
+                  <strong>Фотографии</strong>
+                  <small>До 6 фото · JPEG, PNG или WebP</small>
+                </div>
+                {photos.length > 0 ? (
+                  <div className="professional-photos__grid">
+                    {photos.map((photo, index) => (
+                      <figure key={photo.id}>
+                        <img
+                          alt={`Фотография экскурсии ${index + 1}`}
+                          src={photo.preview}
+                        />
+                        <button
+                          aria-label={`Удалить фотографию ${index + 1}`}
+                          onClick={() => removePhoto(photo.id)}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </figure>
+                    ))}
+                  </div>
+                ) : null}
+                {photos.length < 6 ? (
+                  <label className="professional-photo-picker">
+                    <input
+                      accept="image/jpeg,image/png,image/webp"
+                      multiple
+                      onChange={(event) => {
+                        selectPhotos(event.currentTarget.files);
+                        event.currentTarget.value = '';
+                      }}
+                      type="file"
+                    />
+                    <span aria-hidden="true">＋</span>
+                    Выбрать фотографии
+                  </label>
+                ) : null}
+                {photoError ? <p className="form-error">{photoError}</p> : null}
+              </div>
               <div className="professional-form__row">
                 <label>
                   Длительность, мин
@@ -307,7 +409,7 @@ export function ProfessionalPage() {
                 type="submit"
               >
                 {createExperience.isPending
-                  ? 'Публикуем…'
+                  ? 'Загружаем фото и публикуем…'
                   : 'Опубликовать в общем каталоге'}
               </button>
             </form>

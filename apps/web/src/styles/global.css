@@ -1629,6 +1629,86 @@ main {
   gap: 12px;
 }
 
+.professional-photos {
+  display: grid;
+  gap: 12px;
+}
+
+.professional-photos > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.professional-photos strong {
+  font-size: 13px;
+}
+
+.professional-photos small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.professional-photos__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.professional-photos__grid figure {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 14px;
+  background: #e8eaf0;
+}
+
+.professional-photos__grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.professional-photos__grid button {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(10 13 20 / 72%);
+  font-size: 20px;
+  cursor: pointer;
+  place-items: center;
+}
+
+.professional-photo-picker {
+  display: flex !important;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px !important;
+  border: 1px dashed color-mix(in srgb, var(--accent) 55%, var(--line));
+  border-radius: 15px;
+  color: var(--accent) !important;
+  cursor: pointer;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+.professional-photo-picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
 .professional-submit:disabled {
   opacity: 0.65;
 }
@@ -1927,6 +2007,33 @@ main {
   background: rgb(13 17 27 / 74%);
   font-size: 12px;
   font-weight: 750;
+}
+
+.experience-details-hero__previous,
+.experience-details-hero__next {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  padding: 0 0 4px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(13 17 27 / 58%);
+  font-size: 32px;
+  cursor: pointer;
+  place-items: center;
+}
+
+.experience-details-hero__previous {
+  left: 14px;
+}
+
+.experience-details-hero__next {
+  right: 14px;
 }
 
 .experience-details-content {

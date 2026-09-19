@@ -12,7 +12,10 @@ import { parseEnvironment } from './config/environment.js';
 
 async function bootstrap() {
   const environment = parseEnvironment(process.env);
-  const adapter = new FastifyAdapter({ trustProxy: true });
+  const adapter = new FastifyAdapter({
+    bodyLimit: 4_400_000,
+    trustProxy: true,
+  });
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     adapter,

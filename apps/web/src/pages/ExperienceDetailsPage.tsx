@@ -22,6 +22,7 @@ export function ExperienceDetailsPage() {
   const navigate = useNavigate();
   const { favoriteIds, toggleFavorite } = useFavorites();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [photoIndex, setPhotoIndex] = useState(0);
   const staticExperience = getExperienceById(experienceId);
   const published = usePublishedExperience(experienceId, !staticExperience);
   const experience =
@@ -40,6 +41,7 @@ export function ExperienceDetailsPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setPhotoIndex(0);
   }, [experienceId]);
 
   if (!staticExperience && published.isPending) {
@@ -65,6 +67,11 @@ export function ExperienceDetailsPage() {
   }
 
   const isFavorite = favoriteIds.has(experience.id);
+  const photos =
+    published.data && published.data.photos.length > 0
+      ? published.data.photos
+      : [experience.image];
+  const activePhoto = photos[photoIndex] ?? photos[0];
 
   return (
     <main className="experience-details-page">
@@ -73,7 +80,7 @@ export function ExperienceDetailsPage() {
           alt={experience.title}
           fetchPriority="high"
           height="840"
-          src={experience.image}
+          src={activePhoto}
           width="1180"
         />
         <button
@@ -99,7 +106,31 @@ export function ExperienceDetailsPage() {
         >
           <Icon name="heart" />
         </button>
-        <span className="experience-details-hero__counter">1 / 1</span>
+        {photos.length > 1 ? (
+          <>
+            <button
+              aria-label="Предыдущая фотография"
+              className="experience-details-hero__previous"
+              onClick={() =>
+                setPhotoIndex((photoIndex - 1 + photos.length) % photos.length)
+              }
+              type="button"
+            >
+              ‹
+            </button>
+            <button
+              aria-label="Следующая фотография"
+              className="experience-details-hero__next"
+              onClick={() => setPhotoIndex((photoIndex + 1) % photos.length)}
+              type="button"
+            >
+              ›
+            </button>
+          </>
+        ) : null}
+        <span className="experience-details-hero__counter">
+          {photoIndex + 1} / {photos.length}
+        </span>
       </section>
 
       <div className="experience-details-content">

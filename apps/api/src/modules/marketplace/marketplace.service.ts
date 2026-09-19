@@ -28,6 +28,7 @@ interface ExperienceRow {
   children_policy: string;
   meeting_point: string;
   price_rub: number;
+  photo_urls: string[];
   created_at: Date;
   guide_id: string;
   guide_name: string;
@@ -63,6 +64,7 @@ function mapExperience(row: ExperienceRow) {
     id: row.id,
     intro: row.intro,
     meetingPoint: row.meeting_point,
+    photos: row.photo_urls,
     priceRub: row.price_rub,
     status: 'published' as const,
     title: row.title,
@@ -71,7 +73,23 @@ function mapExperience(row: ExperienceRow) {
 
 @Injectable()
 export class MarketplaceService {
+  private photoSchemaReady: Promise<void> | null = null;
+
   constructor(private readonly database: DatabaseService) {}
+
+  private ensurePhotoSchema() {
+    this.photoSchemaReady ??= this.database
+      .query(
+        `alter table published_experiences
+         add column if not exists photo_urls text[] not null default '{}'::text[]`,
+      )
+      .then(() => undefined)
+      .catch((error: unknown) => {
+        this.photoSchemaReady = null;
+        throw error;
+      });
+    return this.photoSchemaReady;
+  }
 
   async getGuideProfile(maxUserId: string) {
     const result = await this.database.query<GuideRow>(
@@ -100,6 +118,7 @@ export class MarketplaceService {
   }
 
   async createExperience(maxUserId: string, input: CreateExperienceDto) {
+    await this.ensurePhotoSchema();
     const guide = await this.database.query<GuideRow>(
       `select id, max_user_id, display_name, bio, created_at
        from guide_profiles where max_user_id = $1`,
@@ -114,12 +133,12 @@ export class MarketplaceService {
       `insert into published_experiences (
          guide_id, city_id, category, title, intro, description,
          duration_minutes, format, group_size, children_policy,
-         meeting_point, price_rub
-       ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+         meeting_point, price_rub, photo_urls
+       ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
        returning id, city_id, category, title, intro, description,
          duration_minutes, format, group_size, children_policy,
-         meeting_point, price_rub, created_at, guide_id,
-         $13::text as guide_name, $14::text as guide_bio`,
+         meeting_point, price_rub, photo_urls, created_at, guide_id,
+         $14::text as guide_name, $15::text as guide_bio`,
       [
         profile.id,
         input.cityId,
@@ -133,6 +152,7 @@ export class MarketplaceService {
         input.childrenPolicy.trim(),
         input.meetingPoint.trim(),
         input.priceRub,
+        input.photoUrls,
         profile.display_name,
         profile.bio,
       ],
@@ -141,10 +161,12 @@ export class MarketplaceService {
   }
 
   async listExperiences(cityId?: string) {
+    await this.ensurePhotoSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
-         e.children_policy, e.meeting_point, e.price_rub, e.created_at,
+         e.children_policy, e.meeting_point, e.price_rub, e.photo_urls,
+         e.created_at,
          g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
@@ -156,10 +178,12 @@ export class MarketplaceService {
   }
 
   async getExperience(id: string) {
+    await this.ensurePhotoSchema();
     const result = await this.database.query<ExperienceRow>(
       `select e.id, e.city_id, e.category, e.title, e.intro,
          e.description, e.duration_minutes, e.format, e.group_size,
-         e.children_policy, e.meeting_point, e.price_rub, e.created_at,
+         e.children_policy, e.meeting_point, e.price_rub, e.photo_urls,
+         e.created_at,
          g.id as guide_id, g.display_name as guide_name, g.bio as guide_bio
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id

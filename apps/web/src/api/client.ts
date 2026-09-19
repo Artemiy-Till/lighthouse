@@ -59,6 +59,7 @@ export interface PublishedExperience {
   readonly id: string;
   readonly intro: string;
   readonly meetingPoint: string;
+  readonly photos: readonly string[];
   readonly priceRub: number;
   readonly status: 'published';
   readonly title: string;
@@ -74,6 +75,7 @@ export interface CreateExperienceInput {
   readonly groupSize: number;
   readonly intro: string;
   readonly meetingPoint: string;
+  readonly photoUrls: readonly string[];
   readonly priceRub: number;
   readonly title: string;
 }
@@ -144,6 +146,17 @@ export function createPublishedExperience(
 ) {
   return request<PublishedExperience>('/professional/experiences', {
     body: JSON.stringify(experience),
+    headers: maxHeaders(initData),
+    method: 'POST',
+  });
+}
+
+export function uploadExperiencePhoto(
+  initData: string,
+  photo: { readonly dataUrl: string; readonly filename: string },
+) {
+  return request<{ readonly url: string }>('/professional/photos', {
+    body: JSON.stringify(photo),
     headers: maxHeaders(initData),
     method: 'POST',
   });

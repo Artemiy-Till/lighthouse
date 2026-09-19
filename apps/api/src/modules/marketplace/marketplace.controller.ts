@@ -14,9 +14,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { MaxAuthService } from '../max/max-auth.service.js';
 import {
   CreateExperienceDto,
+  UploadExperiencePhotoDto,
   UpsertGuideProfileDto,
 } from './marketplace.dto.js';
 import { MarketplaceService } from './marketplace.service.js';
+import { PhotoStorageService } from './photo-storage.service.js';
 
 @ApiTags('marketplace')
 @Controller()
@@ -24,6 +26,7 @@ export class MarketplaceController {
   constructor(
     private readonly marketplace: MarketplaceService,
     private readonly maxAuth: MaxAuthService,
+    private readonly photoStorage: PhotoStorageService,
   ) {}
 
   private authenticate(initData?: string) {
@@ -66,5 +69,14 @@ export class MarketplaceController {
   ) {
     const user = this.authenticate(initData);
     return this.marketplace.createExperience(user.id, body);
+  }
+
+  @Post('professional/photos')
+  uploadPhoto(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Body() body: UploadExperiencePhotoDto,
+  ) {
+    const user = this.authenticate(initData);
+    return this.photoStorage.upload(user.id, body);
   }
 }

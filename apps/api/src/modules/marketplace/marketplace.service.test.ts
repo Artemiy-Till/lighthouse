@@ -57,6 +57,7 @@ describe('MarketplaceService', () => {
         groupSize: 10,
         intro: 'Главные истории города за два часа.',
         meetingPoint: 'У памятника на главной площади',
+        photoUrls: ['https://example.com/photo.jpg'],
         priceRub: 1500,
         title: 'Первое знакомство с городом',
       }),
