@@ -33,6 +33,7 @@ async function bootstrap() {
   if (environment.CORS_ORIGINS.length > 0) {
     app.enableCors({
       credentials: true,
+      methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       origin: environment.CORS_ORIGINS,
     });
   }
