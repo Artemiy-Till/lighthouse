@@ -241,11 +241,18 @@ export function completeGuideSchedule(
   initData: string,
   slot: Pick<GuideScheduleItem, 'date' | 'experienceId' | 'time'>,
 ) {
-  return request<{ readonly completed: true }>('/professional/schedule/complete', {
-    body: JSON.stringify(slot),
-    headers: maxHeaders(initData),
-    method: 'POST',
-  });
+  return request<{ readonly completed: true }>(
+    '/professional/schedule/complete',
+    {
+      body: JSON.stringify({
+        date: slot.date,
+        experienceId: slot.experienceId,
+        time: slot.time,
+      }),
+      headers: maxHeaders(initData),
+      method: 'POST',
+    },
+  );
 }
 
 export function updatePublishedExperience(
