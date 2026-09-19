@@ -4,11 +4,13 @@ import { createPortal } from 'react-dom';
 import { cities, type CityId } from '../data/cities';
 import { formatOfferCount, getExperiencesForCity } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
+import { usePublishedExperiences } from '../features/marketplace/usePublishedExperiences';
 import { useSettings } from '../features/settings/SettingsContext';
 
 export function CitySelector() {
   const { city, selectCity } = useCity();
   const { language, t } = useSettings();
+  const publishedExperiences = usePublishedExperiences();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -92,7 +94,13 @@ export function CitySelector() {
                 <div className="city-options">
                   {cities.map((item) => {
                     const isSelected = city.id === item.id;
-                    const offerCount = getExperiencesForCity(item.id).length;
+                    const publishedOfferCount =
+                      publishedExperiences.data?.items.filter(
+                        (experience) => experience.cityId === item.id,
+                      ).length ?? 0;
+                    const offerCount =
+                      getExperiencesForCity(item.id).length +
+                      publishedOfferCount;
 
                     return (
                       <button

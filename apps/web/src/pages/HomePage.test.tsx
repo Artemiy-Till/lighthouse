@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CityProvider } from '../features/city/CityContext';
 import { FavoritesProvider } from '../features/favorites/FavoritesContext';
@@ -99,6 +99,72 @@ describe('HomePage', () => {
     ).toContainElement(
       document.querySelector('img[src="/images/moscow-kremlin.webp"]'),
     );
+  });
+
+  it('includes published guide experiences in the city offer count', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        const items = requestUrl.endsWith('/experiences')
+          ? [
+              {
+                availableSlots: [],
+                category: 'Обзорные',
+                children: 'Можно с детьми',
+                cityId: 'moscow',
+                createdAt: '2026-09-19T09:00:00.000Z',
+                description: 'Авторская экскурсия по Москве.',
+                durationMinutes: 120,
+                format: 'Пешком',
+                groupSize: 10,
+                groupType: 'Групповая',
+                guide: {
+                  bio: 'Гид по Москве',
+                  displayName: 'Артемий',
+                  id: 'guide-1',
+                  photoUrl: null,
+                },
+                highlights: [],
+                id: 'published-moscow-tour',
+                intro: 'Прогулка по центру.',
+                meetingPoint: 'Красная площадь',
+                photos: [],
+                priceRub: 1500,
+                rating: 0,
+                reviewCount: 0,
+                status: 'published',
+                title: 'Москва глазами гида',
+              },
+            ]
+          : [];
+
+        return Promise.resolve(
+          new Response(JSON.stringify({ items }), { status: 200 }),
+        );
+      }),
+    );
+
+    render(<HomePage />, { wrapper: TestProviders });
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Выбрать город. Сейчас Санкт-Петербург',
+      }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Москва. 5 предложений' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Санкт-Петербург. 4 предложения',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('selects and resets an excursion date', () => {
