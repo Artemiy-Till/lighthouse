@@ -19,7 +19,7 @@ export function HomePage() {
       <main className="home-landing">
         <header className="home-landing__header">
           <div>
-            <h1>{t('home.greeting')}</h1>
+            <h1>{city.name}</h1>
             <p>{t('home.welcome')}</p>
           </div>
           <div className="home-landing__actions">

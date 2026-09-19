@@ -26,7 +26,7 @@ describe('HomePage', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
-      screen.getByRole('heading', { name: 'Привет!' }),
+      screen.getByRole('heading', { name: 'Санкт-Петербург' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'Открывайте новые места' }),
@@ -53,6 +53,7 @@ describe('HomePage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Москва' }));
 
+    expect(screen.getByRole('heading', { name: 'Москва' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Москва' })).toHaveAttribute(
       'aria-pressed',
       'true',
