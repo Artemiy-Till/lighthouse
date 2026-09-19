@@ -11,6 +11,8 @@
   text-rendering: optimizeLegibility;
   --accent: #4758d6;
   --accent-dark: #3443b7;
+  --date-accent: #c2410c;
+  --date-accent-dark: #9a3412;
   --ink: #1d2433;
   --muted: #6d7483;
   --surface: #fff;
@@ -454,12 +456,16 @@ main {
   gap: 9px;
   border-radius: 15px;
   color: #fff;
-  background: var(--accent);
+  background: var(--date-accent);
   font-size: 14px;
   font-weight: 700;
 }
 
-.date-button:active,
+.date-button:active {
+  background: var(--date-accent-dark);
+  transform: translateY(1px);
+}
+
 .local-banner button:active,
 .empty-state button:active {
   background: var(--accent-dark);
@@ -467,7 +473,7 @@ main {
 }
 
 .date-button--selected {
-  background: var(--accent-dark);
+  background: var(--date-accent-dark);
 }
 
 .date-dialog-backdrop {
