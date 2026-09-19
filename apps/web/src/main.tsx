@@ -1,6 +1,4 @@
 import { MaxUI } from '@maxhub/max-ui';
-import '@fontsource/arsenal/400.css';
-import '@fontsource/arsenal/700.css';
 import '@maxhub/max-ui/dist/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';

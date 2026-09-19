@@ -1,7 +1,7 @@
 :root {
   color: #1d2433;
   background: #f7f8fa;
-  font-family: Arsenal, sans-serif;
+  font-family: 'Apple Symbols', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --accent: #4758d6;
@@ -4028,7 +4028,7 @@ html {
 
 body {
   background: #e9eaee;
-  font-family: Arsenal, sans-serif;
+  font-family: 'Apple Symbols', sans-serif;
 }
 
 .app-shell,
@@ -5044,5 +5044,5 @@ html[data-theme='dark'] .order-review-stars button.is-active {
 html,
 body,
 body * {
-  font-family: Arsenal, sans-serif !important;
+  font-family: 'Apple Symbols', sans-serif !important;
 }
