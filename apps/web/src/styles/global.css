@@ -1353,15 +1353,18 @@ main {
 
 .profile-page {
   display: grid;
+  min-width: 0;
   align-content: start;
   gap: 18px;
 }
 
 .profile-card {
-  display: flex;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 64px minmax(0, 1fr);
   align-items: center;
-  gap: 17px;
-  padding: 22px;
+  gap: 14px;
+  padding: 18px;
   border: 1px solid var(--line);
   border-radius: 26px;
   background: #fff;
@@ -1370,15 +1373,18 @@ main {
 
 .profile-avatar {
   display: grid;
-  width: 72px;
-  height: 72px;
-  flex: 0 0 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 24px;
   color: #fff;
   background: linear-gradient(135deg, #6f7be8, #3949c6);
   font-size: 30px;
   font-weight: 850;
   place-items: center;
+}
+
+.profile-card > div:last-child {
+  min-width: 0;
 }
 
 .profile-avatar--image {
@@ -1397,16 +1403,21 @@ main {
 }
 
 .profile-card h1 {
-  font-size: 30px;
+  max-width: 100%;
+  font-size: 28px;
+  overflow-wrap: anywhere;
 }
 
 .profile-card p {
+  max-width: 100%;
   margin-top: 7px;
   font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .max-connection {
   display: grid;
+  min-width: 0;
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 12px;
@@ -1414,6 +1425,10 @@ main {
   border: 1px solid var(--line);
   border-radius: 20px;
   background: #fff;
+}
+
+.max-connection > div {
+  min-width: 0;
 }
 
 .max-connection__indicator {
@@ -1432,6 +1447,8 @@ main {
 .max-connection strong,
 .max-connection small {
   display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .max-connection strong {
@@ -1445,7 +1462,9 @@ main {
 }
 
 .booking-card {
-  padding: 22px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 18px;
   border-radius: 26px;
   color: #fff;
   background: linear-gradient(145deg, #27338e, #5365e8);
@@ -1454,6 +1473,7 @@ main {
 
 .booking-card__topline {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -1471,18 +1491,22 @@ main {
 }
 
 .booking-card h2 {
-  margin: 20px 0;
-  font-size: 24px;
+  max-width: 100%;
+  margin: 18px 0;
+  font-size: 22px;
   letter-spacing: -0.035em;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
 }
 
 .booking-details {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 12px;
 }
 
 .booking-details div {
+  min-width: 0;
   padding: 13px;
   border-radius: 15px;
   background: rgb(255 255 255 / 10%);
@@ -1501,6 +1525,7 @@ main {
 
 .booking-details strong {
   font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .booking-card__action {
@@ -1529,7 +1554,7 @@ main {
   display: grid;
   width: 100%;
   min-height: 72px;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 13px;
   padding: 12px 16px;
@@ -1543,7 +1568,7 @@ main {
   display: grid;
   width: 100%;
   min-height: 72px;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 13px;
   padding: 12px 16px;
@@ -1570,6 +1595,12 @@ main {
 .profile-menu strong,
 .profile-menu small {
   display: block;
+  overflow-wrap: anywhere;
+}
+
+.profile-menu a > span:nth-child(2),
+.profile-menu button > span:nth-child(2) {
+  min-width: 0;
 }
 
 .profile-menu strong {
