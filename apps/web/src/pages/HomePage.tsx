@@ -46,38 +46,18 @@ export function HomePage() {
 
   return (
     <AppLayout>
-      <header className="topbar">
-        <CitySelector />
-        <div className="topbar-actions">
+      <header className="topbar home-topbar">
+        <div className="home-topbar__copy">
+          <p>{city.name}</p>
+          <h1>{t('home.title')}</h1>
+        </div>
+        <div className="home-topbar__actions">
           <ThemeToggle />
-          <Link
-            aria-label={t('home.favorite')}
-            className="topbar-action"
-            to="/favorites"
-          >
-            <Icon name="heart" />
-          </Link>
+          <CitySelector />
         </div>
       </header>
 
       <main>
-        <section className="hero">
-          <img
-            alt={`${t('home.heroAlt')} ${city.name}`}
-            className="hero__image"
-            fetchPriority="high"
-            height="1024"
-            src={city.heroImage}
-            width="1456"
-          />
-          <div className="hero__scrim" />
-          <div className="hero__content">
-            <p className="hero__eyebrow">{t('home.eyebrow')}</p>
-            <h1>{t('home.title')}</h1>
-            <p>{t('home.subtitle')}</p>
-          </div>
-        </section>
-
         <section aria-label={t('home.searchAria')} className="search-panel">
           <label className="search-field">
             <Icon name="search" />
