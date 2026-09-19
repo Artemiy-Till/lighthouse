@@ -1,7 +1,8 @@
 :root {
   color: #1d2433;
   background: #f7f8fa;
-  font-family: 'Apple Symbols', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --accent: #4758d6;
@@ -4028,7 +4029,8 @@ html {
 
 body {
   background: #e9eaee;
-  font-family: 'Apple Symbols', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
 }
 
 .app-shell,
@@ -5044,5 +5046,6 @@ html[data-theme='dark'] .order-review-stars button.is-active {
 html,
 body,
 body * {
-  font-family: 'Apple Symbols', sans-serif !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
 }
