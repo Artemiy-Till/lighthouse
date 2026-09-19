@@ -63,3 +63,14 @@ model ExperienceBooking {
   @@index([maxUserId, bookingDate(sort: Desc), createdAt(sort: Desc)], map: "experience_bookings_user_date_idx")
   @@map("experience_bookings")
 }
+
+model ExperienceBookingSlot {
+  experienceId String   @map("experience_id")
+  bookingDate  DateTime @map("booking_date") @db.Date
+  bookingTime  DateTime @map("booking_time") @db.Time
+  capacity     Int
+  booked       Int      @default(0)
+
+  @@id([experienceId, bookingDate, bookingTime])
+  @@map("experience_booking_slots")
+}

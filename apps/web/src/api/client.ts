@@ -120,7 +120,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`);
+    const payload: unknown = await response.json().catch(() => null);
+    const message =
+      payload && typeof payload === 'object' && 'message' in payload
+        ? (payload as { readonly message?: unknown }).message
+        : undefined;
+    const details = Array.isArray(message)
+      ? message.find((item): item is string => typeof item === 'string')
+      : typeof message === 'string'
+        ? message
+        : undefined;
+    throw new Error(
+      details ?? `API request failed with status ${response.status}`,
+    );
   }
 
   return response.json() as Promise<T>;

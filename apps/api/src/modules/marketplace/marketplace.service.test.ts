@@ -54,6 +54,7 @@ describe('MarketplaceService', () => {
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [experienceRow] })
       .mockResolvedValueOnce({ rows: [bookingRow] });
     const service = new MarketplaceService({
@@ -74,7 +75,7 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.totalPriceRub).toBe(3400);
-    expect(query.mock.calls[4]?.[1]).toEqual(
+    expect(query.mock.calls[5]?.[1]).toEqual(
       expect.arrayContaining([
         'experience-1',
         '2026-10-10',

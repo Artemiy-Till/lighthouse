@@ -160,6 +160,18 @@ export class MarketplaceService {
       )
       .then(() =>
         this.database.query(
+          `create table if not exists experience_booking_slots (
+            experience_id text not null,
+            booking_date date not null,
+            booking_time time not null,
+            capacity integer not null check (capacity between 1 and 100),
+            booked integer not null default 0 check (booked >= 0),
+            primary key (experience_id, booking_date, booking_time)
+          )`,
+        ),
+      )
+      .then(() =>
+        this.database.query(
           `create index if not exists experience_bookings_user_date_idx
            on experience_bookings (max_user_id, booking_date desc, created_at desc)`,
         ),
@@ -208,14 +220,16 @@ export class MarketplaceService {
     }
 
     const result = await this.database.query<BookingRow>(
-      `with booking_lock as (
-         select pg_advisory_xact_lock(hashtext($1 || ':' || $2 || ':' || $3))
-       ), occupied as (
-         select coalesce(sum(participants), 0)::integer as count
-         from booking_lock
-         left join experience_bookings on experience_id = $1
-           and booking_date = $2::date and booking_time = $3::time
-           and status = 'confirmed'
+      `with reserved_slot as (
+         insert into experience_booking_slots (
+           experience_id, booking_date, booking_time, capacity, booked
+         ) values ($1, $2::date, $3::time, $11, $9)
+         on conflict (experience_id, booking_date, booking_time) do update
+         set booked = experience_booking_slots.booked + excluded.booked,
+             capacity = least(experience_booking_slots.capacity, excluded.capacity)
+         where experience_booking_slots.booked + excluded.booked <=
+           least(experience_booking_slots.capacity, excluded.capacity)
+         returning experience_id
        )
        insert into experience_bookings (
          max_user_id, experience_id, title, city_id, image_url,
@@ -224,8 +238,7 @@ export class MarketplaceService {
        )
        select $4, $1, $5, $6, $7, $8, $2::date, $3::time,
          $9, $10, $9 * $10
-       from occupied
-       where occupied.count + $9 <= $11
+       from reserved_slot
        returning id, experience_id, title, city_id, image_url, meeting_point,
          booking_date, booking_time, participants, unit_price_rub,
          total_price_rub, status, created_at`,
@@ -266,11 +279,21 @@ export class MarketplaceService {
   async cancelBooking(maxUserId: string, id: string) {
     await this.ensureBookingSchema();
     const result = await this.database.query<{ id: string }>(
-      `update experience_bookings
-       set status = 'cancelled', updated_at = now()
-       where id = $1 and max_user_id = $2 and status = 'confirmed'
-         and booking_date >= current_date
-       returning id`,
+      `with cancelled_booking as (
+         update experience_bookings
+         set status = 'cancelled', updated_at = now()
+         where id = $1 and max_user_id = $2 and status = 'confirmed'
+           and booking_date >= current_date
+         returning id, experience_id, booking_date, booking_time, participants
+       ), released_slot as (
+         update experience_booking_slots slot
+         set booked = greatest(0, slot.booked - booking.participants)
+         from cancelled_booking booking
+         where slot.experience_id = booking.experience_id
+           and slot.booking_date = booking.booking_date
+           and slot.booking_time = booking.booking_time
+       )
+       select id from cancelled_booking`,
       [id, maxUserId],
     );
     if (!result.rows[0]) throw new NotFoundException('Booking not found');

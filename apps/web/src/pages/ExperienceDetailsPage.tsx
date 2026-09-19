@@ -282,7 +282,9 @@ export function ExperienceDetailsPage() {
             ) : null}
             {booking.isError ? (
               <p className="booking-message booking-message--error">
-                Не удалось оформить запись. Возможно, свободных мест уже нет.
+                {booking.error.message === 'Not enough available places'
+                  ? 'На это время свободных мест уже нет.'
+                  : 'Не удалось оформить запись. Перезапустите мини-приложение.'}
               </p>
             ) : null}
           </div>
