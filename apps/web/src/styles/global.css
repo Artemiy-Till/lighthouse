@@ -5043,6 +5043,48 @@ html[data-theme='dark'] .order-review-stars button.is-active {
   color: #f3f3f4;
 }
 
+.experience-more details {
+  overflow: hidden;
+  border: 0;
+}
+
+.experience-more details + details {
+  margin-top: 8px;
+}
+
+.experience-more details:first-of-type {
+  margin-top: 14px;
+}
+
+.experience-more summary {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  padding: 18px 52px 18px 20px;
+}
+
+.experience-more summary::after {
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+}
+
+.experience-more details[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.experience-more details[open] summary::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.experience-more details p {
+  padding: 16px 20px 20px;
+}
+
+.experience-more details ul {
+  padding: 16px 20px 20px 40px;
+}
+
 html,
 body,
 body * {
