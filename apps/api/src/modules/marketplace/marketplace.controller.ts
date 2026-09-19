@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   Param,
@@ -85,6 +86,15 @@ export class MarketplaceController {
   ) {
     const user = this.authenticate(initData);
     return this.marketplace.updateExperience(user.id, id, body);
+  }
+
+  @Delete('professional/experiences/:id')
+  deleteExperience(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Param('id') id: string,
+  ) {
+    const user = this.authenticate(initData);
+    return this.marketplace.deleteExperience(user.id, id);
   }
 
   @Post('professional/photos')

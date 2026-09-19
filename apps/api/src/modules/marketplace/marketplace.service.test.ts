@@ -129,4 +129,32 @@ describe('MarketplaceService', () => {
       guideRow.bio,
     ]);
   });
+
+  it('deletes only an experience owned by the verified guide', async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [{ id: 'experience-1' }],
+    });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await expect(
+      service.deleteExperience('42', 'experience-1'),
+    ).resolves.toEqual({ deleted: true, id: 'experience-1' });
+    expect(query).toHaveBeenCalledWith(
+      expect.stringContaining('g.max_user_id = $2'),
+      ['experience-1', '42'],
+    );
+  });
+
+  it('does not disclose or delete an experience owned by another guide', async () => {
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await expect(
+      service.deleteExperience('other-user', 'experience-1'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
 });

@@ -238,6 +238,22 @@ export class MarketplaceService {
     return mapExperience(result.rows[0]);
   }
 
+  async deleteExperience(maxUserId: string, id: string) {
+    const result = await this.database.query<{ id: string }>(
+      `delete from published_experiences e
+       using guide_profiles g
+       where e.id = $1
+         and e.guide_id = g.id
+         and g.max_user_id = $2
+       returning e.id`,
+      [id, maxUserId],
+    );
+    if (!result.rows[0]) {
+      throw new NotFoundException('Experience not found');
+    }
+    return { deleted: true, id: result.rows[0].id };
+  }
+
   async listExperiences(cityId?: string) {
     await this.ensurePhotoSchema();
     const result = await this.database.query<ExperienceRow>(

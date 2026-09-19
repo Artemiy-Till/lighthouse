@@ -173,6 +173,16 @@ export function updatePublishedExperience(
   );
 }
 
+export function deletePublishedExperience(initData: string, id: string) {
+  return request<{ readonly deleted: true; readonly id: string }>(
+    `/professional/experiences/${encodeURIComponent(id)}`,
+    {
+      headers: maxHeaders(initData),
+      method: 'DELETE',
+    },
+  );
+}
+
 export function uploadExperiencePhoto(
   initData: string,
   photo: { readonly dataUrl: string; readonly filename: string },

@@ -1749,7 +1749,7 @@ main {
 
 .professional-experiences__header button,
 .professional-editing-bar button,
-.professional-experiences__list article > button {
+.professional-experiences__actions button {
   border: 0;
   border-radius: 12px;
   color: var(--accent);
@@ -1791,7 +1791,9 @@ main {
   object-fit: cover;
 }
 
-.professional-experiences__list article > div {
+.professional-experiences__list
+  article
+  > div:not(.professional-experiences__actions) {
   display: grid;
   min-width: 0;
   gap: 4px;
@@ -1807,10 +1809,21 @@ main {
   color: var(--muted);
 }
 
-.professional-experiences__list article > button {
+.professional-experiences__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.professional-experiences__actions button {
   min-height: 38px;
   padding: 0 11px;
   font-size: 11px;
+}
+
+.professional-experiences__actions button.is-danger,
+.professional-delete-dialog button.is-danger {
+  color: #fff;
+  background: #d63b48;
 }
 
 .professional-editing-bar {
@@ -1829,6 +1842,72 @@ main {
 .professional-editing-bar button {
   min-height: 32px;
   padding: 0 10px;
+}
+
+.professional-delete-dialog {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  padding: 18px;
+  place-items: center;
+}
+
+.professional-delete-dialog__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgb(4 7 14 / 68%);
+  backdrop-filter: blur(4px);
+}
+
+.professional-delete-dialog section {
+  position: relative;
+  width: min(100%, 420px);
+  padding: 26px;
+  border-radius: 24px;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 35%);
+}
+
+.professional-delete-dialog section > span {
+  font-size: 28px;
+}
+
+.professional-delete-dialog h2 {
+  margin: 12px 0 8px;
+}
+
+.professional-delete-dialog p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.professional-delete-dialog section > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.professional-delete-dialog section > div button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.professional-delete-dialog section > div button:first-child {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.professional-delete-dialog button:disabled {
+  cursor: wait;
+  opacity: 0.62;
 }
 
 .form-error {
@@ -2785,8 +2864,12 @@ html[data-theme='dark'] .professional-form select {
     height: 56px;
   }
 
-  .professional-experiences__list article > button {
+  .professional-experiences__actions {
     grid-column: 1 / -1;
+  }
+
+  .professional-experiences__actions button {
+    flex: 1;
   }
 }
 

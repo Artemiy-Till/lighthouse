@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import {
   createPublishedExperience,
+  deletePublishedExperience,
   getGuideProfile,
   getOwnPublishedExperiences,
   saveGuideProfile,
@@ -39,6 +40,7 @@ export function ProfessionalPage() {
   const [lastAction, setLastAction] = useState<'created' | 'updated'>(
     'created',
   );
+  const [deleting, setDeleting] = useState<PublishedExperience | null>(null);
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const profile = useQuery({
@@ -96,6 +98,20 @@ export function ProfessionalPage() {
       });
       void queryClient.invalidateQueries({
         queryKey: ['own-published-experiences'],
+      });
+    },
+  });
+  const deleteExperience = useMutation({
+    mutationFn: (id: string) => deletePublishedExperience(initData, id),
+    onSuccess: (_, id) => {
+      if (editing?.id === id) resetEditor();
+      if (created?.id === id) setCreated(null);
+      setDeleting(null);
+      void queryClient.invalidateQueries({
+        queryKey: ['own-published-experiences'],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['published-experiences'],
       });
     },
   });
@@ -320,12 +336,24 @@ export function ProfessionalPage() {
                           {experience.priceRub.toLocaleString('ru-RU')} ₽
                         </small>
                       </div>
-                      <button
-                        onClick={() => editExperience(experience)}
-                        type="button"
-                      >
-                        Редактировать
-                      </button>
+                      <div className="professional-experiences__actions">
+                        <button
+                          onClick={() => editExperience(experience)}
+                          type="button"
+                        >
+                          Редактировать
+                        </button>
+                        <button
+                          className="is-danger"
+                          onClick={() => {
+                            deleteExperience.reset();
+                            setDeleting(experience);
+                          }}
+                          type="button"
+                        >
+                          Удалить
+                        </button>
+                      </div>
                     </article>
                   ))}
                 </div>
@@ -574,6 +602,49 @@ export function ProfessionalPage() {
                     : 'Опубликовать в общем каталоге'}
               </button>
             </form>
+            {deleting ? (
+              <div
+                aria-labelledby="delete-experience-title"
+                aria-modal="true"
+                className="professional-delete-dialog"
+                role="dialog"
+              >
+                <button
+                  aria-label="Закрыть окно удаления"
+                  className="professional-delete-dialog__backdrop"
+                  onClick={() => setDeleting(null)}
+                  type="button"
+                />
+                <section>
+                  <span aria-hidden="true">🗑️</span>
+                  <h2 id="delete-experience-title">Удалить экскурсию?</h2>
+                  <p>
+                    «{deleting.title}» исчезнет из общего каталога. Отменить это
+                    действие не получится.
+                  </p>
+                  {deleteExperience.isError ? (
+                    <p className="form-error">Не удалось удалить экскурсию.</p>
+                  ) : null}
+                  <div>
+                    <button
+                      disabled={deleteExperience.isPending}
+                      onClick={() => setDeleting(null)}
+                      type="button"
+                    >
+                      Отмена
+                    </button>
+                    <button
+                      className="is-danger"
+                      disabled={deleteExperience.isPending}
+                      onClick={() => deleteExperience.mutate(deleting.id)}
+                      type="button"
+                    >
+                      {deleteExperience.isPending ? 'Удаляем…' : 'Удалить'}
+                    </button>
+                  </div>
+                </section>
+              </div>
+            ) : null}
           </>
         )}
       </main>
