@@ -1,158 +1,106 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { AppLayout } from '../components/AppLayout';
-import { CitySelector } from '../components/CitySelector';
-import { DateSelector } from '../components/DateSelector';
-import { ExperienceCard } from '../components/ExperienceCard';
 import { Icon } from '../components/Icon';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { categories, getExperiencesForCity } from '../data/experiences';
+import { cities } from '../data/cities';
 import { useCity } from '../features/city/CityContext';
-import {
-  toExperience,
-  usePublishedExperiences,
-} from '../features/marketplace/usePublishedExperiences';
 import { useSettings } from '../features/settings/SettingsContext';
 
 export function HomePage() {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const { city } = useCity();
+  const navigate = useNavigate();
+  const { city, selectCity } = useCity();
   const { t } = useSettings();
-  const published = usePublishedExperiences(city.id);
-
-  const filteredExperiences = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase('ru');
-
-    const allExperiences = [
-      ...(published.data?.items.map(toExperience) ?? []),
-      ...getExperiencesForCity(city.id),
-    ];
-
-    return allExperiences.filter((experience) => {
-      const matchesCategory =
-        activeCategory === null || experience.category === activeCategory;
-      const matchesQuery =
-        normalizedQuery.length === 0 ||
-        `${experience.title} ${experience.category}`
-          .toLocaleLowerCase('ru')
-          .includes(normalizedQuery);
-
-      return matchesCategory && matchesQuery;
-    });
-  }, [activeCategory, city.id, published.data, query]);
 
   return (
     <AppLayout>
-      <section className="home-city-hero">
-        <img
-          alt=""
-          className="home-city-hero__image"
-          fetchPriority="high"
-          src={city.heroImage}
-        />
-        <div aria-hidden="true" className="home-city-hero__scrim" />
-        <header className="topbar home-topbar">
-          <div className="home-topbar__copy">
-            <p>{city.name}</p>
+      <main className="home-landing">
+        <header className="home-landing__header">
+          <div>
+            <h1>{t('home.greeting')}</h1>
+            <p>{t('home.welcome')}</p>
           </div>
-          <div className="home-topbar__actions">
+          <div className="home-landing__actions">
             <ThemeToggle />
-            <CitySelector />
+            <Link
+              aria-label={t('home.openProfile')}
+              className="home-profile-shortcut"
+              to="/profile"
+            >
+              <Icon name="profile" />
+            </Link>
           </div>
         </header>
 
-        <section aria-label={t('home.searchAria')} className="search-panel">
-          <label className="search-field">
-            <Icon name="search" />
-            <input
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={t('home.search')}
-              type="search"
-              value={query}
-            />
-          </label>
-          <DateSelector onChange={setSelectedDate} value={selectedDate} />
-        </section>
-      </section>
+        <form
+          className="home-landing__search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const normalizedQuery = query.trim();
+            void navigate(
+              normalizedQuery
+                ? `/catalog?query=${encodeURIComponent(normalizedQuery)}`
+                : '/catalog',
+            );
+          }}
+        >
+          <Icon name="search" />
+          <input
+            aria-label={t('home.search')}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t('home.search')}
+            type="search"
+            value={query}
+          />
+          <button aria-label={t('home.openCatalog')} type="submit">
+            <span aria-hidden="true" className="home-filter-icon">
+              <i />
+              <i />
+              <i />
+            </span>
+          </button>
+        </form>
 
-      <main>
-        <section className="content-section experiences-section">
-          <div className="section-heading">
-            <div>
-              <h2>
-                {t('home.popular')} {city.prepositionalName}
-              </h2>
-            </div>
-            <Link className="text-button" to="/catalog">
-              {t('common.all')}
-            </Link>
-          </div>
-
-          <div aria-label={t('home.mood')} className="category-list">
-            <button
-              aria-pressed={activeCategory === null}
-              className={`category-item${activeCategory === null ? ' category-item--active' : ''}`}
-              onClick={() => setActiveCategory(null)}
-              type="button"
-            >
-              <span>{t('common.all')}</span>
-            </button>
-            {categories.map((category) => {
-              const isActive = activeCategory === category.label;
+        <section className="home-destinations">
+          <h2>{t('home.destinationsTitle')}</h2>
+          <div aria-label={t('city.title')} className="home-city-tabs">
+            {cities.map((item) => {
+              const isSelected = item.id === city.id;
 
               return (
                 <button
-                  aria-pressed={isActive}
-                  className={`category-item${isActive ? ' category-item--active' : ''}`}
-                  key={category.label}
-                  onClick={() =>
-                    setActiveCategory(isActive ? null : category.label)
-                  }
+                  aria-pressed={isSelected}
+                  className={isSelected ? 'is-active' : ''}
+                  key={item.id}
+                  onClick={() => selectCity(item.id)}
                   type="button"
                 >
-                  <span>{category.label}</span>
+                  {item.name}
                 </button>
               );
             })}
           </div>
-
-          {filteredExperiences.length > 0 ? (
-            <div className="experience-grid">
-              {filteredExperiences.map((experience) => (
-                <ExperienceCard experience={experience} key={experience.id} />
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span aria-hidden="true">🧭</span>
-              <h3>{t('home.emptyTitle')}</h3>
-              <p>{t('home.emptyText')}</p>
-              <button
-                onClick={() => {
-                  setActiveCategory(null);
-                  setQuery('');
-                }}
-                type="button"
-              >
-                {t('common.reset')}
-              </button>
-            </div>
-          )}
         </section>
 
-        <section className="content-section local-banner">
-          <div>
-            <p className="section-kicker">{t('home.localTip')}</p>
-            <h2>{t('home.helpTitle')}</h2>
-            <p>{t('home.helpText')}</p>
-          </div>
-          <Link className="primary-link" to="/catalog">
-            {t('home.collection')}
-          </Link>
-        </section>
+        <Link
+          aria-label={`${t('home.seeTours')} — ${city.name}`}
+          className="home-selected-city"
+          to="/catalog"
+        >
+          <img alt="" key={city.id} src={city.heroImage} />
+          <span aria-hidden="true" className="home-selected-city__scrim" />
+          <span className="home-selected-city__copy">
+            <small>{t('home.selectedCity')}</small>
+            <strong>{city.name}</strong>
+            <span>{city.subtitle}</span>
+          </span>
+          <span className="home-selected-city__action">
+            <span>{t('home.seeTours')}</span>
+            <i aria-hidden="true">→</i>
+          </span>
+        </Link>
       </main>
     </AppLayout>
   );

@@ -99,7 +99,7 @@ describe('App navigation', () => {
 
     fireEvent.click(screen.getByRole('link', { name: 'Home' }));
     expect(
-      screen.getByRole('heading', { name: 'Popular in Петербурге' }),
+      screen.getByRole('heading', { name: 'Explore new horizons' }),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: 'Profile' }));
     fireEvent.click(screen.getByRole('link', { name: /Settings/ }));
@@ -557,6 +557,12 @@ describe('App navigation', () => {
 
   it('opens an experience card and shows its complete details', () => {
     renderApp();
+
+    fireEvent.click(
+      screen.getByRole('link', {
+        name: 'Смотреть экскурсии — Санкт-Петербург',
+      }),
+    );
 
     fireEvent.click(
       screen.getByRole('link', {
