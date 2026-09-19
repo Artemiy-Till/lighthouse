@@ -53,7 +53,7 @@ export function toExperienceDetails(
   };
 }
 
-export function usePublishedExperiences(cityId: CityId) {
+export function usePublishedExperiences(cityId?: CityId) {
   return useQuery({
     queryFn: () => getPublishedExperiences(cityId),
     queryKey: ['published-experiences', cityId],

@@ -140,6 +140,10 @@ const translations = {
     ru: 'Сохраняйте понравившиеся экскурсии, чтобы вернуться к ним позже.',
   },
   'favorites.toCatalog': { en: 'Explore tours', ru: 'Перейти в каталог' },
+  'favorites.loading': {
+    en: 'Loading saved tours…',
+    ru: 'Загружаем избранное…',
+  },
   'card.details': { en: 'More about tour', ru: 'Подробнее об экскурсии' },
   'card.addFavorite': { en: 'Add to saved', ru: 'Добавить в избранное' },
   'card.removeFavorite': {

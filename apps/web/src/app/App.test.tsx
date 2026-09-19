@@ -248,6 +248,76 @@ describe('App navigation', () => {
     ).toHaveAttribute('href', '/catalog');
   });
 
+  it('keeps a user-published experience in favorites', async () => {
+    window.localStorage.setItem('marketplace-favorites', '[]');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        const payload = requestUrl.includes('/api/v1/experiences')
+          ? {
+              items: [
+                {
+                  category: 'История',
+                  children: 'Можно с детьми',
+                  cityId: 'saint-petersburg',
+                  createdAt: '2026-09-19T09:00:00.000Z',
+                  description: 'Авторская прогулка.',
+                  durationMinutes: 120,
+                  format: 'Пешком',
+                  groupSize: 8,
+                  groupType: 'Мини-группа',
+                  guide: {
+                    bio: 'Гид по Петербургу',
+                    displayName: 'Артемий',
+                    id: 'guide-1',
+                  },
+                  highlights: ['Новая Голландия'],
+                  id: 'published-user-tour',
+                  intro: 'Увидим город глазами местного жителя.',
+                  meetingPoint: 'У входа в Новую Голландию',
+                  photos: ['/images/hidden-courtyards.webp'],
+                  priceRub: 2200,
+                  status: 'published',
+                  title: 'Петербург глазами местного',
+                },
+              ],
+            }
+          : {
+              bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+              configured: true,
+              connected: true,
+            };
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
+    );
+
+    renderApp('/catalog');
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Добавить «Петербург глазами местного» в избранное',
+      }),
+    );
+    fireEvent.click(screen.getByRole('link', { name: 'Избранное' }));
+
+    expect(
+      await screen.findByText('Петербург глазами местного'),
+    ).toBeInTheDocument();
+    expect(window.localStorage.getItem('marketplace-favorites')).toContain(
+      'published-user-tour',
+    );
+    window.localStorage.removeItem('marketplace-favorites');
+  });
+
   it('opens an experience card and shows its complete details', () => {
     renderApp();
 
