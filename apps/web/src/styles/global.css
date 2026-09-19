@@ -1712,6 +1712,45 @@ main {
   text-transform: uppercase;
 }
 
+.professional-status__copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.professional-status__edit {
+  min-height: 40px;
+  flex: 0 0 auto;
+  padding: 0 14px;
+  border: 1px solid #dfe3ff;
+  border-radius: 12px;
+  color: var(--accent-dark);
+  background: #f0f2ff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.professional-profile-editor__actions {
+  display: grid;
+  grid-template-columns: 0.8fr 1.4fr;
+  gap: 10px;
+}
+
+.professional-profile-editor__actions > button {
+  min-height: 50px;
+  border: 0;
+  border-radius: 15px;
+  font-weight: 800;
+}
+
+.professional-profile-editor__actions > button:first-child {
+  color: var(--accent-dark);
+  background: #eef0ff;
+}
+
+.professional-profile-editor__actions .professional-submit {
+  margin-top: 0;
+}
+
 .professional-form {
   display: grid;
   gap: 16px;
@@ -3137,7 +3176,25 @@ html[data-theme='dark'] .professional-form select {
   background: #20242d;
 }
 
+html[data-theme='dark'] .professional-status__edit,
+html[data-theme='dark']
+  .professional-profile-editor__actions
+  > button:first-child {
+  color: #d9ddff;
+  border-color: #3e4665;
+  background: #292e49;
+}
+
 @media (max-width: 520px) {
+  .professional-status {
+    flex-wrap: wrap;
+  }
+
+  .professional-status__edit {
+    width: 100%;
+    margin-left: 52px;
+  }
+
   .professional-form__row {
     grid-template-columns: 1fr;
   }

@@ -221,6 +221,99 @@ describe('App navigation', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('edits an existing guide profile', async () => {
+    window.WebApp = {
+      BackButton: {
+        hide() {},
+        offClick() {},
+        onClick() {},
+        show() {},
+      },
+      initData: 'auth_date=1&hash=signed',
+      platform: 'desktop',
+      version: '26.20.0',
+      getViewportSize() {
+        return Promise.resolve({ height: '800px', width: '390px' });
+      },
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        let payload: unknown;
+
+        if (requestUrl.endsWith('/auth/max')) {
+          payload = {
+            authenticated: true,
+            user: {
+              firstName: 'Артемий',
+              id: '42',
+              languageCode: 'ru',
+              lastName: null,
+              photoUrl: null,
+              username: 'artemiy',
+            },
+          };
+        } else if (requestUrl.endsWith('/professional/profile')) {
+          payload =
+            init?.method === 'PUT'
+              ? {
+                  bio: 'Обновлённое описание профессионального гида.',
+                  createdAt: '2026-09-19T09:00:00.000Z',
+                  displayName: 'Артемий Экскурсовод',
+                  id: 'guide-1',
+                }
+              : {
+                  bio: 'Профессиональный гид по Санкт-Петербургу.',
+                  createdAt: '2026-09-19T09:00:00.000Z',
+                  displayName: 'Артемий',
+                  id: 'guide-1',
+                };
+        } else if (requestUrl.endsWith('/professional/experiences')) {
+          payload = { items: [] };
+        } else {
+          payload = {
+            bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+            configured: true,
+            connected: true,
+          };
+        }
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
+    );
+
+    renderApp('/professional');
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Редактировать профиль' }),
+    );
+    fireEvent.change(screen.getByLabelText('Имя гида'), {
+      target: { value: 'Артемий Экскурсовод' },
+    });
+    fireEvent.change(screen.getByLabelText('О себе'), {
+      target: { value: 'Обновлённое описание профессионального гида.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить профиль' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Артемий Экскурсовод' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Обновлённое описание профессионального гида.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Редактировать профиль' }),
+    ).toBeInTheDocument();
+  });
+
   it('asks to open MAX before showing private orders', () => {
     renderApp('/orders');
     expect(

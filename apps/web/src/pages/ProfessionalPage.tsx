@@ -36,6 +36,7 @@ export function ProfessionalPage() {
   const initData = platform.initData ?? '';
   const [created, setCreated] = useState<PublishedExperience | null>(null);
   const [editing, setEditing] = useState<PublishedExperience | null>(null);
+  const [editingProfile, setEditingProfile] = useState(false);
   const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
   const [lastAction, setLastAction] = useState<'created' | 'updated'>(
     'created',
@@ -54,6 +55,13 @@ export function ProfessionalPage() {
       saveGuideProfile(initData, value),
     onSuccess: (value) => {
       queryClient.setQueryData(['guide-profile'], value);
+      setEditingProfile(false);
+      void queryClient.invalidateQueries({
+        queryKey: ['published-experiences'],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['own-published-experiences'],
+      });
     },
   });
   const ownExperiences = useQuery({
@@ -288,14 +296,84 @@ export function ProfessionalPage() {
           </form>
         ) : (
           <>
-            <section className="professional-card professional-status">
-              <span aria-hidden="true">✓</span>
-              <div>
-                <p>Профиль гида активен</p>
-                <h2>{profile.data.displayName}</h2>
-                <small>{profile.data.bio}</small>
-              </div>
-            </section>
+            {editingProfile ? (
+              <form
+                className="professional-card professional-form professional-profile-editor"
+                onSubmit={handleProfile}
+              >
+                <div className="professional-step">
+                  <span aria-hidden="true">✎</span>
+                  <div>
+                    <h2>Редактирование профиля</h2>
+                    <p>Имя и описание обновятся во всех ваших экскурсиях.</p>
+                  </div>
+                </div>
+                <label>
+                  Имя гида
+                  <input
+                    defaultValue={profile.data.displayName}
+                    maxLength={80}
+                    minLength={2}
+                    name="displayName"
+                    required
+                  />
+                </label>
+                <label>
+                  О себе
+                  <textarea
+                    defaultValue={profile.data.bio}
+                    maxLength={1000}
+                    minLength={20}
+                    name="bio"
+                    required
+                    rows={5}
+                  />
+                </label>
+                {saveProfile.isError ? (
+                  <p className="form-error">
+                    Не удалось сохранить профиль. Проверьте поля и повторите.
+                  </p>
+                ) : null}
+                <div className="professional-profile-editor__actions">
+                  <button
+                    disabled={saveProfile.isPending}
+                    onClick={() => {
+                      saveProfile.reset();
+                      setEditingProfile(false);
+                    }}
+                    type="button"
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    className="professional-submit"
+                    disabled={saveProfile.isPending}
+                    type="submit"
+                  >
+                    {saveProfile.isPending ? 'Сохраняем…' : 'Сохранить профиль'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <section className="professional-card professional-status">
+                <span aria-hidden="true">✓</span>
+                <div className="professional-status__copy">
+                  <p>Профиль гида активен</p>
+                  <h2>{profile.data.displayName}</h2>
+                  <small>{profile.data.bio}</small>
+                </div>
+                <button
+                  className="professional-status__edit"
+                  onClick={() => {
+                    saveProfile.reset();
+                    setEditingProfile(true);
+                  }}
+                  type="button"
+                >
+                  Редактировать профиль
+                </button>
+              </section>
+            )}
             <section className="professional-card professional-experiences">
               <div className="professional-experiences__header">
                 <div>
