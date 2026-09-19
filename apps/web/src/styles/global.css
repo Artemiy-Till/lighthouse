@@ -1,7 +1,7 @@
 :root {
   color: #1d2433;
   background: #f7f8fa;
-  font-family: 'Apple Symbols', sans-serif;
+  font-family: Arsenal, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --accent: #4758d6;
@@ -4028,7 +4028,7 @@ html {
 
 body {
   background: #e9eaee;
-  font-family: 'Apple Symbols', sans-serif;
+  font-family: Arsenal, sans-serif;
 }
 
 .app-shell,
