@@ -1,12 +1,7 @@
 :root {
   color: #1d2433;
   background: #f7f8fa;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: 'Apple Symbols', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --accent: #4758d6;
@@ -4033,14 +4028,7 @@ html {
 
 body {
   background: #e9eaee;
-  font-family:
-    'Avenir Next',
-    Avenir,
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: 'Apple Symbols', sans-serif;
 }
 
 .app-shell,
