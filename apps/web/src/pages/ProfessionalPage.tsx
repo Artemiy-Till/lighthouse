@@ -764,54 +764,46 @@ export function ProfessionalPage() {
                 {photoError ? <p className="form-error">{photoError}</p> : null}
               </div>
               <div className="professional-catalog-parameters">
-                <div>
-                  <strong>Параметры каталога</strong>
-                  <small>
-                    По ним пользователи смогут найти экскурсию в фильтрах.
-                  </small>
-                </div>
-                <div className="professional-form__row">
-                  <label>
-                    Длительность
-                    <select
-                      defaultValue={editing?.durationMinutes ?? 120}
-                      name="durationMinutes"
-                      required
-                    >
-                      {editing &&
-                      !durationOptions.includes(editing.durationMinutes) ? (
-                        <option value={editing.durationMinutes}>
-                          {formatDurationOption(editing.durationMinutes)}
-                        </option>
-                      ) : null}
-                      {durationOptions.map((minutes) => (
-                        <option key={minutes} value={minutes}>
-                          {formatDurationOption(minutes)}
-                          {minutes <= 120
-                            ? ' · до 2 часов'
-                            : minutes <= 180
-                              ? ' · 2–3 часа'
-                              : ' · более 3 часов'}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    Формат
-                    <select
-                      defaultValue={editing?.format ?? 'Пешком'}
-                      name="format"
-                      required
-                    >
-                      {editing && !formatOptions.includes(editing.format) ? (
-                        <option>{editing.format}</option>
-                      ) : null}
-                      {formatOptions.map((format) => (
-                        <option key={format}>{format}</option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
+                <label>
+                  Длительность
+                  <select
+                    defaultValue={editing?.durationMinutes ?? 120}
+                    name="durationMinutes"
+                    required
+                  >
+                    {editing &&
+                    !durationOptions.includes(editing.durationMinutes) ? (
+                      <option value={editing.durationMinutes}>
+                        {formatDurationOption(editing.durationMinutes)}
+                      </option>
+                    ) : null}
+                    {durationOptions.map((minutes) => (
+                      <option key={minutes} value={minutes}>
+                        {formatDurationOption(minutes)}
+                        {minutes <= 120
+                          ? ' · до 2 часов'
+                          : minutes <= 180
+                            ? ' · 2–3 часа'
+                            : ' · более 3 часов'}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Формат
+                  <select
+                    defaultValue={editing?.format ?? 'Пешком'}
+                    name="format"
+                    required
+                  >
+                    {editing && !formatOptions.includes(editing.format) ? (
+                      <option>{editing.format}</option>
+                    ) : null}
+                    {formatOptions.map((format) => (
+                      <option key={format}>{format}</option>
+                    ))}
+                  </select>
+                </label>
                 <label>
                   Посещение с детьми
                   <select
