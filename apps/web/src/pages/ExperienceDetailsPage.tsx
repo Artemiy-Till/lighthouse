@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
@@ -11,6 +12,8 @@ import {
 } from '../data/experiences';
 import { getGuideForCity } from '../data/guides';
 import { useFavorites } from '../features/favorites/FavoritesContext';
+import { createBooking, type CreateBookingInput } from '../api/client';
+import { useMaxConnection } from '../features/max/useMaxConnection';
 import {
   toExperience,
   toExperienceDetails,
@@ -21,8 +24,21 @@ export function ExperienceDetailsPage() {
   const { experienceId = '' } = useParams();
   const navigate = useNavigate();
   const { favoriteIds, toggleFavorite } = useFavorites();
+  const { platform, session } = useMaxConnection();
+  const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState('12:00');
+  const [participants, setParticipants] = useState(1);
+  const [bookingComplete, setBookingComplete] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const booking = useMutation({
+    mutationFn: (input: CreateBookingInput) =>
+      createBooking(platform.initData ?? '', input),
+    onSuccess: async () => {
+      setBookingComplete(true);
+      await queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    },
+  });
   const staticExperience = getExperienceById(experienceId);
   const published = usePublishedExperience(experienceId, !staticExperience);
   const experience =
@@ -71,7 +87,12 @@ export function ExperienceDetailsPage() {
     published.data && published.data.photos.length > 0
       ? published.data.photos
       : [experience.image];
-  const activePhoto = photos[photoIndex] ?? photos[0];
+  const activePhoto = photos[photoIndex] ?? photos[0]!;
+  const priceRub =
+    published.data?.priceRub ?? Number(experience.price.replace(/\D/g, ''));
+  const groupSize =
+    published.data?.groupSize ??
+    Number(details.groupSize.match(/\d+/)?.[0] ?? 1);
 
   return (
     <main className="experience-details-page">
@@ -175,6 +196,95 @@ export function ExperienceDetailsPage() {
               onChange={setSelectedDate}
               value={selectedDate}
             />
+            <label className="booking-field">
+              <span>Время начала</span>
+              <select
+                aria-label="Время начала"
+                onChange={(event) => setSelectedTime(event.target.value)}
+                value={selectedTime}
+              >
+                <option value="10:00">10:00</option>
+                <option value="12:00">12:00</option>
+                <option value="15:00">15:00</option>
+                <option value="18:00">18:00</option>
+              </select>
+            </label>
+            <div className="participant-picker">
+              <span>Участники</span>
+              <div>
+                <button
+                  aria-label="Уменьшить количество участников"
+                  disabled={participants === 1}
+                  onClick={() => setParticipants((value) => value - 1)}
+                  type="button"
+                >
+                  −
+                </button>
+                <strong>{participants}</strong>
+                <button
+                  aria-label="Увеличить количество участников"
+                  disabled={participants === groupSize}
+                  onClick={() => setParticipants((value) => value + 1)}
+                  type="button"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="booking-total">
+              <span>Итого</span>
+              <strong>
+                {(priceRub * participants).toLocaleString('ru-RU')} ₽
+              </strong>
+            </div>
+            {bookingComplete ? (
+              <div className="booking-success" role="status">
+                <strong>✓ Вы записаны</strong>
+                <span>Заказ сохранён и подтверждён.</span>
+                <Link to="/orders">Открыть мои заказы</Link>
+              </div>
+            ) : (
+              <button
+                className="booking-submit"
+                disabled={
+                  !selectedDate ||
+                  !platform.initData ||
+                  !session.data?.authenticated ||
+                  booking.isPending
+                }
+                onClick={() =>
+                  booking.mutate({
+                    cityId: experience.cityId,
+                    date: selectedDate!,
+                    experienceId: experience.id,
+                    groupSize,
+                    imageUrl: activePhoto,
+                    meetingPoint: details.meetingPoint,
+                    participants,
+                    priceRub,
+                    time: selectedTime,
+                    title: experience.title,
+                  })
+                }
+                type="button"
+              >
+                {booking.isPending
+                  ? 'Оформляем запись…'
+                  : selectedDate
+                    ? 'Записаться на экскурсию'
+                    : 'Сначала выберите дату'}
+              </button>
+            )}
+            {!platform.initData ? (
+              <p className="booking-message">
+                Для записи откройте экскурсию внутри MAX.
+              </p>
+            ) : null}
+            {booking.isError ? (
+              <p className="booking-message booking-message--error">
+                Не удалось оформить запись. Возможно, свободных мест уже нет.
+              </p>
+            ) : null}
           </div>
 
           <div className="experience-benefits">
@@ -280,11 +390,6 @@ export function ExperienceDetailsPage() {
             </li>
           </ul>
         </section>
-
-        <p className="prototype-caption">
-          Пока это прототип: выбор времени и оформление заказа подключим на
-          следующем этапе.
-        </p>
       </div>
     </main>
   );

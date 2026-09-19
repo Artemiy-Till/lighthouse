@@ -14,6 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { MaxAuthService } from '../max/max-auth.service.js';
 import {
+  CreateBookingDto,
   CreateExperienceDto,
   UploadExperiencePhotoDto,
   UpsertGuideProfileDto,
@@ -44,6 +45,30 @@ export class MarketplaceController {
   @Get('experiences/:id')
   get(@Param('id') id: string) {
     return this.marketplace.getExperience(id);
+  }
+
+  @Post('bookings')
+  createBooking(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Body() body: CreateBookingDto,
+  ) {
+    const user = this.authenticate(initData);
+    return this.marketplace.createBooking(user.id, body);
+  }
+
+  @Get('bookings')
+  listBookings(@Headers('x-max-init-data') initData: string | undefined) {
+    const user = this.authenticate(initData);
+    return this.marketplace.listBookings(user.id);
+  }
+
+  @Delete('bookings/:id')
+  cancelBooking(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Param('id') id: string,
+  ) {
+    const user = this.authenticate(initData);
+    return this.marketplace.cancelBooking(user.id, id);
   }
 
   @Get('professional/profile')

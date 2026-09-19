@@ -80,6 +80,35 @@ export interface CreateExperienceInput {
   readonly title: string;
 }
 
+export interface Booking {
+  readonly cityId: PublishedExperience['cityId'];
+  readonly createdAt: string;
+  readonly date: string;
+  readonly experienceId: string;
+  readonly id: string;
+  readonly imageUrl: string;
+  readonly meetingPoint: string;
+  readonly participants: number;
+  readonly status: 'cancelled' | 'confirmed';
+  readonly time: string;
+  readonly title: string;
+  readonly totalPriceRub: number;
+  readonly unitPriceRub: number;
+}
+
+export interface CreateBookingInput {
+  readonly cityId: PublishedExperience['cityId'];
+  readonly date: string;
+  readonly experienceId: string;
+  readonly groupSize: number;
+  readonly imageUrl: string;
+  readonly meetingPoint: string;
+  readonly participants: number;
+  readonly priceRub: number;
+  readonly time: string;
+  readonly title: string;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}/api/v1${path}`, {
     ...init,
@@ -192,4 +221,25 @@ export function uploadExperiencePhoto(
     headers: maxHeaders(initData),
     method: 'POST',
   });
+}
+
+export function createBooking(initData: string, booking: CreateBookingInput) {
+  return request<Booking>('/bookings', {
+    body: JSON.stringify(booking),
+    headers: maxHeaders(initData),
+    method: 'POST',
+  });
+}
+
+export function getBookings(initData: string) {
+  return request<{ readonly items: readonly Booking[] }>('/bookings', {
+    headers: maxHeaders(initData),
+  });
+}
+
+export function cancelBooking(initData: string, id: string) {
+  return request<{ readonly cancelled: true; readonly id: string }>(
+    `/bookings/${encodeURIComponent(id)}`,
+    { headers: maxHeaders(initData), method: 'DELETE' },
+  );
 }

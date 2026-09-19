@@ -1,65 +1,53 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { cancelBooking, getBookings, type Booking } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
+import { cities } from '../data/cities';
+import { useMaxConnection } from '../features/max/useMaxConnection';
 
 type OrderTab = 'completed' | 'upcoming';
 
-interface DemoOrder {
-  readonly city: string;
-  readonly date: string;
-  readonly id: string;
-  readonly image: string;
-  readonly meetingPoint: string;
-  readonly participants: string;
-  readonly price: string;
-  readonly status: string;
-  readonly tab: OrderTab;
-  readonly title: string;
+function isUpcoming(order: Booking) {
+  const today = new Date().toISOString().slice(0, 10);
+  return order.status === 'confirmed' && order.date >= today;
 }
 
-const demoOrders: readonly DemoOrder[] = [
-  {
-    city: 'Санкт-Петербург',
-    date: '21 сентября, 12:00',
-    id: 'SPB-240921',
-    image: '/images/saint-petersburg-hero.webp',
-    meetingPoint: 'Исаакиевская площадь, у памятника Николаю I',
-    participants: '2 взрослых',
-    price: '2 580 ₽',
-    status: 'Подтверждено',
-    tab: 'upcoming',
-    title: 'Петербург: первое знакомство',
-  },
-  {
-    city: 'Москва',
-    date: '18 августа, 15:30',
-    id: 'MSK-240818',
-    image: '/images/moscow-metro.webp',
-    meetingPoint: 'Вестибюль станции «Площадь Революции»',
-    participants: '1 взрослый',
-    price: '1 350 ₽',
-    status: 'Завершено',
-    tab: 'completed',
-    title: 'Подземные дворцы московского метро',
-  },
-  {
-    city: 'Казань',
-    date: '4 июля, 19:00',
-    id: 'KZN-240704',
-    image: '/images/kazan-river.webp',
-    meetingPoint: 'Речной порт, причал №3',
-    participants: '2 взрослых',
-    price: '3 200 ₽',
-    status: 'Завершено',
-    tab: 'completed',
-    title: 'Огни Казани с воды',
-  },
-];
+function formatDate(order: Booking) {
+  const [year, month, day] = order.date.split('-').map(Number);
+  const date = new Date(year!, month! - 1, day);
+  const formatted = new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    ...(year === new Date().getFullYear() ? {} : { year: 'numeric' }),
+  }).format(date);
+  return `${formatted}, ${order.time}`;
+}
 
 export function OrdersPage() {
   const [activeTab, setActiveTab] = useState<OrderTab>('upcoming');
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
-  const visibleOrders = demoOrders.filter((order) => order.tab === activeTab);
+  const { platform, session } = useMaxConnection();
+  const initData = platform.initData ?? '';
+  const queryClient = useQueryClient();
+  const orders = useQuery({
+    enabled: Boolean(initData && session.data?.authenticated),
+    queryFn: () => getBookings(initData),
+    queryKey: ['bookings'],
+    retry: false,
+  });
+  const cancellation = useMutation({
+    mutationFn: (id: string) => cancelBooking(initData, id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    },
+  });
+  const allOrders = orders.data?.items ?? [];
+  const upcomingCount = allOrders.filter(isUpcoming).length;
+  const completedCount = allOrders.length - upcomingCount;
+  const visibleOrders = allOrders.filter((order) =>
+    activeTab === 'upcoming' ? isUpcoming(order) : !isUpcoming(order),
+  );
 
   return (
     <AppLayout>
@@ -77,8 +65,7 @@ export function OrdersPage() {
             onClick={() => setActiveTab('upcoming')}
             type="button"
           >
-            Предстоящие
-            <span>1</span>
+            Предстоящие <span>{upcomingCount}</span>
           </button>
           <button
             aria-pressed={activeTab === 'completed'}
@@ -86,80 +73,116 @@ export function OrdersPage() {
             onClick={() => setActiveTab('completed')}
             type="button"
           >
-            Завершённые
-            <span>2</span>
+            История <span>{completedCount}</span>
           </button>
         </div>
 
-        <section aria-live="polite" className="order-list">
-          {visibleOrders.map((order) => {
-            const isExpanded = expandedOrderId === order.id;
+        {!initData ? (
+          <div className="orders-empty">
+            <span aria-hidden="true">🎟️</span>
+            <h2>Откройте приложение внутри MAX</h2>
+            <p>Тогда мы сможем показать ваши записи.</p>
+          </div>
+        ) : orders.isPending ? (
+          <div className="orders-empty">
+            <p>Загружаем заказы…</p>
+          </div>
+        ) : orders.isError ? (
+          <div className="orders-empty">
+            <p>Не удалось загрузить заказы.</p>
+          </div>
+        ) : visibleOrders.length === 0 ? (
+          <div className="orders-empty">
+            <span aria-hidden="true">🧭</span>
+            <h2>
+              {activeTab === 'upcoming'
+                ? 'Нет предстоящих экскурсий'
+                : 'История пока пуста'}
+            </h2>
+            <p>Выберите экскурсию в каталоге и запишитесь на удобную дату.</p>
+          </div>
+        ) : (
+          <section aria-live="polite" className="order-list">
+            {visibleOrders.map((order) => {
+              const expanded = expandedOrderId === order.id;
+              const city = cities.find((item) => item.id === order.cityId);
+              const upcoming = isUpcoming(order);
+              const status =
+                order.status === 'cancelled'
+                  ? 'Отменено'
+                  : upcoming
+                    ? 'Подтверждено'
+                    : 'Завершено';
 
-            return (
-              <article className="order-card" key={order.id}>
-                <img alt="" height="560" src={order.image} width="760" />
-                <div className="order-card__content">
-                  <div className="order-card__topline">
-                    <span>{order.city}</span>
-                    <strong
-                      className={
-                        order.tab === 'upcoming'
-                          ? 'status-confirmed'
-                          : 'status-completed'
+              return (
+                <article className="order-card" key={order.id}>
+                  <img alt="" height="560" src={order.imageUrl} width="760" />
+                  <div className="order-card__content">
+                    <div className="order-card__topline">
+                      <span>{city?.name ?? order.cityId}</span>
+                      <strong
+                        className={
+                          upcoming ? 'status-confirmed' : 'status-completed'
+                        }
+                      >
+                        {status}
+                      </strong>
+                    </div>
+                    <h2>{order.title}</h2>
+                    <dl className="order-facts">
+                      <div>
+                        <dt>Дата</dt>
+                        <dd>{formatDate(order)}</dd>
+                      </div>
+                      <div>
+                        <dt>Участники</dt>
+                        <dd>{order.participants}</dd>
+                      </div>
+                      <div>
+                        <dt>Стоимость</dt>
+                        <dd>{order.totalPriceRub.toLocaleString('ru-RU')} ₽</dd>
+                      </div>
+                    </dl>
+
+                    {expanded ? (
+                      <div className="order-details">
+                        <div>
+                          <span>Номер заказа</span>
+                          <strong>{order.id.slice(0, 8).toUpperCase()}</strong>
+                        </div>
+                        <div>
+                          <span>Место встречи</span>
+                          <strong>{order.meetingPoint}</strong>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <button
+                      aria-expanded={expanded}
+                      className="order-card__action"
+                      onClick={() =>
+                        setExpandedOrderId(expanded ? null : order.id)
                       }
+                      type="button"
                     >
-                      {order.status}
-                    </strong>
+                      {expanded ? 'Скрыть детали' : 'Подробнее о заказе'}
+                    </button>
+                    {upcoming ? (
+                      <button
+                        className="order-card__cancel"
+                        disabled={cancellation.isPending}
+                        onClick={() => cancellation.mutate(order.id)}
+                        type="button"
+                      >
+                        Отменить запись
+                      </button>
+                    ) : null}
                   </div>
-                  <h2>{order.title}</h2>
-                  <dl className="order-facts">
-                    <div>
-                      <dt>Дата</dt>
-                      <dd>{order.date}</dd>
-                    </div>
-                    <div>
-                      <dt>Участники</dt>
-                      <dd>{order.participants}</dd>
-                    </div>
-                    <div>
-                      <dt>Стоимость</dt>
-                      <dd>{order.price}</dd>
-                    </div>
-                  </dl>
-
-                  {isExpanded ? (
-                    <div className="order-details">
-                      <div>
-                        <span>Номер заказа</span>
-                        <strong>{order.id}</strong>
-                      </div>
-                      <div>
-                        <span>Место встречи</span>
-                        <strong>{order.meetingPoint}</strong>
-                      </div>
-                    </div>
-                  ) : null}
-
-                  <button
-                    aria-expanded={isExpanded}
-                    className="order-card__action"
-                    onClick={() =>
-                      setExpandedOrderId(isExpanded ? null : order.id)
-                    }
-                    type="button"
-                  >
-                    {isExpanded ? 'Скрыть детали' : 'Подробнее о заказе'}
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-        </section>
-
-        <p className="prototype-caption">
-          Это демонстрационные заказы. После подключения backend здесь появятся
-          реальные статусы, билеты и данные оплаты.
-        </p>
+                </article>
+              );
+            })}
+          </section>
+        )}
       </main>
     </AppLayout>
   );

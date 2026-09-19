@@ -5,6 +5,7 @@ import {
   IsArray,
   IsIn,
   IsInt,
+  Matches,
   IsString,
   IsUrl,
   Max,
@@ -106,4 +107,48 @@ export class UploadExperiencePhotoDto {
   @IsString()
   @MaxLength(4_200_000)
   dataUrl!: string;
+}
+
+export class CreateBookingDto {
+  @IsString()
+  @MaxLength(120)
+  experienceId!: string;
+
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  date!: string;
+
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+  time!: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  participants!: number;
+
+  @IsString()
+  @MinLength(3)
+  @MaxLength(120)
+  title!: string;
+
+  @IsIn(cityIds)
+  cityId!: (typeof cityIds)[number];
+
+  @IsString()
+  @MaxLength(2000)
+  imageUrl!: string;
+
+  @IsString()
+  @MinLength(3)
+  @MaxLength(240)
+  meetingPoint!: string;
+
+  @IsInt()
+  @Min(100)
+  @Max(1_000_000)
+  priceRub!: number;
+
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  groupSize!: number;
 }

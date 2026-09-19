@@ -42,3 +42,24 @@ model PublishedExperience {
   @@index([cityId, status, createdAt(sort: Desc)], map: "published_experiences_city_status_created_idx")
   @@map("published_experiences")
 }
+
+model ExperienceBooking {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  maxUserId     String   @map("max_user_id")
+  experienceId  String   @map("experience_id")
+  title         String   @db.VarChar(120)
+  cityId        String   @map("city_id") @db.VarChar(40)
+  imageUrl      String   @map("image_url")
+  meetingPoint  String   @map("meeting_point") @db.VarChar(240)
+  bookingDate   DateTime @map("booking_date") @db.Date
+  bookingTime   DateTime @map("booking_time") @db.Time
+  participants  Int
+  unitPriceRub  Int      @map("unit_price_rub")
+  totalPriceRub Int      @map("total_price_rub")
+  status        String   @default("confirmed") @db.VarChar(20)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@index([maxUserId, bookingDate(sort: Desc), createdAt(sort: Desc)], map: "experience_bookings_user_date_idx")
+  @@map("experience_bookings")
+}

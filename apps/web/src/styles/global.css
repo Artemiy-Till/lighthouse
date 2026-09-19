@@ -2108,6 +2108,42 @@ main {
   margin-top: 18px;
 }
 
+.order-card__cancel {
+  width: 100%;
+  padding: 11px;
+  margin-top: 9px;
+  border: 0;
+  color: #c82f45;
+  background: transparent;
+  font-weight: 700;
+}
+
+.orders-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 36px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 22px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.orders-empty > span {
+  font-size: 32px;
+}
+.orders-empty h2,
+.orders-empty p {
+  margin: 0;
+}
+.orders-empty h2 {
+  color: var(--ink);
+  font-size: 18px;
+}
+.orders-empty p {
+  font-size: 13px;
+}
+
 .experience-details-page {
   width: 100%;
   max-width: 860px;
@@ -2331,6 +2367,98 @@ main {
 .experience-booking-cta .date-button {
   width: 100%;
   min-height: 54px;
+}
+
+.booking-field,
+.participant-picker,
+.booking-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.booking-field select {
+  min-width: 122px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--surface);
+  font: inherit;
+}
+
+.participant-picker > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.participant-picker button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 20px;
+}
+.participant-picker button:disabled {
+  opacity: 0.35;
+}
+.participant-picker strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+.booking-total {
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+.booking-total strong {
+  color: var(--ink);
+  font-size: 19px;
+}
+.booking-submit {
+  width: 100%;
+  min-height: 54px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 800;
+}
+.booking-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.booking-message {
+  margin: 10px 0 0 !important;
+  color: var(--muted) !important;
+  font-size: 12px !important;
+}
+.booking-message--error {
+  color: #d9364b !important;
+}
+.booking-success {
+  display: grid;
+  gap: 5px;
+  padding: 15px;
+  margin-top: 16px;
+  border-radius: 14px;
+  color: #177b43;
+  background: #e8f8ee;
+}
+.booking-success span {
+  font-size: 12px;
+}
+.booking-success a {
+  margin-top: 5px;
+  color: #176936;
+  font-weight: 800;
 }
 
 .experience-benefits {

@@ -33,6 +33,59 @@ const experienceRow = {
 };
 
 describe('MarketplaceService', () => {
+  it('creates a confirmed booking with a server-calculated total', async () => {
+    const bookingRow = {
+      booking_date: '2026-10-10',
+      booking_time: '12:00:00',
+      city_id: 'kostroma',
+      created_at: new Date('2026-09-19T09:00:00.000Z'),
+      experience_id: 'experience-1',
+      id: 'booking-1',
+      image_url: 'https://example.com/photo.jpg',
+      meeting_point: experienceRow.meeting_point,
+      participants: 2,
+      status: 'confirmed' as const,
+      title: experienceRow.title,
+      total_price_rub: 3400,
+      unit_price_rub: 1700,
+    };
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [experienceRow] })
+      .mockResolvedValueOnce({ rows: [bookingRow] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    const result = await service.createBooking('42', {
+      cityId: 'kostroma',
+      date: '2026-10-10',
+      experienceId: 'experience-1',
+      groupSize: 99,
+      imageUrl: 'https://untrusted.example/image.jpg',
+      meetingPoint: 'Untrusted meeting point',
+      participants: 2,
+      priceRub: 1,
+      time: '12:00',
+      title: 'Untrusted title',
+    });
+
+    expect(result.totalPriceRub).toBe(3400);
+    expect(query.mock.calls[4]?.[1]).toEqual(
+      expect.arrayContaining([
+        'experience-1',
+        '2026-10-10',
+        '12:00',
+        '42',
+        experienceRow.title,
+        1700,
+      ]),
+    );
+  });
+
   it('upserts a professional profile using the verified MAX id', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [guideRow] });
     const service = new MarketplaceService({

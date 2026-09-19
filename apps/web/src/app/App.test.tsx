@@ -191,23 +191,11 @@ describe('App navigation', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('switches order history and expands order details', () => {
+  it('asks to open MAX before showing private orders', () => {
     renderApp('/orders');
-
     expect(
-      screen.getByText('Петербург: первое знакомство'),
+      screen.getByText('Откройте приложение внутри MAX'),
     ).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: /Завершённые/ }));
-    expect(
-      screen.getByText('Подземные дворцы московского метро'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Огни Казани с воды')).toBeInTheDocument();
-
-    fireEvent.click(
-      screen.getAllByRole('button', { name: 'Подробнее о заказе' })[0]!,
-    );
-    expect(screen.getByText('MSK-240818')).toBeInTheDocument();
   });
 
   it('removes saved experiences and shows the empty state', () => {

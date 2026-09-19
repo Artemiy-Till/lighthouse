@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 
+import { getBookings } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useTheme } from '../features/theme/ThemeContext';
@@ -15,6 +17,19 @@ export function ProfilePage() {
   const isDark = theme === 'dark';
   const hasMaxLaunchData = Boolean(platform.isAvailable && platform.initData);
   const maxUser = session.data?.user;
+  const initData = platform.initData ?? '';
+  const bookings = useQuery({
+    enabled: Boolean(initData && session.data?.authenticated),
+    queryFn: () => getBookings(initData),
+    queryKey: ['bookings'],
+    retry: false,
+  });
+  const today = new Date().toISOString().slice(0, 10);
+  const nextBooking = bookings.data?.items
+    .filter((item) => item.status === 'confirmed' && item.date >= today)
+    .sort((left, right) =>
+      `${left.date}${left.time}`.localeCompare(`${right.date}${right.time}`),
+    )[0];
   const displayName = maxUser
     ? [maxUser.firstName, maxUser.lastName].filter(Boolean).join(' ')
     : 'Артемий';
@@ -76,26 +91,30 @@ export function ProfilePage() {
           </div>
         </section>
 
-        <section aria-labelledby="next-booking" className="booking-card">
-          <div className="booking-card__topline">
-            <span>Ближайшая прогулка</span>
-            <strong>Подтверждено</strong>
-          </div>
-          <h2 id="next-booking">Петербург: первое знакомство</h2>
-          <div className="booking-details">
-            <div>
-              <span>Дата</span>
-              <strong>21 сентября, 12:00</strong>
+        {nextBooking ? (
+          <section aria-labelledby="next-booking" className="booking-card">
+            <div className="booking-card__topline">
+              <span>Ближайшая прогулка</span>
+              <strong>Подтверждено</strong>
             </div>
-            <div>
-              <span>Участники</span>
-              <strong>2 взрослых</strong>
+            <h2 id="next-booking">{nextBooking.title}</h2>
+            <div className="booking-details">
+              <div>
+                <span>Дата</span>
+                <strong>
+                  {nextBooking.date} в {nextBooking.time}
+                </strong>
+              </div>
+              <div>
+                <span>Участники</span>
+                <strong>{nextBooking.participants}</strong>
+              </div>
             </div>
-          </div>
-          <Link className="booking-card__action" to="/orders">
-            Открыть заказ
-          </Link>
-        </section>
+            <Link className="booking-card__action" to="/orders">
+              Открыть заказ
+            </Link>
+          </section>
+        ) : null}
 
         <section aria-label="Разделы профиля" className="profile-menu">
           <Link to="/professional">
@@ -116,7 +135,11 @@ export function ProfilePage() {
             </span>
             <span>
               <strong>Мои заказы</strong>
-              <small>1 предстоящий</small>
+              <small>
+                {nextBooking
+                  ? 'Есть предстоящая экскурсия'
+                  : 'Пока нет записей'}
+              </small>
             </span>
             <span aria-hidden="true" className="profile-menu__arrow">
               ›
