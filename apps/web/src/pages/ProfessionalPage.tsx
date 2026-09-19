@@ -37,6 +37,15 @@ function todayInputValue() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
+function isFutureScheduleSlot(slot: string) {
+  return new Date(`${slot}:00`).getTime() > Date.now();
+}
+
+function currentTimeInputValue() {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+}
+
 function formatScheduleDate(date: string, time: string) {
   const [year, month, day] = date.split('-').map(Number);
   return `${new Intl.DateTimeFormat('ru-RU', {
@@ -208,6 +217,12 @@ export function ProfessionalPage() {
     }
     if (scheduleSlots.length === 0) {
       setScheduleError('Добавьте хотя бы одну доступную дату и время.');
+      return;
+    }
+    if (scheduleSlots.some((slot) => !isFutureScheduleSlot(slot))) {
+      setScheduleError(
+        'Одна из дат уже прошла. Удалите её и выберите будущее время.',
+      );
       return;
     }
     const form = new FormData(event.currentTarget);
@@ -822,6 +837,11 @@ export function ProfessionalPage() {
                   <label>
                     Время
                     <input
+                      min={
+                        scheduleDate === todayInputValue()
+                          ? currentTimeInputValue()
+                          : undefined
+                      }
                       onChange={(event) => setScheduleTime(event.target.value)}
                       type="time"
                       value={scheduleTime}
@@ -834,6 +854,12 @@ export function ProfessionalPage() {
                         return;
                       }
                       const slot = `${scheduleDate}T${scheduleTime}`;
+                      if (!isFutureScheduleSlot(slot)) {
+                        setScheduleError(
+                          'Это время уже прошло. Выберите более позднее время.',
+                        );
+                        return;
+                      }
                       setScheduleSlots((current) =>
                         [...new Set([...current, slot])].sort(),
                       );
@@ -871,7 +897,10 @@ export function ProfessionalPage() {
               </div>
               {saveExperience.isError ? (
                 <p className="form-error">
-                  Не удалось сохранить экскурсию. Проверьте поля и повторите.
+                  {saveExperience.error.message ===
+                  'Schedule dates must be in the future'
+                    ? 'Выбранное время уже прошло. Удалите его и добавьте будущее.'
+                    : 'Не удалось сохранить экскурсию. Проверьте поля и повторите.'}
                 </p>
               ) : null}
               <button

@@ -91,6 +91,7 @@ describe('MarketplaceService', () => {
         1700,
       ]),
     );
+    expect(query.mock.calls[7]?.[1]).toHaveLength(10);
   });
 
   it('creates one review for a completed booking', async () => {

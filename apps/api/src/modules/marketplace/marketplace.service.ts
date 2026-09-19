@@ -434,7 +434,7 @@ export class MarketplaceService {
         input.participants,
         priceRub,
         groupSize,
-      ],
+      ].slice(0, source ? 10 : 11),
     );
     if (!result.rows[0]) {
       throw new ConflictException('Not enough available places');

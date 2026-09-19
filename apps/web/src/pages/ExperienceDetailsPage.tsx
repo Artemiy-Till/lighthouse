@@ -364,7 +364,7 @@ export function ExperienceDetailsPage() {
             {booking.isError ? (
               <p className="booking-message booking-message--error">
                 {booking.error.message === 'Not enough available places'
-                  ? 'На это время свободных мест уже нет.'
+                  ? 'Это время уже занято или свободных мест больше нет. Обновите карточку и выберите другой слот.'
                   : 'Не удалось оформить запись. Перезапустите мини-приложение.'}
               </p>
             ) : null}
