@@ -46,18 +46,24 @@ export function HomePage() {
 
   return (
     <AppLayout>
-      <header className="topbar home-topbar">
-        <div className="home-topbar__copy">
-          <p>{city.name}</p>
-          <h1>{t('home.title')}</h1>
-        </div>
-        <div className="home-topbar__actions">
-          <ThemeToggle />
-          <CitySelector />
-        </div>
-      </header>
+      <section className="home-city-hero">
+        <img
+          alt=""
+          className="home-city-hero__image"
+          fetchPriority="high"
+          src={city.heroImage}
+        />
+        <div aria-hidden="true" className="home-city-hero__scrim" />
+        <header className="topbar home-topbar">
+          <div className="home-topbar__copy">
+            <p>{city.name}</p>
+          </div>
+          <div className="home-topbar__actions">
+            <ThemeToggle />
+            <CitySelector />
+          </div>
+        </header>
 
-      <main>
         <section aria-label={t('home.searchAria')} className="search-panel">
           <label className="search-field">
             <Icon name="search" />
@@ -70,11 +76,12 @@ export function HomePage() {
           </label>
           <DateSelector onChange={setSelectedDate} value={selectedDate} />
         </section>
+      </section>
 
+      <main>
         <section className="content-section experiences-section">
           <div className="section-heading">
             <div>
-              <p className="section-kicker">{t('home.travelers')}</p>
               <h2>
                 {t('home.popular')} {city.prepositionalName}
               </h2>

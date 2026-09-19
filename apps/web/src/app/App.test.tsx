@@ -99,7 +99,7 @@ describe('App navigation', () => {
 
     fireEvent.click(screen.getByRole('link', { name: 'Home' }));
     expect(
-      screen.getByRole('heading', { name: 'See the city in a new way' }),
+      screen.getByRole('heading', { name: 'Popular in Петербурге' }),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: 'Profile' }));
     fireEvent.click(screen.getByRole('link', { name: /Settings/ }));

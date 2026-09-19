@@ -45,19 +45,9 @@ export function CitySelector() {
         onClick={() => setIsOpen(true)}
         type="button"
       >
-        <img
-          alt=""
-          className="city-thumbnail"
-          height="40"
-          src={city.heroImage}
-          width="40"
-        />
-        <span>
-          <small>{t('city.your')}</small>
-          <strong>{city.name}</strong>
-        </span>
-        <span aria-hidden="true" className="chevron">
-          ⌄
+        <span aria-hidden="true" className="city-switch-icon">
+          <span>⌃</span>
+          <span>⌄</span>
         </span>
       </button>
 

@@ -4077,6 +4077,37 @@ body {
   padding-bottom: 112px;
 }
 
+.home-city-hero {
+  position: relative;
+  min-height: clamp(350px, 92vw, 430px);
+  overflow: hidden;
+  border-radius: 38px 38px 28px 28px;
+  isolation: isolate;
+}
+
+.home-city-hero__image,
+.home-city-hero__scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.home-city-hero__image {
+  z-index: -2;
+  object-fit: cover;
+}
+
+.home-city-hero__scrim {
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgb(8 10 14 / 42%) 0%,
+    rgb(8 10 14 / 8%) 48%,
+    rgb(8 10 14 / 48%) 100%
+  );
+}
+
 .topbar.home-topbar {
   position: relative;
   z-index: 5;
@@ -4084,7 +4115,8 @@ body {
   min-height: 0;
   align-items: flex-start;
   padding: max(38px, calc(env(safe-area-inset-top) + 24px)) 28px 24px;
-  background: var(--app-background);
+  color: #fff;
+  background: transparent;
   backdrop-filter: none;
 }
 
@@ -4093,20 +4125,13 @@ body {
 }
 
 .home-topbar__copy p {
-  margin: 0 0 9px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.home-topbar__copy h1 {
   margin: 0;
-  font-size: clamp(31px, 8.5vw, 42px);
+  color: #fff;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: -0.055em;
-  line-height: 0.98;
+  letter-spacing: 0.09em;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 35%);
+  text-transform: uppercase;
 }
 
 .home-topbar__actions {
@@ -4124,40 +4149,50 @@ body {
 }
 
 .home-topbar .location-button {
-  padding: 3px;
-  margin-top: 2px;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  margin-top: 0;
+  border: 1px solid rgb(255 255 255 / 62%);
   border-radius: 50%;
-  background: var(--soft-background);
+  color: #fff;
+  background: rgb(17 17 19 / 42%);
+  backdrop-filter: blur(12px);
+  place-items: center;
 }
 
-.home-topbar .location-button > span,
 .home-topbar .location-button .chevron {
   display: none;
 }
 
-.home-topbar .city-thumbnail {
-  width: 54px;
-  height: 54px;
-  flex-basis: 54px;
-  margin: 0;
-  border: 3px solid var(--app-background);
-  border-radius: 50%;
-  box-shadow: none;
-  object-fit: cover;
+.home-topbar .city-switch-icon {
+  display: flex;
+  height: 30px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 0.55;
 }
 
 .search-panel {
-  position: relative;
+  position: absolute;
   z-index: 2;
+  right: 28px;
+  bottom: 24px;
+  left: 28px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   padding: 0;
-  margin: 0 28px;
+  margin: 0;
   border: 0;
   border-radius: 18px;
-  background: var(--soft-background);
+  background: rgb(255 255 255 / 94%);
   box-shadow: none;
+  backdrop-filter: blur(14px);
 }
 
 .search-field {
@@ -4876,9 +4911,12 @@ html[data-theme='dark'] .app-shell,
 html[data-theme='dark'] .experience-details-page,
 html[data-theme='dark'] .guide-page,
 html[data-theme='dark'] .experience-not-found,
-html[data-theme='dark'] .topbar.home-topbar,
 html[data-theme='dark'] .guide-page__topbar {
   background: var(--app-background);
+}
+
+html[data-theme='dark'] .topbar.home-topbar {
+  background: transparent;
 }
 
 html[data-theme='dark'] .experience-card,
@@ -4920,8 +4958,9 @@ html[data-theme='dark'] .experience-terms li {
   }
 
   .search-panel {
-    margin-right: 22px;
-    margin-left: 22px;
+    right: 22px;
+    left: 22px;
+    margin: 0;
   }
 
   .date-button span {

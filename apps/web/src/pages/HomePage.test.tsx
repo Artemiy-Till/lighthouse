@@ -62,12 +62,10 @@ describe('HomePage', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
-      screen.getByRole('button', {
-        name: 'Выбрать город. Сейчас Санкт-Петербург',
-      }),
-    ).toContainElement(
-      document.querySelector('img[src="/images/saint-petersburg-hero.webp"]'),
-    );
+      document.querySelector(
+        '.home-city-hero__image[src="/images/saint-petersburg-hero.webp"]',
+      ),
+    ).toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole('button', {
@@ -95,10 +93,10 @@ describe('HomePage', () => {
     expect(screen.queryByText('Скоро в Москве')).not.toBeInTheDocument();
     expect(window.localStorage.getItem('marketplace-city')).toBe('moscow');
     expect(
-      screen.getByRole('button', { name: 'Выбрать город. Сейчас Москва' }),
-    ).toContainElement(
-      document.querySelector('img[src="/images/moscow-kremlin.webp"]'),
-    );
+      document.querySelector(
+        '.home-city-hero__image[src="/images/moscow-kremlin.webp"]',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('includes published guide experiences in the city offer count', async () => {
