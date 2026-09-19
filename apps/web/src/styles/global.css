@@ -5290,3 +5290,42 @@ body * {
     font-size: 18px;
   }
 }
+
+/* Long outlined category pills. */
+.filter-chips {
+  gap: 10px;
+  padding: 18px 0 12px;
+}
+
+.filter-chips button {
+  min-width: max-content;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid currentcolor;
+  border-radius: 16px;
+  color: var(--ink);
+  background: transparent;
+  font-size: 13px;
+}
+
+.filter-chips button:first-child {
+  min-width: 72px;
+}
+
+.filter-chips button.is-active {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: transparent;
+}
+
+.filter-chips button.is-active::after {
+  display: none;
+}
+
+html[data-theme='dark'] .filter-chips button,
+html[data-theme='dark'] .filter-chips button.is-active {
+  border-color: #fff;
+  color: #fff;
+  background: transparent;
+  box-shadow: none;
+}
