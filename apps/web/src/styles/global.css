@@ -1328,18 +1328,11 @@ main {
 }
 
 .favorites-note {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   padding: 15px 16px;
   margin-bottom: 18px;
-  border: 1px solid #dfe3ff;
+  border: 1px solid var(--ink);
   border-radius: 18px;
-  background: #f0f2ff;
-}
-
-.favorites-note > span {
-  font-size: 24px;
+  background: transparent;
 }
 
 .favorites-note p {
@@ -3698,12 +3691,12 @@ html[data-theme='dark'] .local-banner {
 }
 
 html[data-theme='dark'] .favorites-note {
-  border-color: #353b61;
-  background: #22263c;
+  border-color: #fff;
+  background: transparent;
 }
 
 html[data-theme='dark'] .favorites-note p {
-  color: #c0c5d2;
+  color: #fff;
 }
 
 html[data-theme='dark'] .segmented-control {
@@ -4510,7 +4503,8 @@ html[data-theme='dark'] .filter-chips button.is-active {
 }
 
 .favorites-note {
-  background: #fff3ef;
+  border-color: var(--ink);
+  background: transparent;
 }
 
 .profile-card {

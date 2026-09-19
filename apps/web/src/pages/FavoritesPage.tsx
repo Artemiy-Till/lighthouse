@@ -39,7 +39,6 @@ export function FavoritesPage() {
         ) : favoriteExperiences.length > 0 ? (
           <>
             <div className="favorites-note">
-              <span aria-hidden="true">💜</span>
               <p>
                 {t('favorites.saved')}{' '}
                 <strong>{favoriteExperiences.length}</strong>.{' '}
