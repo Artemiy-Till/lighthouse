@@ -436,6 +436,8 @@ describe('App navigation', () => {
     expect(
       await screen.findByText('Петербург глазами местного'),
     ).toBeInTheDocument();
+    expect(screen.getByText('Пока нет отзывов')).toBeInTheDocument();
+    expect(screen.queryByText('5,0')).not.toBeInTheDocument();
     expect(window.localStorage.getItem('marketplace-favorites')).toContain(
       'published-user-tour',
     );

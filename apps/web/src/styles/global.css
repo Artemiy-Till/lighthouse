@@ -833,6 +833,10 @@ main {
   color: var(--muted);
 }
 
+.experience-card__rating > span:only-child {
+  font-size: inherit;
+}
+
 .experience-card__price {
   margin: 11px 0 0;
   color: var(--ink);
@@ -2453,6 +2457,10 @@ main {
 
 .experience-details-rating > span:last-child {
   color: var(--muted);
+}
+
+.experience-details-rating > span:only-child {
+  font-size: inherit;
 }
 
 .experience-details-intro {

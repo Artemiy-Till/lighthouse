@@ -151,6 +151,7 @@ const translations = {
     ru: 'Удалить из избранного',
   },
   'card.reviews': { en: 'reviews', ru: 'отзывов' },
+  'card.noReviews': { en: 'No reviews yet', ru: 'Пока нет отзывов' },
   'city.choose': { en: 'Choose city. Current:', ru: 'Выбрать город. Сейчас' },
   'city.your': { en: 'Your city', ru: 'Ваш город' },
   'city.destination': { en: 'Destination', ru: 'Направление' },

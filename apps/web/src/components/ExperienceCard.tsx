@@ -56,11 +56,17 @@ export function ExperienceCard({
         <p className="experience-card__meta">{experience.duration}</p>
         <h3>{experience.title}</h3>
         <div className="experience-card__rating">
-          <span aria-hidden="true">★</span>
-          <strong>{experience.rating}</strong>
-          <span>
-            {experience.reviews} {t('card.reviews')}
-          </span>
+          {experience.reviews > 0 ? (
+            <>
+              <span aria-hidden="true">★</span>
+              <strong>{experience.rating}</strong>
+              <span>
+                {experience.reviews} {t('card.reviews')}
+              </span>
+            </>
+          ) : (
+            <span>{t('card.noReviews')}</span>
+          )}
         </div>
         <p className="experience-card__price">{experience.price}</p>
       </div>

@@ -32,7 +32,7 @@ export function toExperience(item: PublishedExperience): Experience {
     id: item.id,
     image: item.photos[0] ?? cityImage(item.cityId),
     price: `от ${item.priceRub.toLocaleString('ru-RU')} ₽`,
-    rating: '5,0',
+    rating: '0,0',
     reviews: 0,
     title: item.title,
   };

@@ -19,11 +19,13 @@ import {
   toExperienceDetails,
   usePublishedExperience,
 } from '../features/marketplace/usePublishedExperiences';
+import { useSettings } from '../features/settings/SettingsContext';
 
 export function ExperienceDetailsPage() {
   const { experienceId = '' } = useParams();
   const navigate = useNavigate();
   const { favoriteIds, toggleFavorite } = useFavorites();
+  const { t } = useSettings();
   const { platform, session } = useMaxConnection();
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -157,9 +159,15 @@ export function ExperienceDetailsPage() {
       <div className="experience-details-content">
         <header className="experience-details-header">
           <p className="experience-details-rating">
-            <span aria-hidden="true">★</span>
-            <strong>{experience.rating}</strong>
-            <span>· {experience.reviews} отзывов</span>
+            {experience.reviews > 0 ? (
+              <>
+                <span aria-hidden="true">★</span>
+                <strong>{experience.rating}</strong>
+                <span>· {experience.reviews} отзывов</span>
+              </>
+            ) : (
+              <span>{t('card.noReviews')}</span>
+            )}
           </p>
           <h1>{experience.title}</h1>
           <p className="experience-details-intro">{details.intro}</p>
