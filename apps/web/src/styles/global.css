@@ -5335,6 +5335,105 @@ html[data-theme='dark'] .experience-terms li {
     padding-right: 22px;
     padding-left: 22px;
   }
+
+  .professional-page {
+    gap: 14px;
+  }
+
+  .professional-card,
+  .professional-schedule,
+  .professional-experiences {
+    min-width: 0;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .professional-form {
+    gap: 14px;
+  }
+
+  .professional-form label,
+  .professional-form__row,
+  .professional-catalog-parameters,
+  .professional-photos,
+  .professional-availability,
+  .professional-availability__picker {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .professional-form input,
+  .professional-form textarea,
+  .professional-form select {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  .professional-availability {
+    gap: 12px;
+    padding: 14px;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .professional-availability > div:first-child {
+    gap: 4px;
+  }
+
+  .professional-availability > div:first-child strong {
+    font-size: 15px;
+    line-height: 1.2;
+  }
+
+  .professional-availability small {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .professional-availability__picker {
+    gap: 10px;
+  }
+
+  .professional-availability__picker label {
+    min-width: 0;
+  }
+
+  .professional-availability__picker input[type='date'],
+  .professional-availability__picker input[type='time'] {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .professional-availability__picker
+    input[type='date']::-webkit-date-and-time-value,
+  .professional-availability__picker
+    input[type='time']::-webkit-date-and-time-value {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .professional-availability__picker button {
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .professional-submit,
+  .professional-notice button {
+    min-height: 48px;
+    padding: 10px 18px;
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: normal;
+  }
 }
 
 /* Reference-matching monochrome corrections. */
