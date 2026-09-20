@@ -11,6 +11,11 @@ const profileMenu = [
   { icon: '💬', label: 'Поддержка', meta: 'Ответим в чате' },
 ] as const;
 
+function formatBookingDate(value: string) {
+  const [year, month, day] = value.split('-');
+  return day && month && year ? `${day}.${month}.${year}` : value;
+}
+
 export function ProfilePage() {
   const { theme, toggleTheme } = useTheme();
   const { t } = useSettings();
@@ -78,14 +83,12 @@ export function ProfilePage() {
             <h2 id="next-booking">{nextBooking.title}</h2>
             <div className="booking-details">
               <div>
-                <span>Дата</span>
-                <strong>
-                  {nextBooking.date} в {nextBooking.time}
-                </strong>
+                <span>Дата:</span>
+                <strong>{formatBookingDate(nextBooking.date)}</strong>
               </div>
               <div>
-                <span>Участники</span>
-                <strong>{nextBooking.participants}</strong>
+                <span>Время:</span>
+                <strong>{nextBooking.time}</strong>
               </div>
             </div>
             <Link className="booking-card__action" to="/orders">
