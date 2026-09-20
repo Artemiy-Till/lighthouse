@@ -30,7 +30,7 @@ describe('HomePage', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
-      screen.getByRole('heading', { name: 'Привет, Артемий' }),
+      screen.getByRole('heading', { name: 'Привет, Артемий!' }),
     ).toBeInTheDocument();
     expect(
       screen.getByText('Выбери свой город для прогулки'),

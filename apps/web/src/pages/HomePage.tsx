@@ -23,7 +23,7 @@ export function HomePage() {
         <header className="home-landing__header">
           <div>
             <h1>
-              {t('home.greeting')} {firstName}
+              {t('home.greeting')} {firstName}!
             </h1>
             <p>{t('home.welcome')}</p>
           </div>
