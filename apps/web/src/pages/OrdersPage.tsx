@@ -197,27 +197,33 @@ export function OrdersPage() {
                       </div>
                     ) : null}
 
-                    <button
-                      aria-expanded={expanded}
-                      className="order-card__action"
-                      onClick={() =>
-                        setExpandedOrderId(expanded ? null : order.id)
-                      }
-                      type="button"
+                    <div
+                      className={`order-card__actions${upcoming ? ' order-card__actions--upcoming' : ''}`}
                     >
-                      {expanded ? t('orders.hide') : t('orders.details')}
-                    </button>
-                    {upcoming ? (
                       <button
-                        className="order-card__cancel"
-                        disabled={cancellation.isPending}
-                        onClick={() => cancellation.mutate(order.id)}
+                        aria-expanded={expanded}
+                        className="order-card__action"
+                        onClick={() =>
+                          setExpandedOrderId(expanded ? null : order.id)
+                        }
                         type="button"
                       >
-                        {t('orders.cancel')}
+                        {expanded ? t('orders.hide') : t('orders.details')}
                       </button>
-                    ) : order.status === 'confirmed' ||
-                      order.status === 'completed' ? (
+                      {upcoming ? (
+                        <button
+                          className="order-card__cancel"
+                          disabled={cancellation.isPending}
+                          onClick={() => cancellation.mutate(order.id)}
+                          type="button"
+                        >
+                          {t('orders.cancel')}
+                        </button>
+                      ) : null}
+                    </div>
+                    {!upcoming &&
+                    (order.status === 'confirmed' ||
+                      order.status === 'completed') ? (
                       order.review ? (
                         <div className="order-review-summary">
                           <strong>

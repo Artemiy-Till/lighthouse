@@ -2637,15 +2637,33 @@ main {
   line-height: 1.4;
 }
 
-.order-card__action {
+.order-card__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.order-card__actions--upcoming {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+}
+
+.order-card__action,
+.order-card__cancel {
   width: 100%;
   min-height: 46px;
-  margin-top: 15px;
-  border: 1px solid #d9dced;
+  padding: 0 12px;
+  margin: 0;
   border-radius: 14px;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.order-card__action {
+  border: 1px solid #d9dced;
   color: var(--accent-dark);
   background: #fff;
-  font-weight: 750;
 }
 
 .orders-page .prototype-caption {
@@ -2653,13 +2671,9 @@ main {
 }
 
 .order-card__cancel {
-  width: 100%;
-  padding: 11px;
-  margin-top: 9px;
-  border: 0;
+  border: 1px solid rgb(200 47 69 / 24%);
   color: #c82f45;
-  background: transparent;
-  font-weight: 700;
+  background: rgb(200 47 69 / 6%);
 }
 
 .order-card__review {
@@ -5428,6 +5442,20 @@ html[data-theme='dark'] .experience-terms li {
   .order-facts dd {
     font-size: 11px;
     line-height: 1.25;
+  }
+
+  .order-card__actions {
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .order-card__action,
+  .order-card__cancel {
+    min-height: 40px;
+    padding: 0 8px;
+    border-radius: 11px;
+    font-size: 11px;
+    white-space: nowrap;
   }
 
   .local-banner {
