@@ -14,7 +14,7 @@ const profileMenu = [
 export function ProfilePage() {
   const { theme, toggleTheme } = useTheme();
   const { t } = useSettings();
-  const { integration, platform, session } = useMaxConnection();
+  const { platform, session } = useMaxConnection();
   const isDark = theme === 'dark';
   const hasMaxLaunchData = Boolean(platform.isAvailable && platform.initData);
   const maxUser = session.data?.user;
@@ -68,29 +68,6 @@ export function ProfilePage() {
             <p>{profileDescription}</p>
           </div>
         </header>
-
-        <section
-          aria-live="polite"
-          className={`max-connection ${
-            integration.data?.connected ? 'is-connected' : ''
-          }`}
-        >
-          <span aria-hidden="true" className="max-connection__indicator" />
-          <div>
-            <strong>
-              {integration.isPending
-                ? 'Проверяем подключение…'
-                : integration.data?.connected
-                  ? 'Сервис MAX подключён'
-                  : 'Сервис MAX временно недоступен'}
-            </strong>
-            <small>
-              {integration.data?.connected
-                ? `Бот ${integration.data.bot.name} готов к работе`
-                : 'Профиль и бронирования продолжат работать в демо-режиме'}
-            </small>
-          </div>
-        </section>
 
         {nextBooking ? (
           <section aria-labelledby="next-booking" className="booking-card">

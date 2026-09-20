@@ -1439,52 +1439,6 @@ main {
   overflow-wrap: anywhere;
 }
 
-.max-connection {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 18px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: #fff;
-}
-
-.max-connection > div {
-  min-width: 0;
-}
-
-.max-connection__indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #b8bdc8;
-  box-shadow: 0 0 0 5px rgb(184 189 200 / 14%);
-}
-
-.max-connection.is-connected .max-connection__indicator {
-  background: #27be5b;
-  box-shadow: 0 0 0 5px rgb(39 190 91 / 14%);
-}
-
-.max-connection strong,
-.max-connection small {
-  display: block;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-.max-connection strong {
-  font-size: 13px;
-}
-
-.max-connection small {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
 .booking-card {
   min-width: 0;
   overflow: hidden;
@@ -3637,7 +3591,6 @@ html[data-theme='dark'] .empty-state,
 html[data-theme='dark'] .profile-card,
 html[data-theme='dark'] .profile-menu,
 html[data-theme='dark'] .settings-section,
-html[data-theme='dark'] .max-connection,
 html[data-theme='dark'] .order-card,
 html[data-theme='dark'] .experience-details-page,
 html[data-theme='dark'] .guide-page,
@@ -5052,7 +5005,6 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
 }
 
 .favorites-note,
-.max-connection,
 .profile-card,
 .profile-menu,
 .settings-section,
@@ -5417,7 +5369,6 @@ html[data-theme='dark'] .profile-card,
 html[data-theme='dark'] .profile-menu,
 html[data-theme='dark'] .settings-section,
 html[data-theme='dark'] .order-card,
-html[data-theme='dark'] .max-connection,
 html[data-theme='dark'] .professional-card,
 html[data-theme='dark'] .professional-schedule {
   background: var(--surface);
