@@ -4606,22 +4606,6 @@ html[data-theme='dark'] .filter-chips button.is-active {
   white-space: nowrap;
 }
 
-.home-profile-shortcut {
-  display: grid;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  color: #fff;
-  background: var(--navigation-background);
-  text-decoration: none;
-  place-items: center;
-}
-
-.home-profile-shortcut .icon {
-  width: 25px;
-  height: 25px;
-}
-
 .home-landing__search {
   display: grid;
   min-width: 0;
@@ -4869,8 +4853,7 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
     padding-left: 17px;
   }
 
-  .home-landing__search > button,
-  .home-profile-shortcut {
+  .home-landing__search > button {
     width: 48px;
     height: 48px;
   }
@@ -4900,7 +4883,6 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
     line-height: 1.15;
   }
 
-  .home-profile-shortcut,
   .home-landing__search > button {
     width: 44px;
     height: 44px;

@@ -77,10 +77,10 @@ const translations = {
   'common.all': { en: 'All', ru: 'Все' },
   'common.reset': { en: 'Reset filters', ru: 'Сбросить фильтры' },
   'home.favorite': { en: 'Saved', ru: 'Избранное' },
-  'home.greeting': { en: 'Hello!', ru: 'Привет!' },
+  'home.greeting': { en: 'Hello,', ru: 'Привет,' },
   'home.welcome': {
-    en: 'Choose a city for your next trip',
-    ru: 'Выберите город для следующей прогулки',
+    en: 'Choose your city for a walk',
+    ru: 'Выбери свой город для прогулки',
   },
   'home.destinationsTitle': {
     en: 'Explore new horizons',
@@ -89,7 +89,6 @@ const translations = {
   'home.selectedCity': { en: 'Selected city', ru: 'Выбранный город' },
   'home.seeTours': { en: 'See tours', ru: 'Смотреть экскурсии' },
   'home.openCatalog': { en: 'Open catalog', ru: 'Открыть каталог' },
-  'home.openProfile': { en: 'Open profile', ru: 'Открыть профиль' },
   'home.heroAlt': { en: 'City panorama:', ru: 'Панорама города' },
   'home.eyebrow': { en: 'Experiences nearby', ru: 'Впечатления рядом' },
   'home.title': {

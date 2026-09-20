@@ -177,7 +177,12 @@ describe('App navigation', () => {
       }),
     );
 
-    renderApp('/profile');
+    renderApp();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Привет, Мария' }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Профиль' }));
 
     expect(
       await screen.findByRole('heading', { name: 'Мария Иванова' }),

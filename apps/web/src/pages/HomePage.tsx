@@ -6,31 +6,29 @@ import { Icon } from '../components/Icon';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { cities } from '../data/cities';
 import { useCity } from '../features/city/CityContext';
+import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 
 export function HomePage() {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const { city, selectCity } = useCity();
+  const { session } = useMaxConnection();
   const { t } = useSettings();
+  const firstName = session.data?.user.firstName.trim() || 'Артемий';
 
   return (
     <AppLayout>
       <main className="home-landing">
         <header className="home-landing__header">
           <div>
-            <h1>{city.name}</h1>
+            <h1>
+              {t('home.greeting')} {firstName}
+            </h1>
             <p>{t('home.welcome')}</p>
           </div>
           <div className="home-landing__actions">
             <ThemeToggle />
-            <Link
-              aria-label={t('home.openProfile')}
-              className="home-profile-shortcut"
-              to="/profile"
-            >
-              <Icon name="profile" />
-            </Link>
           </div>
         </header>
 

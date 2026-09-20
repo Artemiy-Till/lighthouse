@@ -1,11 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CityProvider } from '../features/city/CityContext';
 import { ThemeProvider } from '../features/theme/ThemeContext';
 import { HomePage } from './HomePage';
+
+vi.mock('../features/max/useMaxConnection', () => ({
+  useMaxConnection: () => ({ session: { data: undefined } }),
+}));
 
 function TestProviders({ children }: { readonly children: ReactNode }) {
   return (
@@ -26,8 +30,14 @@ describe('HomePage', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
-      screen.getByRole('heading', { name: 'Санкт-Петербург' }),
+      screen.getByRole('heading', { name: 'Привет, Артемий' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText('Выбери свой город для прогулки'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Открыть профиль' }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'Открывайте новые места' }),
     ).toBeInTheDocument();
@@ -53,7 +63,6 @@ describe('HomePage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Москва' }));
 
-    expect(screen.getByRole('heading', { name: 'Москва' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Москва' })).toHaveAttribute(
       'aria-pressed',
       'true',
