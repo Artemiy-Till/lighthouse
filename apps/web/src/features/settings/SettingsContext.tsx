@@ -15,6 +15,10 @@ const translations = {
   'nav.favorites': { en: 'Saved', ru: 'Избранное' },
   'nav.orders': { en: 'Bookings', ru: 'Заказы' },
   'nav.profile': { en: 'Profile', ru: 'Профиль' },
+  'navigation.backToProfile': {
+    en: 'Back to profile',
+    ru: 'Вернуться в профиль',
+  },
   'nav.main': { en: 'Main navigation', ru: 'Основная навигация' },
   'settings.title': { en: 'Settings', ru: 'Настройки' },
   'settings.subtitle': {

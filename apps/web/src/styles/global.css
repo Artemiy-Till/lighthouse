@@ -925,6 +925,40 @@ main {
   margin: 0 auto;
 }
 
+.page-back-link {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 42px;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 13px 4px 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgb(29 36 51 / 6%);
+}
+
+.page-back-link__arrow {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--accent-dark);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  font-size: 19px;
+  line-height: 1;
+  place-items: center;
+}
+
+.page-back-link:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  outline-offset: 2px;
+}
+
 .page-header {
   margin-bottom: 24px;
 }

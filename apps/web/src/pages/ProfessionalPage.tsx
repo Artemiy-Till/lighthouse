@@ -16,6 +16,7 @@ import {
   updatePublishedExperience,
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
+import { ProfileBackLink } from '../components/ProfileBackLink';
 import { categories } from '../data/experiences';
 import { cities, type CityId } from '../data/cities';
 import { useMaxConnection } from '../features/max/useMaxConnection';
@@ -136,11 +137,8 @@ export function ProfessionalPage() {
     retry: false,
   });
   const completeSchedule = useMutation({
-    mutationFn: (slot: {
-      date: string;
-      experienceId: string;
-      time: string;
-    }) => completeGuideSchedule(initData, slot),
+    mutationFn: (slot: { date: string; experienceId: string; time: string }) =>
+      completeGuideSchedule(initData, slot),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['guide-schedule'] }),
@@ -320,6 +318,7 @@ export function ProfessionalPage() {
   return (
     <AppLayout>
       <main className="secondary-page professional-page">
+        <ProfileBackLink />
         <header className="page-header">
           <p className="section-kicker">Кабинет гида</p>
           <h1>Профессиональный аккаунт</h1>
@@ -500,7 +499,8 @@ export function ProfessionalPage() {
                   Загружаем расписание…
                 </p>
               ) : (guideSchedule.data?.items ?? []).filter(
-                  (slot) => slot.status === 'scheduled' && slot.bookingCount > 0,
+                  (slot) =>
+                    slot.status === 'scheduled' && slot.bookingCount > 0,
                 ).length === 0 ? (
                 <p className="professional-experiences__empty">
                   Пока нет актуальных записей.
@@ -813,8 +813,7 @@ export function ProfessionalPage() {
                     name="childrenPolicy"
                     required
                   >
-                    {editing &&
-                    !childrenOptions.includes(editing.children) ? (
+                    {editing && !childrenOptions.includes(editing.children) ? (
                       <option>{editing.children}</option>
                     ) : null}
                     {childrenOptions.map((option) => (

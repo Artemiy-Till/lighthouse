@@ -1,4 +1,5 @@
 import { AppLayout } from '../components/AppLayout';
+import { ProfileBackLink } from '../components/ProfileBackLink';
 import { useSettings } from '../features/settings/SettingsContext';
 import { useTheme } from '../features/theme/ThemeContext';
 
@@ -46,6 +47,7 @@ export function SettingsPage() {
   return (
     <AppLayout>
       <main className="secondary-page settings-page">
+        <ProfileBackLink />
         <header className="secondary-header">
           <h1>{t('settings.title')}</h1>
           <p>{t('settings.subtitle')}</p>

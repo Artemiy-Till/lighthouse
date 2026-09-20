@@ -107,6 +107,27 @@ describe('App navigation', () => {
     fireEvent.click(screen.getByRole('switch', { name: /Скидки и новости/ }));
   });
 
+  it('returns to the profile from settings and the guide dashboard', () => {
+    renderApp('/settings');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Вернуться в профиль' }));
+    expect(
+      screen.getByRole('heading', { name: 'Артемий', level: 1 }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('link', { name: /Кабинет гида/ }));
+    expect(
+      screen.getByRole('heading', {
+        name: 'Профессиональный аккаунт',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Вернуться в профиль' }));
+    expect(
+      screen.getByRole('heading', { name: 'Артемий', level: 1 }),
+    ).toBeInTheDocument();
+  });
+
   it('shows the verified MAX user returned by the backend', async () => {
     window.WebApp = {
       BackButton: {
