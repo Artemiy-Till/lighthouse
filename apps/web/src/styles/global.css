@@ -1370,29 +1370,35 @@ main {
 .profile-card {
   display: grid;
   min-width: 0;
-  grid-template-columns: 64px minmax(0, 1fr);
-  align-items: center;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 26px;
+  border-radius: 22px;
   background: #fff;
   box-shadow: 0 12px 32px rgb(29 36 51 / 6%);
 }
 
+.profile-card__main {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
 .profile-avatar {
   display: grid;
-  width: 64px;
-  height: 64px;
-  border-radius: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   color: #fff;
   background: linear-gradient(135deg, #6f7be8, #3949c6);
-  font-size: 30px;
+  font-size: 18px;
   font-weight: 850;
   place-items: center;
 }
 
-.profile-card > div:last-child {
+.profile-card__copy {
   min-width: 0;
 }
 
@@ -1403,9 +1409,9 @@ main {
 
 .profile-card__badge {
   display: inline-block;
-  margin-bottom: 7px;
+  margin-bottom: 3px;
   color: var(--accent);
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1413,15 +1419,21 @@ main {
 
 .profile-card h1 {
   max-width: 100%;
-  font-size: 28px;
+  font-size: 22px;
   overflow-wrap: anywhere;
 }
 
-.profile-card p {
-  max-width: 100%;
-  margin-top: 7px;
-  font-size: 12px;
-  overflow-wrap: anywhere;
+.profile-card .profile-card__description {
+  width: 100%;
+  max-width: none;
+  padding-top: 10px;
+  margin: 0;
+  border-top: 1px solid var(--line);
+  font-size: clamp(9px, 2.8vw, 11px);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .booking-card {
@@ -4905,8 +4917,13 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
 }
 
 .profile-card {
-  padding: 20px;
-  border-radius: 24px;
+  padding: 16px;
+  border-radius: 22px;
+}
+
+.profile-card h1 {
+  font-size: 22px;
+  line-height: 1.05;
 }
 
 .profile-avatar {

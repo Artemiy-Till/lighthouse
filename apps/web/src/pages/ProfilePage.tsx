@@ -54,24 +54,26 @@ export function ProfilePage() {
     <AppLayout>
       <main className="secondary-page profile-page">
         <header className="profile-card">
-          {maxUser?.photoUrl ? (
-            <img
-              alt=""
-              className="profile-avatar profile-avatar--image"
-              src={maxUser.photoUrl}
-            />
-          ) : (
-            <div aria-hidden="true" className="profile-avatar">
-              {avatarFallback}
+          <div className="profile-card__main">
+            {maxUser?.photoUrl ? (
+              <img
+                alt=""
+                className="profile-avatar profile-avatar--image"
+                src={maxUser.photoUrl}
+              />
+            ) : (
+              <div aria-hidden="true" className="profile-avatar">
+                {avatarFallback}
+              </div>
+            )}
+            <div className="profile-card__copy">
+              <span className="profile-card__badge">
+                {maxUser ? 'Профиль MAX' : 'Демо-профиль'}
+              </span>
+              <h1>{displayName}</h1>
             </div>
-          )}
-          <div>
-            <span className="profile-card__badge">
-              {maxUser ? 'Профиль MAX' : 'Демо-профиль'}
-            </span>
-            <h1>{displayName}</h1>
-            <p>{profileDescription}</p>
           </div>
+          <p className="profile-card__description">{profileDescription}</p>
         </header>
 
         {nextBooking ? (
