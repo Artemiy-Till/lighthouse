@@ -86,8 +86,10 @@ describe('HomePage', () => {
         name: 'Куда или что хотите посмотреть?',
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Открыть каталог' }),
-    ).toBeInTheDocument();
+    const catalogButton = screen.getByRole('button', {
+      name: 'Открыть каталог',
+    });
+    expect(catalogButton).toBeInTheDocument();
+    expect(catalogButton.querySelector('svg.icon')).toBeInTheDocument();
   });
 });

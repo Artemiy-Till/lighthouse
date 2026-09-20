@@ -53,11 +53,7 @@ export function HomePage() {
             value={query}
           />
           <button aria-label={t('home.openCatalog')} type="submit">
-            <span aria-hidden="true" className="home-filter-icon">
-              <i />
-              <i />
-              <i />
-            </span>
+            <Icon name="map" />
           </button>
         </form>
 

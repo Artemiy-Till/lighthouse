@@ -4652,40 +4652,9 @@ html[data-theme='dark'] .filter-chips button.is-active {
   place-items: center;
 }
 
-.home-filter-icon {
-  display: grid;
-  width: 22px;
-  gap: 4px;
-}
-
-.home-filter-icon i {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 2px;
-  border-radius: 999px;
-  background: currentcolor;
-}
-
-.home-filter-icon i::after {
-  position: absolute;
-  top: 50%;
-  width: 5px;
-  height: 5px;
-  border: 2px solid var(--navigation-background);
-  border-radius: 50%;
-  background: currentcolor;
-  content: '';
-  transform: translateY(-50%);
-}
-
-.home-filter-icon i:nth-child(1)::after,
-.home-filter-icon i:nth-child(3)::after {
-  right: 4px;
-}
-
-.home-filter-icon i:nth-child(2)::after {
-  left: 4px;
+.home-landing__search > button .icon {
+  width: 26px;
+  height: 26px;
 }
 
 .home-destinations {
