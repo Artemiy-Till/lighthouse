@@ -5397,6 +5397,39 @@ html[data-theme='dark'] .experience-terms li {
     padding-top: 14px;
   }
 
+  .order-card__content {
+    padding: 14px;
+  }
+
+  .order-card h2 {
+    margin: 12px 0 13px;
+  }
+
+  .order-facts {
+    gap: 8px;
+  }
+
+  .order-facts div,
+  .order-facts div:last-child {
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: 11px;
+  }
+
+  .order-facts div:last-child {
+    grid-column: auto;
+  }
+
+  .order-facts dt {
+    margin-bottom: 3px;
+    font-size: 9px;
+  }
+
+  .order-facts dd {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
   .local-banner {
     margin-right: 22px;
     margin-left: 22px;
