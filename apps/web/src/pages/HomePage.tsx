@@ -76,10 +76,6 @@ export function HomePage() {
               );
             })}
           </div>
-        </section>
-
-        <div className="home-selected-city">
-          <img alt="" key={city.id} src={city.heroImage} />
           <Link
             aria-label={`${t('home.seeTours')} — ${city.name}`}
             className="home-city-catalog-link"
@@ -88,6 +84,10 @@ export function HomePage() {
             <span>{t('home.seeTours')}</span>
             <span aria-hidden="true">→</span>
           </Link>
+        </section>
+
+        <div className="home-selected-city">
+          <img alt="" key={city.id} src={city.heroImage} />
         </div>
       </main>
     </AppLayout>
