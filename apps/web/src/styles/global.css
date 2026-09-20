@@ -5366,21 +5366,23 @@ html[data-theme='dark'] .experience-terms li {
   }
 
   .catalog-page .catalog-search {
-    width: 100%;
-    min-height: 40px;
-    padding: 0 12px;
-    margin: 0;
-    border-radius: 12px;
+    width: calc(100% + 24px);
+    max-width: none;
+    min-height: 36px;
+    padding: 0 11px;
+    margin-right: -12px;
+    margin-left: -12px;
+    border-radius: 10px;
   }
 
   .catalog-page .catalog-search > .icon {
-    width: 17px;
-    height: 17px;
+    width: 15px;
+    height: 15px;
   }
 
   .catalog-page .catalog-search input {
-    padding-left: 8px;
-    font-size: 12px;
+    padding-left: 7px;
+    font-size: 11px;
   }
 
   .catalog-page .filter-chips {
