@@ -5366,21 +5366,21 @@ html[data-theme='dark'] .experience-terms li {
   }
 
   .catalog-page .catalog-search {
-    width: calc(100% - 12px);
-    min-height: 46px;
-    padding: 0 14px;
-    margin: 0 auto;
-    border-radius: 14px;
+    width: 100%;
+    min-height: 40px;
+    padding: 0 12px;
+    margin: 0;
+    border-radius: 12px;
   }
 
   .catalog-page .catalog-search > .icon {
-    width: 19px;
-    height: 19px;
+    width: 17px;
+    height: 17px;
   }
 
   .catalog-page .catalog-search input {
-    padding-left: 9px;
-    font-size: 13px;
+    padding-left: 8px;
+    font-size: 12px;
   }
 
   .catalog-page .filter-chips {
