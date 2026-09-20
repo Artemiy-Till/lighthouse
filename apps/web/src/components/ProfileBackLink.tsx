@@ -14,7 +14,6 @@ export function ProfileBackLink() {
       <span aria-hidden="true" className="page-back-link__arrow">
         ←
       </span>
-      <span>{t('nav.profile')}</span>
     </Link>
   );
 }
