@@ -1,8 +1,8 @@
 import { type ReactNode } from 'react';
 
 export type IconName =
-  | 'bell'
   | 'calendar'
+  | 'check'
   | 'heart'
   | 'home'
   | 'map'
@@ -12,18 +12,13 @@ export type IconName =
 
 export function Icon({ name }: { readonly name: IconName }) {
   const paths: Record<IconName, ReactNode> = {
-    bell: (
-      <>
-        <path d="M4 14h12l-1.5-2V8a4.5 4.5 0 0 0-9 0v4Z" />
-        <path d="M8 17h4" />
-      </>
-    ),
     calendar: (
       <>
         <path d="M6 2v3M14 2v3M3 8h14" />
         <rect height="15" rx="2" width="16" x="2" y="4" />
       </>
     ),
+    check: <path d="m4 10 4 4 8-8" />,
     heart: (
       <path d="M17.4 4.6a4.5 4.5 0 0 0-6.4 0L10 5.7 8.9 4.6a4.5 4.5 0 0 0-6.3 6.4l1 1L10 18l6.4-6 1-1a4.5 4.5 0 0 0 0-6.4Z" />
     ),

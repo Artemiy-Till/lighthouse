@@ -70,10 +70,14 @@ export function ProfilePage() {
             <h1>{displayName}</h1>
             <p className="profile-card__description">{profileDescription}</p>
           </div>
-          <span aria-label="Уведомления" className="profile-card__notification">
-            <Icon name="bell" />
-            <i aria-hidden="true" />
-          </span>
+          {maxUser ? (
+            <span
+              aria-label="Профиль подтверждён"
+              className="profile-card__verification"
+            >
+              <Icon name="check" />
+            </span>
+          ) : null}
         </header>
 
         {nextBooking ? (
