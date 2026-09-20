@@ -28,6 +28,7 @@ const experienceRow = {
   guide_photo_url: guideRow.photo_url,
   id: 'experience-1',
   intro: 'Главные истории города за два часа.',
+  is_own: false,
   meeting_point: 'У памятника на главной площади',
   photo_urls: ['https://example.com/photo.jpg'],
   price_rub: 1700,
@@ -81,6 +82,7 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.totalPriceRub).toBe(3400);
+    expect(query.mock.calls[6]?.[1]).toEqual(['experience-1', '42']);
     expect(query.mock.calls[7]?.[1]).toEqual(
       expect.arrayContaining([
         'experience-1',
@@ -92,6 +94,56 @@ describe('MarketplaceService', () => {
       ]),
     );
     expect(query.mock.calls[7]?.[1]).toHaveLength(10);
+  });
+
+  it('does not let a guide book their own published experience', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({
+        rows: [{ ...experienceRow, is_own: true }],
+      });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await expect(
+      service.createBooking('42', {
+        cityId: 'kostroma',
+        date: '2026-10-10',
+        experienceId: 'experience-1',
+        groupSize: 10,
+        imageUrl: experienceRow.photo_urls[0]!,
+        meetingPoint: experienceRow.meeting_point,
+        participants: 1,
+        priceRub: experienceRow.price_rub,
+        time: '12:00',
+        title: experienceRow.title,
+      }),
+    ).rejects.toThrow('A guide cannot book their own experience');
+  });
+
+  it('keeps guide-owned experiences out of regular booking history', async () => {
+    const query = vi.fn();
+    for (let index = 0; index < 7; index += 1) {
+      query.mockResolvedValueOnce({ rows: [] });
+    }
+    query.mockResolvedValueOnce({ rows: [] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await service.listBookings('42');
+
+    expect(query.mock.calls[7]?.[0]).toContain('not exists');
+    expect(query.mock.calls[7]?.[0]).toContain(
+      'own_guide.max_user_id = b.max_user_id',
+    );
   });
 
   it('creates one review for a completed booking', async () => {

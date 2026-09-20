@@ -301,6 +301,21 @@ describe('App navigation', () => {
                 };
         } else if (requestUrl.endsWith('/professional/experiences')) {
           payload = { items: [] };
+        } else if (requestUrl.endsWith('/professional/schedule')) {
+          payload = {
+            items: [
+              {
+                bookingCount: 1,
+                capacity: 8,
+                date: '2026-09-19',
+                experienceId: 'tour-1',
+                participants: 2,
+                status: 'completed',
+                time: '12:00',
+                title: 'Петербург глазами местного',
+              },
+            ],
+          };
         } else {
           payload = {
             bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
@@ -351,6 +366,12 @@ describe('App navigation', () => {
         name: 'Фото профиля Артемий Экскурсовод',
       }),
     ).toHaveAttribute('src', 'https://example.com/artemiy.jpg');
+    expect(
+      screen.getByRole('heading', {
+        name: 'История проведённых экскурсий',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])

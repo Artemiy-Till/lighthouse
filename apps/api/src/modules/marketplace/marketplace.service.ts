@@ -390,14 +390,19 @@ export class MarketplaceService {
         | 'photo_urls'
         | 'price_rub'
         | 'title'
-      >
+      > & { is_own: boolean }
     >(
-      `select city_id, group_size, meeting_point, photo_urls, price_rub, title
-       from published_experiences
-       where id::text = $1 and status = 'published'`,
-      [input.experienceId],
+      `select e.city_id, e.group_size, e.meeting_point, e.photo_urls,
+         e.price_rub, e.title, g.max_user_id = $2 as is_own
+       from published_experiences e
+       join guide_profiles g on g.id = e.guide_id
+       where e.id::text = $1 and e.status = 'published'`,
+      [input.experienceId, maxUserId],
     );
     const source = published.rows[0];
+    if (source?.is_own) {
+      throw new BadRequestException('A guide cannot book their own experience');
+    }
     const title = source?.title ?? input.title.trim();
     const cityId = source?.city_id ?? input.cityId;
     const imageUrl = source?.photo_urls[0] ?? input.imageUrl;
@@ -481,6 +486,14 @@ export class MarketplaceService {
         and s.booking_date = b.booking_date
         and s.booking_time = b.booking_time
        where b.max_user_id = $1
+         and not exists (
+           select 1
+           from published_experiences own_experience
+           join guide_profiles own_guide
+             on own_guide.id = own_experience.guide_id
+           where own_experience.id::text = b.experience_id
+             and own_guide.max_user_id = b.max_user_id
+         )
        order by b.booking_date desc, b.booking_time desc, b.created_at desc`,
       [maxUserId],
     );
@@ -931,7 +944,9 @@ export class MarketplaceService {
        group by e.id, e.title, s.booking_date, s.booking_time,
          s.capacity, s.status
        order by case when s.status = 'scheduled' then 0 else 1 end,
-         s.booking_date, s.booking_time`,
+         case when s.status = 'scheduled' then s.booking_date end asc,
+         case when s.status = 'completed' then s.booking_date end desc,
+         s.booking_time`,
       [maxUserId],
     );
     return {

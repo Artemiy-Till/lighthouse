@@ -2169,6 +2169,64 @@ main {
   font-weight: 800;
 }
 
+.professional-schedule__history {
+  display: grid;
+  gap: 11px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.professional-schedule__history h3 {
+  margin: 3px 0 0;
+  color: var(--ink);
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.professional-schedule__history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.professional-schedule__history-list article {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--ink) 3%, var(--surface));
+}
+
+.professional-schedule__history-list article > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  background: #25ad62;
+  font-size: 13px;
+  font-weight: 850;
+  place-items: center;
+}
+
+.professional-schedule__history-list article > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.professional-schedule__history-list strong,
+.professional-schedule__history-list small {
+  overflow-wrap: anywhere;
+}
+
+.professional-schedule__history-list small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .professional-availability {
   display: grid;
   gap: 12px;

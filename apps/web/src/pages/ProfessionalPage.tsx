@@ -540,6 +540,38 @@ export function ProfessionalPage() {
                   Не удалось завершить экскурсию. Повторите ещё раз.
                 </p>
               ) : null}
+              <div className="professional-schedule__history">
+                <div>
+                  <p className="section-kicker">Архив гида</p>
+                  <h3>История проведённых экскурсий</h3>
+                </div>
+                {(guideSchedule.data?.items ?? []).filter(
+                  (slot) => slot.status === 'completed',
+                ).length === 0 ? (
+                  <p className="professional-experiences__empty">
+                    Завершённые экскурсии появятся здесь.
+                  </p>
+                ) : (
+                  <div className="professional-schedule__history-list">
+                    {(guideSchedule.data?.items ?? [])
+                      .filter((slot) => slot.status === 'completed')
+                      .map((slot) => (
+                        <article
+                          key={`completed-${slot.experienceId}-${slot.date}-${slot.time}`}
+                        >
+                          <span aria-hidden="true">✓</span>
+                          <div>
+                            <strong>{slot.title}</strong>
+                            <small>
+                              {formatScheduleDate(slot.date, slot.time)} ·{' '}
+                              {slot.participants} чел.
+                            </small>
+                          </div>
+                        </article>
+                      ))}
+                  </div>
+                )}
+              </div>
             </section>
             <section className="professional-card professional-experiences">
               <div className="professional-experiences__header">
