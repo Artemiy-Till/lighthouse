@@ -37,20 +37,11 @@ export function FavoritesPage() {
             <p>{t('favorites.loading')}</p>
           </div>
         ) : favoriteExperiences.length > 0 ? (
-          <>
-            <div className="favorites-note">
-              <p>
-                {t('favorites.saved')}{' '}
-                <strong>{favoriteExperiences.length}</strong>.{' '}
-                {t('favorites.hint')}
-              </p>
-            </div>
-            <div className="catalog-grid">
-              {favoriteExperiences.map((experience) => (
-                <ExperienceCard experience={experience} key={experience.id} />
-              ))}
-            </div>
-          </>
+          <div className="catalog-grid">
+            {favoriteExperiences.map((experience) => (
+              <ExperienceCard experience={experience} key={experience.id} />
+            ))}
+          </div>
         ) : (
           <div className="empty-state empty-state--large">
             <span aria-hidden="true">♡</span>

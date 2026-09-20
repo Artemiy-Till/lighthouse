@@ -1351,21 +1351,6 @@ main {
   gap: 16px;
 }
 
-.favorites-note {
-  padding: 15px 16px;
-  margin-bottom: 18px;
-  border: 1px solid var(--ink);
-  border-radius: 18px;
-  background: transparent;
-}
-
-.favorites-note p {
-  margin: 0;
-  color: #505873;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
 .empty-state--large {
   padding-top: 58px;
   padding-bottom: 58px;
@@ -3756,15 +3741,6 @@ html[data-theme='dark'] .local-banner {
   background: linear-gradient(135deg, #1d2130, #252a43);
 }
 
-html[data-theme='dark'] .favorites-note {
-  border-color: #fff;
-  background: transparent;
-}
-
-html[data-theme='dark'] .favorites-note p {
-  color: #fff;
-}
-
 html[data-theme='dark'] .segmented-control {
   background: #20242d;
 }
@@ -5004,7 +4980,6 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
   background: var(--soft-background);
 }
 
-.favorites-note,
 .profile-card,
 .profile-menu,
 .settings-section,
@@ -5014,11 +4989,6 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
   border-color: var(--line);
   background: var(--surface);
   box-shadow: none;
-}
-
-.favorites-note {
-  border-color: var(--ink);
-  background: transparent;
 }
 
 .profile-card {

@@ -146,11 +146,6 @@ const translations = {
     en: 'All your ideas for future walks in one place.',
     ru: 'Все идеи для будущих прогулок в одном месте.',
   },
-  'favorites.saved': { en: 'Saved:', ru: 'Сохранено:' },
-  'favorites.hint': {
-    en: 'Tap the heart on a card to remove a tour.',
-    ru: 'Нажмите на сердце в карточке, чтобы удалить экскурсию.',
-  },
   'favorites.emptyTitle': { en: 'Nothing here yet', ru: 'Здесь пока пусто' },
   'favorites.emptyText': {
     en: 'Save tours you like to return to them later.',
