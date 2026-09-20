@@ -180,7 +180,7 @@ describe('App navigation', () => {
     renderApp();
 
     expect(
-      await screen.findByRole('heading', { name: 'Привет, Мария!' }),
+      await screen.findByRole('heading', { name: 'Время новых впечатлений' }),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: 'Профиль' }));
 

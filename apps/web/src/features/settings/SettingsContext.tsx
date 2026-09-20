@@ -77,7 +77,10 @@ const translations = {
   'common.all': { en: 'All', ru: 'Все' },
   'common.reset': { en: 'Reset filters', ru: 'Сбросить фильтры' },
   'home.favorite': { en: 'Saved', ru: 'Избранное' },
-  'home.greeting': { en: 'Hello,', ru: 'Привет,' },
+  'home.greeting': {
+    en: 'Time for new experiences',
+    ru: 'Время новых впечатлений',
+  },
   'home.welcome': {
     en: 'Choose your city for a walk',
     ru: 'Выбери свой город для прогулки',
