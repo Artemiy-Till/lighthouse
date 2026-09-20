@@ -5338,6 +5338,55 @@ html[data-theme='dark'] .experience-terms li {
     padding-left: 22px;
   }
 
+  .catalog-page {
+    padding-top: max(24px, calc(env(safe-area-inset-top) + 16px));
+  }
+
+  .catalog-page .page-header {
+    margin-bottom: 14px;
+  }
+
+  .catalog-page .page-header .section-kicker {
+    margin-bottom: 5px;
+  }
+
+  .catalog-page .page-header h1 {
+    font-size: clamp(22px, 6.4vw, 25px);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  .catalog-page .page-header > p:last-child {
+    margin-top: 6px;
+    font-size: clamp(10px, 2.75vw, 11px);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .catalog-page .catalog-search {
+    width: calc(100% - 12px);
+    min-height: 46px;
+    padding: 0 14px;
+    margin: 0 auto;
+    border-radius: 14px;
+  }
+
+  .catalog-page .catalog-search > .icon {
+    width: 19px;
+    height: 19px;
+  }
+
+  .catalog-page .catalog-search input {
+    padding-left: 9px;
+    font-size: 13px;
+  }
+
+  .catalog-page .filter-chips {
+    padding-top: 14px;
+  }
+
   .local-banner {
     margin-right: 22px;
     margin-left: 22px;

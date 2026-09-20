@@ -249,7 +249,7 @@ export function CatalogPage() {
 
   return (
     <AppLayout>
-      <main className="secondary-page">
+      <main className="secondary-page catalog-page">
         <header className="page-header">
           <p className="section-kicker">{city.name}</p>
           <h1>{t('catalog.title')}</h1>
