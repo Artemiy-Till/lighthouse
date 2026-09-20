@@ -576,6 +576,86 @@ describe('App navigation', () => {
     window.localStorage.removeItem('marketplace-favorites');
   });
 
+  it('shows reviews on a user-published experience', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        let payload: unknown;
+
+        if (requestUrl.endsWith('/experiences/published-user-tour/reviews')) {
+          payload = {
+            items: [
+              {
+                authorName: 'Мария Иванова',
+                authorPhotoUrl: 'https://example.com/maria.jpg',
+                comment: 'Гид отлично знает город и интересно рассказывает.',
+                createdAt: '2026-09-20T08:00:00.000Z',
+                id: 'review-1',
+                rating: 5,
+              },
+            ],
+          };
+        } else if (requestUrl.endsWith('/experiences/published-user-tour')) {
+          payload = {
+            availableSlots: [],
+            category: 'История',
+            children: 'Можно с детьми',
+            cityId: 'saint-petersburg',
+            createdAt: '2026-09-19T09:00:00.000Z',
+            description: 'Авторская прогулка по городу с местным гидом.',
+            durationMinutes: 120,
+            format: 'Пешком',
+            groupSize: 8,
+            groupType: 'Авторская экскурсия',
+            guide: {
+              bio: 'Гид по Петербургу',
+              displayName: 'Артемий',
+              id: 'guide-1',
+              photoUrl: 'https://example.com/artemiy.jpg',
+            },
+            highlights: ['Новая Голландия'],
+            id: 'published-user-tour',
+            intro: 'Увидим город глазами местного жителя.',
+            meetingPoint: 'У входа в Новую Голландию',
+            photos: ['/images/hidden-courtyards.webp'],
+            priceRub: 2200,
+            rating: 5,
+            reviewCount: 1,
+            status: 'published',
+            title: 'Петербург глазами местного',
+          };
+        } else {
+          payload = {
+            bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+            configured: true,
+            connected: true,
+          };
+        }
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
+    );
+
+    renderApp('/experiences/published-user-tour');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Отзывы гостей' }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('Мария Иванова')).toBeInTheDocument();
+    expect(
+      screen.getByText('Гид отлично знает город и интересно рассказывает.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('20 сентября 2026 г.')).toBeInTheDocument();
+  });
+
   it('opens an experience card and shows its complete details', () => {
     renderApp();
 

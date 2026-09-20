@@ -49,6 +49,11 @@ export class MarketplaceController {
     return this.marketplace.getExperience(id);
   }
 
+  @Get('experiences/:id/reviews')
+  reviews(@Param('id') id: string) {
+    return this.marketplace.listExperienceReviews(id);
+  }
+
   @Post('bookings')
   createBooking(
     @Headers('x-max-init-data') initData: string | undefined,
@@ -115,9 +120,7 @@ export class MarketplaceController {
   }
 
   @Get('professional/schedule')
-  listGuideSchedule(
-    @Headers('x-max-init-data') initData: string | undefined,
-  ) {
+  listGuideSchedule(@Headers('x-max-init-data') initData: string | undefined) {
     return this.marketplace.listGuideSchedule(this.authenticate(initData).id);
   }
 

@@ -82,6 +82,15 @@ interface ReviewRow {
   created_at: Date;
 }
 
+interface PublicReviewRow {
+  author_name: string;
+  author_photo_url: string | null;
+  comment: string;
+  created_at: Date;
+  id: string;
+  rating: number;
+}
+
 function mapGuide(row: GuideRow) {
   return {
     bio: row.bio,
@@ -160,6 +169,17 @@ function mapReview(row: ReviewRow) {
     comment: row.comment,
     createdAt: row.created_at.toISOString(),
     experienceId: row.experience_id,
+    id: row.id,
+    rating: row.rating,
+  };
+}
+
+function mapPublicReview(row: PublicReviewRow) {
+  return {
+    authorName: row.author_name,
+    authorPhotoUrl: row.author_photo_url,
+    comment: row.comment,
+    createdAt: row.created_at.toISOString(),
     id: row.id,
     rating: row.rating,
   };
@@ -754,7 +774,11 @@ export class MarketplaceService {
     if (!result.rows[0]) {
       throw new NotFoundException('Experience not found');
     }
-    await this.replaceExperienceSchedule(id, input.groupSize, input.scheduleSlots);
+    await this.replaceExperienceSchedule(
+      id,
+      input.groupSize,
+      input.scheduleSlots,
+    );
     result.rows[0].available_slots = input.scheduleSlots.map((slot) => ({
       date: slot.slice(0, 10),
       remaining: input.groupSize,
@@ -862,6 +886,20 @@ export class MarketplaceService {
     );
     if (!result.rows[0]) throw new NotFoundException('Experience not found');
     return mapExperience(result.rows[0]);
+  }
+
+  async listExperienceReviews(id: string) {
+    await this.ensureReviewSchema();
+    const result = await this.database.query<PublicReviewRow>(
+      `select r.id, r.author_name, r.author_photo_url, r.rating,
+         r.comment, r.created_at
+       from experience_reviews r
+       join published_experiences e on e.id::text = r.experience_id
+       where r.experience_id = $1 and e.status = 'published'
+       order by r.created_at desc`,
+      [id],
+    );
+    return { items: result.rows.map(mapPublicReview) };
   }
 
   async listGuideSchedule(maxUserId: string) {

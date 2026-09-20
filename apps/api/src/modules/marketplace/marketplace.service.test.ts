@@ -155,6 +155,40 @@ describe('MarketplaceService', () => {
     ]);
   });
 
+  it('lists public reviews for a published experience', async () => {
+    const publicReview = {
+      author_name: 'Мария Иванова',
+      author_photo_url: 'https://example.com/maria.jpg',
+      comment: 'Очень интересная экскурсия.',
+      created_at: new Date('2026-09-20T08:00:00.000Z'),
+      id: 'review-1',
+      rating: 5,
+    };
+    const query = vi.fn();
+    for (let index = 0; index < 7; index += 1) {
+      query.mockResolvedValueOnce({ rows: [] });
+    }
+    query.mockResolvedValueOnce({ rows: [publicReview] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    const result = await service.listExperienceReviews('experience-1');
+
+    expect(result.items).toEqual([
+      {
+        authorName: publicReview.author_name,
+        authorPhotoUrl: publicReview.author_photo_url,
+        comment: publicReview.comment,
+        createdAt: publicReview.created_at.toISOString(),
+        id: publicReview.id,
+        rating: publicReview.rating,
+      },
+    ]);
+    expect(query.mock.calls[7]?.[0]).toContain('order by r.created_at desc');
+    expect(query.mock.calls[7]?.[1]).toEqual(['experience-1']);
+  });
+
   it('upserts a professional profile using the verified MAX id', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [guideRow] });
     const service = new MarketplaceService({

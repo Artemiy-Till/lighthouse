@@ -18,6 +18,7 @@ import {
   toExperience,
   toExperienceDetails,
   usePublishedExperience,
+  usePublishedExperienceReviews,
 } from '../features/marketplace/usePublishedExperiences';
 import { useSettings } from '../features/settings/SettingsContext';
 
@@ -25,7 +26,7 @@ export function ExperienceDetailsPage() {
   const { experienceId = '' } = useParams();
   const navigate = useNavigate();
   const { favoriteIds, toggleFavorite } = useFavorites();
-  const { t } = useSettings();
+  const { language, t } = useSettings();
   const { platform, session } = useMaxConnection();
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -43,6 +44,10 @@ export function ExperienceDetailsPage() {
   });
   const staticExperience = getExperienceById(experienceId);
   const published = usePublishedExperience(experienceId, !staticExperience);
+  const publishedReviews = usePublishedExperienceReviews(
+    experienceId,
+    Boolean(!staticExperience && published.data),
+  );
   const experience =
     staticExperience ??
     (published.data ? toExperience(published.data) : undefined);
@@ -116,6 +121,17 @@ export function ExperienceDetailsPage() {
   const participantLimit = published.data
     ? Math.max(1, selectedSlot?.remaining ?? 1)
     : groupSize;
+  const reviewLocale = language === 'en' ? 'en-US' : 'ru-RU';
+
+  const formatReviewCount = (count: number) => {
+    if (language === 'en')
+      return `${count} ${count === 1 ? 'review' : 'reviews'}`;
+    if (count % 10 === 1 && count % 100 !== 11) return `${count} отзыв`;
+    if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
+      return `${count} отзыва`;
+    }
+    return `${count} отзывов`;
+  };
 
   return (
     <main className="experience-details-page">
@@ -442,6 +458,74 @@ export function ExperienceDetailsPage() {
                 <span>✓ Профиль гида подтверждён через MAX</span>
               </span>
             </div>
+          </section>
+        ) : null}
+
+        {published.data ? (
+          <section className="experience-reviews">
+            <div className="experience-reviews__heading">
+              <h2>{t('reviews.title')}</h2>
+              {published.data.reviewCount > 0 ? (
+                <span>
+                  ★{' '}
+                  {published.data.rating.toLocaleString(reviewLocale, {
+                    maximumFractionDigits: 1,
+                    minimumFractionDigits: 1,
+                  })}{' '}
+                  · {formatReviewCount(published.data.reviewCount)}
+                </span>
+              ) : null}
+            </div>
+
+            {publishedReviews.isPending ? (
+              <p className="experience-reviews__state">
+                {t('reviews.loading')}
+              </p>
+            ) : publishedReviews.isError ? (
+              <p className="experience-reviews__state is-error">
+                {t('reviews.error')}
+              </p>
+            ) : publishedReviews.data?.items.length ? (
+              <ul className="experience-review-list">
+                {publishedReviews.data.items.map((review) => (
+                  <li key={review.id}>
+                    <div className="experience-review__author">
+                      {review.authorPhotoUrl ? (
+                        <img
+                          alt=""
+                          height="48"
+                          loading="lazy"
+                          src={review.authorPhotoUrl}
+                          width="48"
+                        />
+                      ) : (
+                        <span aria-hidden="true">
+                          {review.authorName.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <div>
+                        <strong>{review.authorName}</strong>
+                        <time dateTime={review.createdAt}>
+                          {new Intl.DateTimeFormat(reviewLocale, {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          }).format(new Date(review.createdAt))}
+                        </time>
+                      </div>
+                      <b
+                        aria-label={`${review.rating} ${t('orders.reviewStars')}`}
+                      >
+                        {'★'.repeat(review.rating)}
+                      </b>
+                    </div>
+                    <p>{review.comment}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="experience-reviews__state">{t('card.noReviews')}</p>
+            )}
           </section>
         ) : null}
 

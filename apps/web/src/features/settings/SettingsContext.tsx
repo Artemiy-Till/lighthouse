@@ -169,6 +169,12 @@ const translations = {
   },
   'card.reviews': { en: 'reviews', ru: 'отзывов' },
   'card.noReviews': { en: 'No reviews yet', ru: 'Пока нет отзывов' },
+  'reviews.title': { en: 'Guest reviews', ru: 'Отзывы гостей' },
+  'reviews.loading': { en: 'Loading reviews…', ru: 'Загружаем отзывы…' },
+  'reviews.error': {
+    en: 'Could not load reviews.',
+    ru: 'Не удалось загрузить отзывы.',
+  },
   'city.choose': { en: 'Choose city. Current:', ru: 'Выбрать город. Сейчас' },
   'city.your': { en: 'Your city', ru: 'Ваш город' },
   'city.destination': { en: 'Destination', ru: 'Направление' },

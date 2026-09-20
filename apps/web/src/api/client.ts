@@ -127,6 +127,15 @@ export interface BookingReview {
   readonly rating: number;
 }
 
+export interface ExperienceReview {
+  readonly authorName: string;
+  readonly authorPhotoUrl: string | null;
+  readonly comment: string;
+  readonly createdAt: string;
+  readonly id: string;
+  readonly rating: number;
+}
+
 export interface CreateBookingInput {
   readonly cityId: PublishedExperience['cityId'];
   readonly date: string;
@@ -189,6 +198,12 @@ export function getPublishedExperiences(cityId?: string) {
 
 export function getPublishedExperience(id: string) {
   return request<PublishedExperience>(`/experiences/${encodeURIComponent(id)}`);
+}
+
+export function getExperienceReviews(id: string) {
+  return request<{ readonly items: readonly ExperienceReview[] }>(
+    `/experiences/${encodeURIComponent(id)}/reviews`,
+  );
 }
 
 function maxHeaders(initData: string) {

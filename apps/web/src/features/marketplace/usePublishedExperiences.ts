@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   getPublishedExperience,
   getPublishedExperiences,
+  getExperienceReviews,
   type PublishedExperience,
 } from '../../api/client';
 import { cities, type CityId } from '../../data/cities';
@@ -74,6 +75,15 @@ export function usePublishedExperience(id: string, enabled: boolean) {
     enabled,
     queryFn: () => getPublishedExperience(id),
     queryKey: ['published-experience', id],
+    retry: false,
+  });
+}
+
+export function usePublishedExperienceReviews(id: string, enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: () => getExperienceReviews(id),
+    queryKey: ['experience-reviews', id],
     retry: false,
   });
 }

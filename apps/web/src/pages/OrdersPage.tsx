@@ -58,7 +58,7 @@ export function OrdersPage() {
         comment: value.comment,
         rating: value.rating,
       }),
-    onSuccess: async () => {
+    onSuccess: async (createdReview) => {
       setReviewingOrderId(null);
       setReviewRating(5);
       setReviewComment('');
@@ -66,6 +66,9 @@ export function OrdersPage() {
         queryClient.invalidateQueries({ queryKey: ['bookings'] }),
         queryClient.invalidateQueries({ queryKey: ['published-experiences'] }),
         queryClient.invalidateQueries({ queryKey: ['published-experience'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['experience-reviews', createdReview.experienceId],
+        }),
       ]);
     },
   });
