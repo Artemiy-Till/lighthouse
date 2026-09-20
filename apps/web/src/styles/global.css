@@ -1444,9 +1444,10 @@ main {
   min-width: 0;
   overflow: hidden;
   padding: 18px;
+  border: 1px solid var(--line);
   border-radius: 24px;
-  color: #fff;
-  background: #080809;
+  color: var(--ink);
+  background: var(--soft-background);
   box-shadow: none;
 }
 
@@ -1456,7 +1457,7 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: rgb(255 255 255 / 74%);
+  color: var(--muted);
   font-size: 10px;
   text-transform: uppercase;
 }
@@ -1464,8 +1465,8 @@ main {
 .booking-card__topline strong {
   padding: 4px 10px;
   border-radius: 999px;
-  color: #080809;
-  background: #fff;
+  color: #fff;
+  background: #252527;
   font-size: 8px;
   line-height: 1.2;
 }
@@ -1477,6 +1478,7 @@ main {
   letter-spacing: -0.035em;
   line-height: 1.08;
   overflow-wrap: anywhere;
+  color: var(--ink);
 }
 
 .booking-details {
@@ -1492,9 +1494,10 @@ main {
   flex-direction: column;
   justify-content: center;
   padding: 6px 13px;
+  border: 1px solid var(--line);
   border-radius: 999px;
-  color: #080809;
-  background: #f7f7f8;
+  color: var(--ink);
+  background: var(--surface);
 }
 
 .booking-details span,
@@ -1509,7 +1512,7 @@ main {
 }
 
 .booking-details strong {
-  color: #080809;
+  color: var(--ink);
   font-size: 11px;
   overflow-wrap: anywhere;
 }
@@ -1521,9 +1524,9 @@ main {
   align-items: center;
   justify-content: center;
   margin-top: 11px;
-  border: 1px solid rgb(255 255 255 / 72%);
+  border: 1px solid #252527;
   border-radius: 999px;
-  color: #fff;
+  color: var(--ink);
   background: transparent;
   font-size: 11px;
   font-weight: 750;
@@ -4947,7 +4950,7 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
 
 .booking-card {
   border-radius: 24px;
-  background: #080809;
+  background: var(--soft-background);
   box-shadow: none;
 }
 
@@ -5322,6 +5325,44 @@ html[data-theme='dark'] .profile-card .profile-avatar,
 html[data-theme='dark'] .profile-card__verification {
   color: #fff;
   background: #2b2b2e;
+}
+
+html[data-theme='dark'] .booking-card {
+  border-color: rgb(255 255 255 / 6%);
+  color: #fff;
+  background: #080809;
+}
+
+html[data-theme='dark'] .booking-card__topline {
+  color: rgb(255 255 255 / 74%);
+}
+
+html[data-theme='dark'] .booking-card__topline strong {
+  color: #080809;
+  background: #fff;
+}
+
+html[data-theme='dark'] .booking-card h2 {
+  color: #fff;
+}
+
+html[data-theme='dark'] .booking-details div {
+  border-color: transparent;
+  color: #080809;
+  background: #f7f7f8;
+}
+
+html[data-theme='dark'] .booking-details span {
+  color: #77777d;
+}
+
+html[data-theme='dark'] .booking-details strong {
+  color: #080809;
+}
+
+html[data-theme='dark'] .booking-card__action {
+  border-color: rgb(255 255 255 / 72%);
+  color: #fff;
 }
 
 html[data-theme='dark'] .local-banner,
