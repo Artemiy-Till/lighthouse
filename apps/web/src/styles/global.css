@@ -3065,20 +3065,47 @@ main {
 }
 .booking-success {
   display: grid;
-  gap: 5px;
-  padding: 15px;
+  gap: 8px;
+  padding: 22px;
   margin-top: 16px;
-  border-radius: 14px;
-  color: #177b43;
-  background: #e8f8ee;
+  border-radius: 24px;
+  color: #fff;
+  background: #0b0b0c;
+}
+.booking-success strong {
+  font-size: 20px;
+  line-height: 1.15;
 }
 .booking-success span {
-  font-size: 12px;
+  color: rgb(255 255 255 / 70%);
+  font-size: 13px;
 }
 .booking-success a {
-  margin-top: 5px;
-  color: #176936;
+  display: inline-flex;
+  width: fit-content;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 18px;
+  margin-top: 8px;
+  border-radius: 999px;
+  color: #0b0b0c;
+  background: #fff;
   font-weight: 800;
+  text-decoration: none;
+}
+
+html[data-theme='dark'] .booking-success {
+  color: #0b0b0c;
+  background: #fff;
+}
+
+html[data-theme='dark'] .booking-success span {
+  color: rgb(11 11 12 / 66%);
+}
+
+html[data-theme='dark'] .booking-success a {
+  color: #fff;
+  background: #0b0b0c;
 }
 
 .experience-benefits {
