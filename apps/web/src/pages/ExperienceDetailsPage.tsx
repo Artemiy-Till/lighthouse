@@ -216,7 +216,7 @@ export function ExperienceDetailsPage() {
               <span>за человека</span>
             </p>
           </div>
-          <p className="experience-details-location">⌖ {city.name}</p>
+          <p className="experience-details-location">{city.name}</p>
         </header>
 
         <section className="experience-facts-card">

@@ -706,6 +706,8 @@ describe('App navigation', () => {
     expect(screen.getByText('Мини-группа')).toBeInTheDocument();
     expect(screen.getByText('До 12 человек')).toBeInTheDocument();
     expect(screen.getByText('Об экскурсии')).toBeInTheDocument();
+    expect(screen.getByText('Санкт-Петербург')).toBeInTheDocument();
+    expect(screen.queryByText(/⌖/)).not.toBeInTheDocument();
     expect(screen.getByText('Условия бронирования')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Не подойдёт для'));
     expect(
