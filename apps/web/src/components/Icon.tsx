@@ -1,10 +1,23 @@
 import { type ReactNode } from 'react';
 
 export type IconName =
-  'calendar' | 'heart' | 'home' | 'map' | 'orders' | 'profile' | 'search';
+  | 'bell'
+  | 'calendar'
+  | 'heart'
+  | 'home'
+  | 'map'
+  | 'orders'
+  | 'profile'
+  | 'search';
 
 export function Icon({ name }: { readonly name: IconName }) {
   const paths: Record<IconName, ReactNode> = {
+    bell: (
+      <>
+        <path d="M4 14h12l-1.5-2V8a4.5 4.5 0 0 0-9 0v4Z" />
+        <path d="M8 17h4" />
+      </>
+    ),
     calendar: (
       <>
         <path d="M6 2v3M14 2v3M3 8h14" />

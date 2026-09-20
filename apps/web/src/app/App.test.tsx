@@ -187,7 +187,8 @@ describe('App navigation', () => {
     expect(
       await screen.findByRole('heading', { name: 'Мария Иванова' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Профиль MAX')).toBeInTheDocument();
+    expect(screen.getByLabelText('Уведомления')).toBeInTheDocument();
+    expect(screen.queryByText('Профиль MAX')).not.toBeInTheDocument();
     expect(screen.getByText('@maria')).toBeInTheDocument();
   });
 

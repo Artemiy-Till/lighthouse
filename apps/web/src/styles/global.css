@@ -1370,20 +1370,15 @@ main {
 .profile-card {
   display: grid;
   min-width: 0;
-  gap: 5px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: #fff;
-  box-shadow: 0 12px 32px rgb(29 36 51 / 6%);
-}
-
-.profile-card__main {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr) 38px;
   align-items: center;
   gap: 12px;
+  padding: 16px;
+  border: 1px solid rgb(255 255 255 / 6%);
+  border-radius: 24px;
+  color: #fff;
+  background: #1b1b1d;
+  box-shadow: none;
 }
 
 .profile-avatar {
@@ -1392,7 +1387,7 @@ main {
   height: 44px;
   border-radius: 50%;
   color: #fff;
-  background: linear-gradient(135deg, #6f7be8, #3949c6);
+  background: #2a2a2c;
   font-size: 18px;
   font-weight: 850;
   place-items: center;
@@ -1407,19 +1402,12 @@ main {
   object-fit: cover;
 }
 
-.profile-card__badge {
-  display: inline-block;
-  margin-bottom: 3px;
-  color: var(--accent);
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
 .profile-card h1 {
   max-width: 100%;
-  font-size: 22px;
+  color: #fff;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
   overflow-wrap: anywhere;
 }
 
@@ -1427,13 +1415,40 @@ main {
   width: 100%;
   max-width: none;
   padding-top: 0;
-  margin: 0;
+  margin: 4px 0 0;
   border-top: 0;
-  font-size: clamp(9px, 2.8vw, 11px);
+  color: rgb(255 255 255 / 48%);
+  font-size: clamp(7px, 2.2vw, 9px);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.profile-card__notification {
+  position: relative;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: rgb(255 255 255 / 74%);
+  background: #2b2b2e;
+  place-items: center;
+}
+
+.profile-card__notification .icon {
+  width: 19px;
+  height: 19px;
+}
+
+.profile-card__notification i {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d7394f;
 }
 
 .booking-card {
@@ -4918,21 +4933,18 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
 
 .profile-card {
   padding: 16px;
-  border-radius: 22px;
+  border-radius: 24px;
+  background: #1b1b1d;
 }
 
 .profile-card h1 {
-  font-size: 22px;
-  line-height: 1.05;
+  font-size: 17px;
+  line-height: 1.08;
 }
 
 .profile-avatar {
   border-radius: 50%;
   background: var(--navigation-background);
-}
-
-.profile-card__badge {
-  color: var(--accent);
 }
 
 .booking-card {
@@ -5272,6 +5284,11 @@ html[data-theme='dark'] .order-card,
 html[data-theme='dark'] .professional-card,
 html[data-theme='dark'] .professional-schedule {
   background: var(--surface);
+}
+
+html[data-theme='dark'] .profile-card {
+  color: #fff;
+  background: #1b1b1d;
 }
 
 html[data-theme='dark'] .local-banner,
