@@ -212,12 +212,13 @@ export function OrdersPage() {
                       </button>
                       {upcoming ? (
                         <button
+                          aria-label={t('orders.cancel')}
                           className="order-card__cancel"
                           disabled={cancellation.isPending}
                           onClick={() => cancellation.mutate(order.id)}
                           type="button"
                         >
-                          {t('orders.cancel')}
+                          <span aria-hidden="true">×</span>
                         </button>
                       ) : null}
                     </div>

@@ -2645,7 +2645,7 @@ main {
 }
 
 .order-card__actions--upcoming {
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 46px;
 }
 
 .order-card__action,
@@ -2671,9 +2671,15 @@ main {
 }
 
 .order-card__cancel {
+  width: 46px;
+  padding: 0;
   border: 1px solid rgb(200 47 69 / 24%);
+  border-radius: 50%;
   color: #c82f45;
   background: rgb(200 47 69 / 6%);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1;
 }
 
 .order-card__review {
@@ -5449,6 +5455,10 @@ html[data-theme='dark'] .experience-terms li {
     margin-top: 12px;
   }
 
+  .order-card__actions--upcoming {
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+
   .order-card__action,
   .order-card__cancel {
     min-height: 40px;
@@ -5456,6 +5466,13 @@ html[data-theme='dark'] .experience-terms li {
     border-radius: 11px;
     font-size: 11px;
     white-space: nowrap;
+  }
+
+  .order-card__cancel {
+    width: 40px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 22px;
   }
 
   .local-banner {
