@@ -76,25 +76,19 @@ export function HomePage() {
               );
             })}
           </div>
+          <Link
+            aria-label={`${t('home.seeTours')} — ${city.name}`}
+            className="home-city-catalog-link"
+            to="/catalog"
+          >
+            <span>{t('home.seeTours')}</span>
+            <span aria-hidden="true">→</span>
+          </Link>
         </section>
 
-        <Link
-          aria-label={`${t('home.seeTours')} — ${city.name}`}
-          className="home-selected-city"
-          to="/catalog"
-        >
+        <div className="home-selected-city">
           <img alt="" key={city.id} src={city.heroImage} />
-          <span aria-hidden="true" className="home-selected-city__scrim" />
-          <span className="home-selected-city__copy">
-            <small>{t('home.selectedCity')}</small>
-            <strong>{city.name}</strong>
-            <span>{city.subtitle}</span>
-          </span>
-          <span className="home-selected-city__action">
-            <span>{t('home.seeTours')}</span>
-            <i aria-hidden="true">→</i>
-          </span>
-        </Link>
+        </div>
       </main>
     </AppLayout>
   );

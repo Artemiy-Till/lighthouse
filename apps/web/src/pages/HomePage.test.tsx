@@ -56,6 +56,12 @@ describe('HomePage', () => {
         name: 'Смотреть экскурсии — Санкт-Петербург',
       }),
     ).toHaveAttribute('href', '/catalog');
+    expect(
+      document.querySelector('.home-selected-city__copy'),
+    ).not.toBeInTheDocument();
+    expect(
+      document.querySelector('.home-selected-city__action'),
+    ).not.toBeInTheDocument();
   });
 
   it('changes the large image when another city is selected', () => {
