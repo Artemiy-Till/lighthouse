@@ -2215,6 +2215,14 @@ main {
   gap: 8px;
 }
 
+.professional-availability__control {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
 .professional-availability__picker button {
   min-height: 48px;
   padding: 0 13px;
@@ -5472,14 +5480,36 @@ html[data-theme='dark'] .experience-terms li {
   }
 
   .professional-availability__picker label {
+    display: grid;
     min-width: 0;
+    max-width: 100%;
+    grid-template-columns: 52px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+
+  .professional-availability__picker label > span:first-child {
+    white-space: nowrap;
+  }
+
+  .professional-availability__control {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
   }
 
   .professional-availability__picker input[type='date'],
   .professional-availability__picker input[type='time'] {
     width: 100%;
+    inline-size: 100%;
     min-width: 0;
+    min-inline-size: 0;
     max-width: 100%;
+    max-inline-size: 100%;
+    margin: 0;
+    overflow: hidden;
     text-align: left;
   }
 

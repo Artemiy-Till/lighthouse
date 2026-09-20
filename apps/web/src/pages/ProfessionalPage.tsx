@@ -897,26 +897,34 @@ export function ProfessionalPage() {
                 </div>
                 <div className="professional-availability__picker">
                   <label>
-                    Дата
-                    <input
-                      min={todayInputValue()}
-                      onChange={(event) => setScheduleDate(event.target.value)}
-                      type="date"
-                      value={scheduleDate}
-                    />
+                    <span>Дата:</span>
+                    <span className="professional-availability__control">
+                      <input
+                        min={todayInputValue()}
+                        onChange={(event) =>
+                          setScheduleDate(event.target.value)
+                        }
+                        type="date"
+                        value={scheduleDate}
+                      />
+                    </span>
                   </label>
                   <label>
-                    Время
-                    <input
-                      min={
-                        scheduleDate === todayInputValue()
-                          ? currentTimeInputValue()
-                          : undefined
-                      }
-                      onChange={(event) => setScheduleTime(event.target.value)}
-                      type="time"
-                      value={scheduleTime}
-                    />
+                    <span>Время:</span>
+                    <span className="professional-availability__control">
+                      <input
+                        min={
+                          scheduleDate === todayInputValue()
+                            ? currentTimeInputValue()
+                            : undefined
+                        }
+                        onChange={(event) =>
+                          setScheduleTime(event.target.value)
+                        }
+                        type="time"
+                        value={scheduleTime}
+                      />
+                    </span>
                   </label>
                   <button
                     onClick={() => {
