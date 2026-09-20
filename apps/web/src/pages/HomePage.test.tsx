@@ -80,18 +80,16 @@ describe('HomePage', () => {
     ).toBeInTheDocument();
   });
 
-  it('keeps search and catalog access on the landing screen', () => {
+  it('shows a compact search field without a catalog button', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
       screen.getByRole('searchbox', {
-        name: 'Куда или что хотите посмотреть?',
+        name: 'Поиск',
       }),
     ).toBeInTheDocument();
-    const catalogButton = screen.getByRole('button', {
-      name: 'Открыть каталог',
-    });
-    expect(catalogButton).toBeInTheDocument();
-    expect(catalogButton.querySelector('svg.icon')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Открыть каталог' }),
+    ).not.toBeInTheDocument();
   });
 });

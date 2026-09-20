@@ -91,7 +91,6 @@ const translations = {
   },
   'home.selectedCity': { en: 'Selected city', ru: 'Выбранный город' },
   'home.seeTours': { en: 'See tours', ru: 'Смотреть экскурсии' },
-  'home.openCatalog': { en: 'Open catalog', ru: 'Открыть каталог' },
   'home.heroAlt': { en: 'City panorama:', ru: 'Панорама города' },
   'home.eyebrow': { en: 'Experiences nearby', ru: 'Впечатления рядом' },
   'home.title': {
@@ -103,10 +102,7 @@ const translations = {
     ru: 'Экскурсии и прогулки с теми, кто знает каждую его историю',
   },
   'home.searchAria': { en: 'Search experiences', ru: 'Поиск впечатлений' },
-  'home.search': {
-    en: 'Where would you like to go?',
-    ru: 'Куда или что хотите посмотреть?',
-  },
+  'home.search': { en: 'Search', ru: 'Поиск' },
   'home.mood': { en: 'Choose your mood', ru: 'Выберите настроение' },
   'home.activities': { en: 'Things to do', ru: 'Чем заняться' },
   'home.travelers': { en: "Travelers' choice", ru: 'Выбор путешественников' },

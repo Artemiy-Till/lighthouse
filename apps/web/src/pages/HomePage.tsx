@@ -47,9 +47,6 @@ export function HomePage() {
             type="search"
             value={query}
           />
-          <button aria-label={t('home.openCatalog')} type="submit">
-            <Icon name="map" />
-          </button>
         </form>
 
         <section className="home-destinations">
