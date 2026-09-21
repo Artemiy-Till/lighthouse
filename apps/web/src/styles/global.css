@@ -2456,12 +2456,13 @@ main {
 }
 
 .professional-experiences__actions button.is-danger > span {
+  position: relative;
   display: grid;
   width: 23px;
   height: 23px;
   border: 2px solid currentcolor;
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 0;
   font-weight: 650;
   line-height: 1;
   place-items: center;
@@ -2807,15 +2808,40 @@ main {
 }
 
 .order-card__cancel > span {
+  position: relative;
   display: grid;
   width: 26px;
   height: 26px;
   border: 2px solid currentcolor;
   border-radius: 50%;
-  font-size: 19px;
+  font-size: 0;
   font-weight: 600;
   line-height: 1;
   place-items: center;
+}
+
+.professional-experiences__actions button.is-danger > span::before,
+.professional-experiences__actions button.is-danger > span::after,
+.order-card__cancel > span::before,
+.order-card__cancel > span::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentcolor;
+  content: '';
+}
+
+.professional-experiences__actions button.is-danger > span::before,
+.order-card__cancel > span::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.professional-experiences__actions button.is-danger > span::after,
+.order-card__cancel > span::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .order-card__review {
@@ -5684,7 +5710,6 @@ html[data-theme='dark'] .experience-terms li {
   .order-card__cancel > span {
     width: 24px;
     height: 24px;
-    font-size: 17px;
   }
 
   .local-banner {
