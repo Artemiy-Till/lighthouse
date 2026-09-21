@@ -6470,3 +6470,31 @@ html[data-theme='dark'] .profile-page .theme-switch {
     grid-column: 2;
   }
 }
+
+/* Card favorite action: light circular control with an outlined heart. */
+.experience-card .favorite-button,
+.experience-card .favorite-button.is-favorite {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgb(29 29 31 / 9%);
+  color: #242426;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 3px 10px rgb(18 18 18 / 12%);
+  backdrop-filter: blur(8px);
+}
+
+.experience-card .favorite-button .icon,
+.experience-card .favorite-button.is-favorite .icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke-width: 1.7;
+}
+
+html[data-theme='dark'] .experience-card .favorite-button,
+html[data-theme='dark'] .experience-card .favorite-button.is-favorite {
+  border-color: rgb(255 255 255 / 12%);
+  color: #f7f7f8;
+  background: rgb(42 42 45 / 90%);
+  box-shadow: 0 3px 12px rgb(0 0 0 / 24%);
+}
