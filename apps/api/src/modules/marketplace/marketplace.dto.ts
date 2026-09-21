@@ -6,6 +6,7 @@ import {
   IsIn,
   IsInt,
   Matches,
+  IsOptional,
   IsString,
   IsUrl,
   Max,
@@ -36,6 +37,16 @@ export class UpsertGuideProfileDto {
   @MinLength(20)
   @MaxLength(1000)
   bio!: string;
+
+  @ApiProperty({
+    description: 'Public MAX username or profile URL',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  @Matches(/^(?:https:\/\/max\.ru\/|@)?[\p{L}\d_]{1,80}\/?$/u)
+  maxUsername?: string;
 }
 
 export class CreateExperienceDto {

@@ -101,8 +101,18 @@ function mapGuide(row: GuideRow) {
     createdAt: row.created_at.toISOString(),
     displayName: row.display_name,
     id: row.id,
+    maxUsername: row.max_username,
     photoUrl: row.photo_url,
   };
+}
+
+function normalizeMaxUsername(value?: string) {
+  const normalized = value
+    ?.trim()
+    .replace(/^https:\/\/max\.ru\//i, '')
+    .replace(/^@/, '')
+    .replace(/\/$/, '');
+  return normalized || null;
 }
 
 function mapExperience(row: ExperienceRow) {
@@ -500,8 +510,9 @@ export class MarketplaceService {
     const result = await this.database.query<BookingRow>(
       `with refreshed_contact as (
          update experience_bookings
-         set max_username = $2
+         set max_username = coalesce($2, max_username)
          where max_user_id = $1
+           and $2 is not null
            and max_username is distinct from $2
        )
        select b.id, b.experience_id, b.title, b.city_id, b.image_url,
@@ -632,10 +643,11 @@ export class MarketplaceService {
     const result = await this.database.query<GuideRow>(
       `update guide_profiles
        set photo_url = $2,
-           max_username = $3,
+           max_username = coalesce($3, max_username),
            updated_at = case
              when photo_url is distinct from $2
-               or max_username is distinct from $3 then now()
+               or ($3 is not null and max_username is distinct from $3)
+             then now()
              else updated_at
            end
        where max_user_id = $1
@@ -651,6 +663,8 @@ export class MarketplaceService {
     input: UpsertGuideProfileDto,
   ) {
     await this.ensureGuidePhotoSchema();
+    const maxUsername =
+      user.username ?? normalizeMaxUsername(input.maxUsername);
     const result = await this.database.query<GuideRow>(
       `insert into guide_profiles (
          max_user_id, display_name, bio, photo_url, max_username
@@ -660,7 +674,10 @@ export class MarketplaceService {
        set display_name = excluded.display_name,
            bio = excluded.bio,
            photo_url = excluded.photo_url,
-           max_username = excluded.max_username,
+           max_username = coalesce(
+             excluded.max_username,
+             guide_profiles.max_username
+           ),
            updated_at = now()
        returning id, max_user_id, max_username, display_name, bio, photo_url,
          created_at`,
@@ -669,7 +686,7 @@ export class MarketplaceService {
         input.displayName.trim(),
         input.bio.trim(),
         user.photoUrl,
-        user.username,
+        maxUsername,
       ],
     );
     return mapGuide(result.rows[0]!);

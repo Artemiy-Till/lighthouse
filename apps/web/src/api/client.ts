@@ -42,6 +42,7 @@ export interface GuideProfile {
   readonly createdAt: string;
   readonly displayName: string;
   readonly id: string;
+  readonly maxUsername: string | null;
   readonly photoUrl: string | null;
 }
 
@@ -229,7 +230,7 @@ export function getGuideProfile(initData: string) {
 
 export function saveGuideProfile(
   initData: string,
-  profile: Pick<GuideProfile, 'bio' | 'displayName'>,
+  profile: Pick<GuideProfile, 'bio' | 'displayName' | 'maxUsername'>,
 ) {
   return request<GuideProfile>('/professional/profile', {
     body: JSON.stringify(profile),

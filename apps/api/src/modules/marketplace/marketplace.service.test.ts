@@ -407,6 +407,39 @@ describe('MarketplaceService', () => {
     expect(result.photoUrl).toBe(guideRow.photo_url);
   });
 
+  it('saves a manually provided MAX profile link when launch data has no username', async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [{ ...guideRow, max_username: 'artemiy_guide' }],
+    });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await service.upsertGuideProfile(
+      {
+        firstName: 'Артемий',
+        id: '42',
+        languageCode: 'ru',
+        lastName: null,
+        photoUrl: guideRow.photo_url,
+        username: null,
+      },
+      {
+        bio: guideRow.bio,
+        displayName: 'Артемий',
+        maxUsername: 'https://max.ru/artemiy_guide',
+      },
+    );
+
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('coalesce'), [
+      '42',
+      'Артемий',
+      guideRow.bio,
+      guideRow.photo_url,
+      'artemiy_guide',
+    ]);
+  });
+
   it('requires a professional profile before publishing', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [] });
     const service = new MarketplaceService({
