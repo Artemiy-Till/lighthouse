@@ -6503,6 +6503,10 @@ html[data-theme='dark'] .profile-page .theme-switch {
 }
 
 /* Image-led discovery home screen. */
+.app-shell:has(> .home-discovery) {
+  padding-bottom: 0;
+}
+
 .home-discovery {
   display: grid;
   width: 100%;
