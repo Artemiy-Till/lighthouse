@@ -526,16 +526,12 @@ export function ProfessionalPage() {
                           </small>
                         </div>
                         <div className="professional-schedule__actions">
-                          {(slot.guests ?? [])
-                            .filter(
-                              (
-                                guest,
-                              ): guest is typeof guest & {
-                                username: string;
-                              } => Boolean(guest.username),
-                            )
-                            .map((guest, guestIndex, guests) => {
-                              const chatUrl = getMaxUserChatUrl(guest.username);
+                          {(slot.guests ?? []).map(
+                            (guest, guestIndex, guests) => {
+                              const chatUrl = getMaxUserChatUrl(
+                                guest.maxUserId,
+                                guest.username,
+                              );
                               return (
                                 <a
                                   href={chatUrl}
@@ -552,7 +548,8 @@ export function ProfessionalPage() {
                                     : `Написать гостю ${guestIndex + 1}`}
                                 </a>
                               );
-                            })}
+                            },
+                          )}
                           <button
                             disabled={completeSchedule.isPending}
                             onClick={() => completeSchedule.mutate(slot)}

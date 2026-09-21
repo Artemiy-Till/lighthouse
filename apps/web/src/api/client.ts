@@ -119,7 +119,7 @@ export interface Booking {
   readonly guideContact: {
     readonly displayName: string;
     readonly maxUserId: string;
-    readonly username: string;
+    readonly username: string | null;
   } | null;
   readonly meetingPoint: string;
   readonly participants: number;

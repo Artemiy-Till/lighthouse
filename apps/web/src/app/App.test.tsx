@@ -491,6 +491,87 @@ describe('App navigation', () => {
     ).toHaveAttribute('href', 'https://max.ru/artemiy');
   });
 
+  it('shows the guide chat for a legacy booking without a saved username', async () => {
+    window.WebApp = {
+      BackButton: {
+        hide() {},
+        offClick() {},
+        onClick() {},
+        show() {},
+      },
+      initData: 'auth_date=1&hash=signed',
+      platform: 'desktop',
+      version: '26.20.0',
+      getViewportSize() {
+        return Promise.resolve({ height: '800px', width: '390px' });
+      },
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input.url;
+        const payload = requestUrl.endsWith('/auth/max')
+          ? {
+              authenticated: true,
+              user: {
+                firstName: 'Мария',
+                id: '42',
+                languageCode: 'ru',
+                lastName: null,
+                photoUrl: null,
+                username: 'maria',
+              },
+            }
+          : requestUrl.endsWith('/bookings')
+            ? {
+                items: [
+                  {
+                    cityId: 'kostroma',
+                    createdAt: '2026-09-21T08:00:00.000Z',
+                    date: '2099-10-10',
+                    experienceId: 'experience-1',
+                    guideContact: {
+                      displayName: 'Артемий',
+                      maxUserId: '84',
+                      username: null,
+                    },
+                    id: 'booking-1',
+                    imageUrl: '/images/kostroma-card.webp',
+                    meetingPoint: 'Центр города',
+                    participants: 1,
+                    review: null,
+                    status: 'confirmed',
+                    time: '12:00',
+                    title: 'Прогулка по Костроме',
+                    totalPriceRub: 1500,
+                    unitPriceRub: 1500,
+                  },
+                ],
+              }
+            : {
+                bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+                configured: true,
+                connected: true,
+              };
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
+    );
+
+    renderApp('/orders');
+
+    expect(
+      await screen.findByRole('link', { name: 'Написать гиду в MAX' }),
+    ).toHaveAttribute('href', 'max://user/84');
+  });
+
   it('publishes a review from a completed booking', async () => {
     window.WebApp = {
       BackButton: {

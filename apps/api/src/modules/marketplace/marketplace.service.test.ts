@@ -193,6 +193,50 @@ describe('MarketplaceService', () => {
     });
   });
 
+  it('returns the guide contact for legacy profiles without a saved username', async () => {
+    const query = vi.fn();
+    for (let index = 0; index < 8; index += 1) {
+      query.mockResolvedValueOnce({ rows: [] });
+    }
+    query.mockResolvedValueOnce({
+      rows: [
+        {
+          booking_date: '2099-10-10',
+          booking_time: '12:00:00',
+          city_id: 'kostroma',
+          created_at: new Date('2026-09-21T08:00:00.000Z'),
+          experience_id: 'experience-1',
+          guide_display_name: 'Артемий',
+          guide_max_user_id: '84',
+          guide_max_username: null,
+          id: 'booking-1',
+          image_url: 'https://example.com/photo.jpg',
+          meeting_point: experienceRow.meeting_point,
+          participants: 2,
+          review_comment: null,
+          review_created_at: null,
+          review_id: null,
+          review_rating: null,
+          status: 'confirmed',
+          title: experienceRow.title,
+          total_price_rub: 3400,
+          unit_price_rub: 1700,
+        },
+      ],
+    });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    const result = await service.listBookings(maxUser);
+
+    expect(result.items[0]?.guideContact).toEqual({
+      displayName: 'Артемий',
+      maxUserId: '84',
+      username: null,
+    });
+  });
+
   it('lists guest contacts only inside the guide schedule', async () => {
     const query = vi.fn();
     for (let index = 0; index < 6; index += 1) {

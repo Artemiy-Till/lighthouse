@@ -151,11 +151,11 @@ function mapBooking(row: BookingRow) {
     meetingPoint: row.meeting_point,
     participants: row.participants,
     guideContact:
-      row.guide_max_user_id && row.guide_display_name && row.guide_max_username
+      row.guide_max_user_id && row.guide_display_name
         ? {
             displayName: row.guide_display_name,
             maxUserId: row.guide_max_user_id,
-            username: row.guide_max_username,
+            username: row.guide_max_username ?? null,
           }
         : null,
     status: row.status,

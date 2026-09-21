@@ -138,8 +138,11 @@ export function OrdersPage() {
               const expanded = expandedOrderId === order.id;
               const city = cities.find((item) => item.id === order.cityId);
               const upcoming = isUpcoming(order);
-              const guideChatUrl = order.guideContact?.username
-                ? getMaxUserChatUrl(order.guideContact.username)
+              const guideChatUrl = order.guideContact
+                ? getMaxUserChatUrl(
+                    order.guideContact.maxUserId,
+                    order.guideContact.username,
+                  )
                 : null;
               const status =
                 order.status === 'cancelled'
