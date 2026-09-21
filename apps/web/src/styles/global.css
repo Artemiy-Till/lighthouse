@@ -7319,3 +7319,67 @@ html[data-theme='dark']
   color: var(--ink);
   background: var(--soft-background);
 }
+
+/* Compact orders header and high-contrast rounded tabs. */
+.orders-page .page-header {
+  margin-bottom: 12px;
+}
+
+.orders-page .page-header h1 {
+  font-size: 24px;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.orders-page > .segmented-control {
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  background: var(--soft-background);
+}
+
+.orders-page > .segmented-control button {
+  min-height: 38px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 11px;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.orders-page > .segmented-control button.is-active {
+  color: #fff;
+  background: #3a3a3c;
+  box-shadow: none;
+}
+
+.orders-page > .segmented-control span {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  font-size: 9px;
+}
+
+.orders-page > .segmented-control .is-active span {
+  color: #fff;
+  background: rgb(255 255 255 / 14%);
+}
+
+html[data-theme='dark'] .orders-page > .segmented-control {
+  background: var(--soft-background);
+}
+
+html[data-theme='dark'] .orders-page > .segmented-control button.is-active {
+  color: #242426;
+  background: #f2f2f3;
+}
+
+html[data-theme='dark'] .orders-page > .segmented-control .is-active span {
+  color: #242426;
+  background: rgb(36 36 38 / 10%);
+}

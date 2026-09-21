@@ -84,9 +84,7 @@ export function OrdersPage() {
     <AppLayout>
       <main className="secondary-page orders-page">
         <header className="page-header">
-          <p className="section-kicker">{t('orders.kicker')}</p>
           <h1>{t('orders.title')}</h1>
-          <p>{t('orders.subtitle')}</p>
         </header>
 
         <div aria-label={t('orders.filter')} className="segmented-control">
