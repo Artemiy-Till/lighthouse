@@ -2760,9 +2760,12 @@ main {
 }
 
 .order-card__action {
-  border: 1px solid #d9dced;
-  color: var(--accent-dark);
-  background: #fff;
+  min-height: 38px;
+  border: 1px solid #3a3a3c;
+  border-radius: 999px;
+  color: #3a3a3c;
+  background: transparent;
+  font-size: 11px;
 }
 
 .order-card__chat {
@@ -5505,6 +5508,12 @@ html[data-theme='dark'] .order-card__review {
   background: transparent;
 }
 
+html[data-theme='dark'] .order-card__action {
+  border-color: #dedee1;
+  color: #fff;
+  background: transparent;
+}
+
 html[data-theme='dark'] .local-banner,
 html[data-theme='dark'] .empty-state,
 html[data-theme='dark'] .orders-empty,
@@ -5651,7 +5660,6 @@ html[data-theme='dark'] .experience-terms li {
     grid-template-columns: minmax(0, 1fr) 66px;
   }
 
-  .order-card__action,
   .order-card__cancel {
     min-height: 40px;
     padding: 0 8px;
