@@ -16,6 +16,7 @@ import {
   updatePublishedExperience,
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
+import { Icon } from '../components/Icon';
 import { ProfileBackLink } from '../components/ProfileBackLink';
 import { categories } from '../data/experiences';
 import { cities, type CityId } from '../data/cities';
@@ -495,23 +496,35 @@ export function ProfessionalPage() {
                 </div>
               </form>
             ) : (
-              <section className="professional-card professional-status">
-                {profile.data.photoUrl ? (
-                  <img
-                    alt={`Фото профиля ${profile.data.displayName}`}
-                    className="professional-status__avatar"
-                    height="96"
-                    src={profile.data.photoUrl}
-                    width="96"
-                  />
-                ) : (
-                  <span aria-hidden="true">✓</span>
-                )}
-                <div className="professional-status__copy">
-                  <p>Профиль гида активен</p>
-                  <h2>{profile.data.displayName}</h2>
-                  <small>{profile.data.bio}</small>
-                </div>
+              <section className="professional-status">
+                <header className="profile-card">
+                  {profile.data.photoUrl ? (
+                    <img
+                      alt={`Фото профиля ${profile.data.displayName}`}
+                      className="profile-avatar profile-avatar--image"
+                      src={profile.data.photoUrl}
+                    />
+                  ) : (
+                    <div aria-hidden="true" className="profile-avatar">
+                      {profile.data.displayName
+                        .trim()
+                        .charAt(0)
+                        .toUpperCase() || 'М'}
+                    </div>
+                  )}
+                  <div className="profile-card__copy">
+                    <h2>{profile.data.displayName}</h2>
+                    <p className="profile-card__description">
+                      Профиль подтверждён через MAX
+                    </p>
+                  </div>
+                  <span
+                    aria-label="Профиль подтверждён"
+                    className="profile-card__verification"
+                  >
+                    <Icon name="check" />
+                  </span>
+                </header>
                 <button
                   className="professional-status__edit"
                   onClick={() => {

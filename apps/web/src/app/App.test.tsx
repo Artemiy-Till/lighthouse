@@ -373,7 +373,7 @@ describe('App navigation', () => {
       await screen.findByRole('heading', { name: 'Артемий Экскурсовод' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Обновлённое описание профессионального гида.'),
+      screen.getByText('Профиль подтверждён через MAX'),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Редактировать профиль' }),
