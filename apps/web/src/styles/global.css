@@ -7122,6 +7122,12 @@ html[data-theme='dark'] .home-discovery__city-list button:not(.is-active) {
   background: var(--surface);
 }
 
+html[data-theme='dark'] .home-discovery__city-list button.is-active {
+  border-color: #f2f2f3;
+  color: #242426;
+  background: #f2f2f3;
+}
+
 html[data-theme='dark'] .home-popular-card {
   box-shadow: 0 8px 28px rgb(0 0 0 / 24%);
 }
