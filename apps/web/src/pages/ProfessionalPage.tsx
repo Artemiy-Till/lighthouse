@@ -526,17 +526,33 @@ export function ProfessionalPage() {
                           </small>
                         </div>
                         <div className="professional-schedule__actions">
-                          {(slot.guests ?? []).map((guest, guestIndex) => (
-                            <a
-                              href={getMaxUserChatUrl(guest.maxUserId)}
-                              key={guest.bookingId}
-                            >
-                              <span aria-hidden="true">💬</span>
-                              {(slot.guests ?? []).length === 1
-                                ? 'Написать гостю'
-                                : `Написать гостю ${guestIndex + 1}`}
-                            </a>
-                          ))}
+                          {(slot.guests ?? [])
+                            .filter(
+                              (
+                                guest,
+                              ): guest is typeof guest & {
+                                username: string;
+                              } => Boolean(guest.username),
+                            )
+                            .map((guest, guestIndex, guests) => {
+                              const chatUrl = getMaxUserChatUrl(guest.username);
+                              return (
+                                <a
+                                  href={chatUrl}
+                                  key={guest.bookingId}
+                                  onClick={(event) => {
+                                    if (platform.openMaxLink(chatUrl)) {
+                                      event.preventDefault();
+                                    }
+                                  }}
+                                >
+                                  <span aria-hidden="true">💬</span>
+                                  {guests.length === 1
+                                    ? 'Написать гостю'
+                                    : `Написать гостю ${guestIndex + 1}`}
+                                </a>
+                              );
+                            })}
                           <button
                             disabled={completeSchedule.isPending}
                             onClick={() => completeSchedule.mutate(slot)}

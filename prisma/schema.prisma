@@ -10,6 +10,7 @@ datasource db {
 model GuideProfile {
   id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   maxUserId   String                @unique @map("max_user_id")
+  maxUsername String?               @map("max_username")
   displayName String                @map("display_name") @db.VarChar(80)
   bio         String                @db.VarChar(1000)
   photoUrl    String?               @map("photo_url")
@@ -47,6 +48,7 @@ model PublishedExperience {
 model ExperienceBooking {
   id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   maxUserId     String            @map("max_user_id")
+  maxUsername   String?           @map("max_username")
   experienceId  String            @map("experience_id")
   title         String            @db.VarChar(120)
   cityId        String            @map("city_id") @db.VarChar(40)

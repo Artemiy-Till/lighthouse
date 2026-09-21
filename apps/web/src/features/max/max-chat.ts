@@ -1,3 +1,4 @@
-export function getMaxUserChatUrl(maxUserId: string) {
-  return `max://user/${encodeURIComponent(maxUserId)}`;
+export function getMaxUserChatUrl(username: string) {
+  const normalizedUsername = username.trim().replace(/^@/, '');
+  return `https://max.ru/${encodeURIComponent(normalizedUsername)}`;
 }

@@ -18,6 +18,7 @@ import type {
 interface GuideRow {
   id: string;
   max_user_id: string;
+  max_username: string | null;
   display_name: string;
   bio: string;
   photo_url: string | null;
@@ -73,6 +74,7 @@ interface BookingRow {
   review_created_at: Date | null;
   guide_max_user_id?: string | null;
   guide_display_name?: string | null;
+  guide_max_username?: string | null;
 }
 
 interface ReviewRow {
@@ -149,10 +151,11 @@ function mapBooking(row: BookingRow) {
     meetingPoint: row.meeting_point,
     participants: row.participants,
     guideContact:
-      row.guide_max_user_id && row.guide_display_name
+      row.guide_max_user_id && row.guide_display_name && row.guide_max_username
         ? {
             displayName: row.guide_display_name,
             maxUserId: row.guide_max_user_id,
+            username: row.guide_max_username,
           }
         : null,
     status: row.status,
@@ -224,6 +227,12 @@ export class MarketplaceService {
         `alter table guide_profiles
          add column if not exists photo_url text`,
       )
+      .then(() =>
+        this.database.query(
+          `alter table guide_profiles
+           add column if not exists max_username text`,
+        ),
+      )
       .then(() => undefined)
       .catch((error: unknown) => {
         this.guidePhotoSchemaReady = null;
@@ -238,6 +247,7 @@ export class MarketplaceService {
         `create table if not exists experience_bookings (
           id uuid primary key default gen_random_uuid(),
           max_user_id text not null,
+          max_username text,
           experience_id text not null,
           title varchar(120) not null,
           city_id varchar(40) not null,
@@ -253,6 +263,12 @@ export class MarketplaceService {
           created_at timestamptz not null default now(),
           updated_at timestamptz not null default now()
         )`,
+      )
+      .then(() =>
+        this.database.query(
+          `alter table experience_bookings
+           add column if not exists max_username text`,
+        ),
       )
       .then(() =>
         this.database.query(
@@ -381,10 +397,11 @@ export class MarketplaceService {
     return this.reviewSchemaReady;
   }
 
-  async createBooking(maxUserId: string, input: CreateBookingDto) {
+  async createBooking(user: AuthenticatedMaxUser, input: CreateBookingDto) {
     await this.ensurePhotoSchema();
     await this.ensureBookingSchema();
     await this.ensureScheduleSchema();
+    const maxUserId = user.id;
     const today = new Date().toISOString().slice(0, 10);
     if (input.date < today) {
       throw new BadRequestException('Choose a future date');
@@ -448,10 +465,10 @@ export class MarketplaceService {
        insert into experience_bookings (
          max_user_id, experience_id, title, city_id, image_url,
          meeting_point, booking_date, booking_time, participants,
-         unit_price_rub, total_price_rub
+         unit_price_rub, total_price_rub, max_username
        )
        select $4, $1, $5, $6, $7, $8, $2::date, $3::time,
-         $9, $10, $9 * $10
+         $9, $10, $9 * $10, $12
        from reserved_slot
        returning id, experience_id, title, city_id, image_url, meeting_point,
          booking_date, booking_time, participants, unit_price_rub,
@@ -468,7 +485,8 @@ export class MarketplaceService {
         input.participants,
         priceRub,
         groupSize,
-      ].slice(0, source ? 10 : 11),
+        user.username,
+      ],
     );
     if (!result.rows[0]) {
       throw new ConflictException('Not enough available places');
@@ -476,11 +494,17 @@ export class MarketplaceService {
     return mapBooking(result.rows[0]);
   }
 
-  async listBookings(maxUserId: string) {
+  async listBookings(user: AuthenticatedMaxUser) {
     await this.ensureBookingSchema();
     await this.ensureReviewSchema();
     const result = await this.database.query<BookingRow>(
-      `select b.id, b.experience_id, b.title, b.city_id, b.image_url,
+      `with refreshed_contact as (
+         update experience_bookings
+         set max_username = $2
+         where max_user_id = $1
+           and max_username is distinct from $2
+       )
+       select b.id, b.experience_id, b.title, b.city_id, b.image_url,
          b.meeting_point, b.booking_date, b.booking_time, b.participants,
          b.unit_price_rub, b.total_price_rub,
          case when b.status = 'confirmed' and s.status = 'completed'
@@ -489,7 +513,8 @@ export class MarketplaceService {
          r.id as review_id, r.rating as review_rating,
          r.comment as review_comment, r.created_at as review_created_at,
          booked_guide.max_user_id as guide_max_user_id,
-         booked_guide.display_name as guide_display_name
+         booked_guide.display_name as guide_display_name,
+         booked_guide.max_username as guide_max_username
        from experience_bookings b
        left join experience_reviews r on r.booking_id = b.id
        left join experience_booking_slots s
@@ -510,7 +535,7 @@ export class MarketplaceService {
              and own_guide.max_user_id = b.max_user_id
          )
        order by b.booking_date desc, b.booking_time desc, b.created_at desc`,
-      [maxUserId],
+      [user.id, user.username],
     );
     return { items: result.rows.map(mapBooking) };
   }
@@ -607,13 +632,16 @@ export class MarketplaceService {
     const result = await this.database.query<GuideRow>(
       `update guide_profiles
        set photo_url = $2,
+           max_username = $3,
            updated_at = case
-             when photo_url is distinct from $2 then now()
+             when photo_url is distinct from $2
+               or max_username is distinct from $3 then now()
              else updated_at
            end
        where max_user_id = $1
-       returning id, max_user_id, display_name, bio, photo_url, created_at`,
-      [user.id, user.photoUrl],
+       returning id, max_user_id, max_username, display_name, bio, photo_url,
+         created_at`,
+      [user.id, user.photoUrl, user.username],
     );
     return result.rows[0] ? mapGuide(result.rows[0]) : null;
   }
@@ -624,15 +652,25 @@ export class MarketplaceService {
   ) {
     await this.ensureGuidePhotoSchema();
     const result = await this.database.query<GuideRow>(
-      `insert into guide_profiles (max_user_id, display_name, bio, photo_url)
-       values ($1, $2, $3, $4)
+      `insert into guide_profiles (
+         max_user_id, display_name, bio, photo_url, max_username
+       )
+       values ($1, $2, $3, $4, $5)
        on conflict (max_user_id) do update
        set display_name = excluded.display_name,
            bio = excluded.bio,
            photo_url = excluded.photo_url,
+           max_username = excluded.max_username,
            updated_at = now()
-       returning id, max_user_id, display_name, bio, photo_url, created_at`,
-      [user.id, input.displayName.trim(), input.bio.trim(), user.photoUrl],
+       returning id, max_user_id, max_username, display_name, bio, photo_url,
+         created_at`,
+      [
+        user.id,
+        input.displayName.trim(),
+        input.bio.trim(),
+        user.photoUrl,
+        user.username,
+      ],
     );
     return mapGuide(result.rows[0]!);
   }
@@ -942,6 +980,7 @@ export class MarketplaceService {
         bookingId: string;
         maxUserId: string;
         participants: number;
+        username: string | null;
       }>;
       participants: number;
       status: 'completed' | 'scheduled';
@@ -956,7 +995,8 @@ export class MarketplaceService {
              jsonb_build_object(
                'bookingId', b.id::text,
                'maxUserId', b.max_user_id,
-               'participants', b.participants
+               'participants', b.participants,
+               'username', b.max_username
              ) order by b.created_at
            ) filter (where b.id is not null),
            '[]'::jsonb

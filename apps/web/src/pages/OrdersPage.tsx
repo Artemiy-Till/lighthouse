@@ -138,6 +138,9 @@ export function OrdersPage() {
               const expanded = expandedOrderId === order.id;
               const city = cities.find((item) => item.id === order.cityId);
               const upcoming = isUpcoming(order);
+              const guideChatUrl = order.guideContact?.username
+                ? getMaxUserChatUrl(order.guideContact.username)
+                : null;
               const status =
                 order.status === 'cancelled'
                   ? t('orders.cancelled')
@@ -222,12 +225,15 @@ export function OrdersPage() {
                           >
                             <span aria-hidden="true">×</span>
                           </button>
-                          {order.guideContact ? (
+                          {guideChatUrl ? (
                             <a
                               className="order-card__chat"
-                              href={getMaxUserChatUrl(
-                                order.guideContact.maxUserId,
-                              )}
+                              href={guideChatUrl}
+                              onClick={(event) => {
+                                if (platform.openMaxLink(guideChatUrl)) {
+                                  event.preventDefault();
+                                }
+                              }}
                             >
                               <span aria-hidden="true">💬</span>
                               {t('orders.chatGuide')}

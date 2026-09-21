@@ -320,6 +320,7 @@ describe('App navigation', () => {
                     bookingId: 'booking-guest-1',
                     maxUserId: '84',
                     participants: 2,
+                    username: 'maria',
                   },
                 ],
                 participants: 2,
@@ -387,7 +388,7 @@ describe('App navigation', () => {
     expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Написать гостю' }),
-    ).toHaveAttribute('href', 'max://user/84');
+    ).toHaveAttribute('href', 'https://max.ru/maria');
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])
@@ -456,6 +457,7 @@ describe('App navigation', () => {
                     guideContact: {
                       displayName: 'Артемий',
                       maxUserId: '84',
+                      username: 'artemiy',
                     },
                     id: 'booking-1',
                     imageUrl: '/images/saint-petersburg-hero.webp',
@@ -486,7 +488,7 @@ describe('App navigation', () => {
 
     expect(
       await screen.findByRole('link', { name: 'Написать гиду в MAX' }),
-    ).toHaveAttribute('href', 'max://user/84');
+    ).toHaveAttribute('href', 'https://max.ru/artemiy');
   });
 
   it('publishes a review from a completed booking', async () => {

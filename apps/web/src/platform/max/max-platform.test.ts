@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { getMaxPlatform } from './max-platform';
 
@@ -16,6 +16,7 @@ describe('getMaxPlatform', () => {
   });
 
   it('exposes signed init data without parsing it as trusted data', () => {
+    const openMaxLink = vi.fn();
     window.WebApp = {
       BackButton: {
         hide() {},
@@ -26,6 +27,7 @@ describe('getMaxPlatform', () => {
       initData: 'auth_date=1&hash=signed',
       platform: 'ios',
       version: '26.20.0',
+      openMaxLink,
       getViewportSize() {
         return Promise.resolve({ height: '800px', width: '390px' });
       },
@@ -36,5 +38,7 @@ describe('getMaxPlatform', () => {
     expect(platform.isAvailable).toBe(true);
     expect(platform.initData).toBe('auth_date=1&hash=signed');
     expect(platform.platform).toBe('ios');
+    expect(platform.openMaxLink('https://max.ru/artemiy')).toBe(true);
+    expect(openMaxLink).toHaveBeenCalledWith('https://max.ru/artemiy');
   });
 });

@@ -14,6 +14,7 @@ interface MaxWebApp {
   readonly platform: Exclude<MaxClientPlatform, 'unknown'>;
   readonly version: string;
   getViewportSize(): Promise<{ height: string; width: string }>;
+  openMaxLink?(url: string): void;
 }
 
 declare global {
@@ -29,6 +30,7 @@ export interface MaxPlatform {
   readonly version: string | null;
   getViewportSize(): Promise<{ height: string; width: string } | null>;
   hideBackButton(): void;
+  openMaxLink(url: string): boolean;
   showBackButton(callback: () => void): () => void;
 }
 
@@ -45,6 +47,9 @@ function createBrowserPlatform(): MaxPlatform {
       });
     },
     hideBackButton() {},
+    openMaxLink() {
+      return false;
+    },
     showBackButton() {
       return () => undefined;
     },
@@ -65,6 +70,11 @@ export function getMaxPlatform(): MaxPlatform {
     version: webApp.version,
     getViewportSize: () => webApp.getViewportSize(),
     hideBackButton: () => webApp.BackButton.hide(),
+    openMaxLink(url) {
+      if (!webApp.openMaxLink) return false;
+      webApp.openMaxLink(url);
+      return true;
+    },
     showBackButton(callback) {
       webApp.BackButton.onClick(callback);
       webApp.BackButton.show();

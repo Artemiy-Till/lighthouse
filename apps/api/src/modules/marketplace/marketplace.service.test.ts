@@ -10,8 +10,18 @@ const guideRow = {
   display_name: 'Артемий',
   id: 'guide-1',
   max_user_id: '42',
+  max_username: 'artemiy',
   photo_url: 'https://example.com/artemiy.jpg',
 };
+
+const maxUser = {
+  firstName: 'Артемий',
+  id: '42',
+  languageCode: 'ru',
+  lastName: null,
+  photoUrl: 'https://example.com/artemiy.jpg',
+  username: 'artemiy',
+} as const;
 
 const experienceRow = {
   category: 'Обзорные' as const,
@@ -62,13 +72,14 @@ describe('MarketplaceService', () => {
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [experienceRow] })
       .mockResolvedValueOnce({ rows: [bookingRow] });
     const service = new MarketplaceService({
       query,
     } as unknown as DatabaseService);
 
-    const result = await service.createBooking('42', {
+    const result = await service.createBooking(maxUser, {
       cityId: 'kostroma',
       date: '2026-10-10',
       experienceId: 'experience-1',
@@ -82,23 +93,25 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.totalPriceRub).toBe(3400);
-    expect(query.mock.calls[6]?.[1]).toEqual(['experience-1', '42']);
-    expect(query.mock.calls[7]?.[1]).toEqual(
+    expect(query.mock.calls[7]?.[1]).toEqual(['experience-1', '42']);
+    expect(query.mock.calls[8]?.[1]).toEqual(
       expect.arrayContaining([
         'experience-1',
         '2026-10-10',
         '12:00',
         '42',
+        'artemiy',
         experienceRow.title,
         1700,
       ]),
     );
-    expect(query.mock.calls[7]?.[1]).toHaveLength(10);
+    expect(query.mock.calls[8]?.[1]).toHaveLength(12);
   });
 
   it('does not let a guide book their own published experience', async () => {
     const query = vi
       .fn()
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
@@ -113,7 +126,7 @@ describe('MarketplaceService', () => {
     } as unknown as DatabaseService);
 
     await expect(
-      service.createBooking('42', {
+      service.createBooking(maxUser, {
         cityId: 'kostroma',
         date: '2026-10-10',
         experienceId: 'experience-1',
@@ -130,7 +143,7 @@ describe('MarketplaceService', () => {
 
   it('keeps guide-owned experiences out of regular booking history', async () => {
     const query = vi.fn();
-    for (let index = 0; index < 7; index += 1) {
+    for (let index = 0; index < 8; index += 1) {
       query.mockResolvedValueOnce({ rows: [] });
     }
     query.mockResolvedValueOnce({
@@ -143,6 +156,7 @@ describe('MarketplaceService', () => {
           experience_id: 'experience-1',
           guide_display_name: 'Артемий',
           guide_max_user_id: '84',
+          guide_max_username: 'artemiy',
           id: 'booking-1',
           image_url: 'https://example.com/photo.jpg',
           meeting_point: experienceRow.meeting_point,
@@ -162,24 +176,26 @@ describe('MarketplaceService', () => {
       query,
     } as unknown as DatabaseService);
 
-    const result = await service.listBookings('42');
+    const result = await service.listBookings(maxUser);
 
-    expect(query.mock.calls[7]?.[0]).toContain('not exists');
-    expect(query.mock.calls[7]?.[0]).toContain(
+    expect(query.mock.calls[8]?.[0]).toContain('not exists');
+    expect(query.mock.calls[8]?.[0]).toContain(
       'own_guide.max_user_id = b.max_user_id',
     );
-    expect(query.mock.calls[7]?.[0]).toContain(
+    expect(query.mock.calls[8]?.[0]).toContain(
       'booked_guide.max_user_id as guide_max_user_id',
     );
+    expect(query.mock.calls[8]?.[1]).toEqual(['42', 'artemiy']);
     expect(result.items[0]?.guideContact).toEqual({
       displayName: 'Артемий',
       maxUserId: '84',
+      username: 'artemiy',
     });
   });
 
   it('lists guest contacts only inside the guide schedule', async () => {
     const query = vi.fn();
-    for (let index = 0; index < 5; index += 1) {
+    for (let index = 0; index < 6; index += 1) {
       query.mockResolvedValueOnce({ rows: [] });
     }
     query.mockResolvedValueOnce({
@@ -195,6 +211,7 @@ describe('MarketplaceService', () => {
               bookingId: 'booking-1',
               maxUserId: '42',
               participants: 2,
+              username: 'artemiy',
             },
           ],
           participants: 2,
@@ -209,10 +226,15 @@ describe('MarketplaceService', () => {
 
     const result = await service.listGuideSchedule('84');
 
-    expect(query.mock.calls[5]?.[0]).toContain("'maxUserId', b.max_user_id");
-    expect(query.mock.calls[5]?.[1]).toEqual(['84']);
+    expect(query.mock.calls[6]?.[0]).toContain("'maxUserId', b.max_user_id");
+    expect(query.mock.calls[6]?.[1]).toEqual(['84']);
     expect(result.items[0]?.guests).toEqual([
-      { bookingId: 'booking-1', maxUserId: '42', participants: 2 },
+      {
+        bookingId: 'booking-1',
+        maxUserId: '42',
+        participants: 2,
+        username: 'artemiy',
+      },
     ]);
   });
 
@@ -227,6 +249,7 @@ describe('MarketplaceService', () => {
     };
     const query = vi
       .fn()
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
@@ -266,7 +289,7 @@ describe('MarketplaceService', () => {
       comment: reviewRow.comment,
       rating: 5,
     });
-    expect(query.mock.calls[8]?.[1]).toEqual([
+    expect(query.mock.calls[9]?.[1]).toEqual([
       reviewRow.booking_id,
       '42',
       'experience-1',
@@ -287,7 +310,7 @@ describe('MarketplaceService', () => {
       rating: 5,
     };
     const query = vi.fn();
-    for (let index = 0; index < 7; index += 1) {
+    for (let index = 0; index < 8; index += 1) {
       query.mockResolvedValueOnce({ rows: [] });
     }
     query.mockResolvedValueOnce({ rows: [publicReview] });
@@ -307,8 +330,8 @@ describe('MarketplaceService', () => {
         rating: publicReview.rating,
       },
     ]);
-    expect(query.mock.calls[7]?.[0]).toContain('order by r.created_at desc');
-    expect(query.mock.calls[7]?.[1]).toEqual(['experience-1']);
+    expect(query.mock.calls[8]?.[0]).toContain('order by r.created_at desc');
+    expect(query.mock.calls[8]?.[1]).toEqual(['experience-1']);
   });
 
   it('upserts a professional profile using the verified MAX id', async () => {
@@ -335,6 +358,7 @@ describe('MarketplaceService', () => {
       'Артемий',
       guideRow.bio,
       guideRow.photo_url,
+      null,
     ]);
     expect(result.photoUrl).toBe(guideRow.photo_url);
   });
@@ -375,6 +399,8 @@ describe('MarketplaceService', () => {
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [guideRow] })
       .mockResolvedValueOnce({ rows: [experienceRow] })
       .mockResolvedValueOnce({ rows: [] })
@@ -402,7 +428,7 @@ describe('MarketplaceService', () => {
     expect(result.title).toBe('Обновлённое знакомство с городом');
     expect(result.rating).toBe(0);
     expect(result.reviewCount).toBe(0);
-    expect(query.mock.calls[8]?.[1]).toEqual([
+    expect(query.mock.calls[10]?.[1]).toEqual([
       'experience-1',
       'guide-1',
       'kostroma',
@@ -432,6 +458,7 @@ describe('MarketplaceService', () => {
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [{ experience_id: 'experience-1' }] });
     const service = new MarketplaceService({
       query,
@@ -444,8 +471,8 @@ describe('MarketplaceService', () => {
         time: '12:00',
       }),
     ).resolves.toEqual({ completed: true });
-    expect(query.mock.calls[5]?.[0]).toContain("s.status = 'scheduled'");
-    expect(query.mock.calls[5]?.[1]).toEqual([
+    expect(query.mock.calls[6]?.[0]).toContain("s.status = 'scheduled'");
+    expect(query.mock.calls[6]?.[1]).toEqual([
       'experience-1',
       '2026-10-10',
       '12:00',

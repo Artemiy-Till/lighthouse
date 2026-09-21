@@ -60,13 +60,13 @@ export class MarketplaceController {
     @Body() body: CreateBookingDto,
   ) {
     const user = this.authenticate(initData);
-    return this.marketplace.createBooking(user.id, body);
+    return this.marketplace.createBooking(user, body);
   }
 
   @Get('bookings')
   listBookings(@Headers('x-max-init-data') initData: string | undefined) {
     const user = this.authenticate(initData);
-    return this.marketplace.listBookings(user.id);
+    return this.marketplace.listBookings(user);
   }
 
   @Delete('bookings/:id')
