@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -8,11 +9,17 @@ import { ThemeProvider } from '../features/theme/ThemeContext';
 import { HomePage } from './HomePage';
 
 function TestProviders({ children }: { readonly children: ReactNode }) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
   return (
     <MemoryRouter>
-      <ThemeProvider>
-        <CityProvider>{children}</CityProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <CityProvider>{children}</CityProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     </MemoryRouter>
   );
 }
@@ -22,20 +29,20 @@ describe('HomePage', () => {
     window.localStorage.clear();
   });
 
-  it('shows city tabs and a full-size image for the selected city', () => {
+  it('shows the selected city, profile and popular experiences', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
-      screen.getByRole('heading', { name: 'Время новых впечатлений' }),
+      screen.getByRole('heading', { name: 'Санкт-Петербург', level: 1 }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Выбери свой город для прогулки'),
+      screen.getByRole('link', { name: 'Открыть профиль' }),
+    ).toHaveAttribute('href', '/profile');
+    expect(
+      screen.getByRole('heading', { name: 'Выберите город' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('link', { name: 'Открыть профиль' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: 'Открывайте новые места' }),
+      screen.getByRole('heading', { name: 'Популярное в Петербурге' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Москва' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Казань' })).toBeInTheDocument();
@@ -44,7 +51,7 @@ describe('HomePage', () => {
     ).toBeInTheDocument();
     expect(
       document.querySelector(
-        '.home-selected-city img[src="/images/saint-petersburg-hero.webp"]',
+        '.home-discovery__hero > img[src="/images/saint-petersburg-hero.webp"]',
       ),
     ).toBeInTheDocument();
     expect(
@@ -52,12 +59,7 @@ describe('HomePage', () => {
         name: 'Смотреть экскурсии — Санкт-Петербург',
       }),
     ).toHaveAttribute('href', '/catalog');
-    expect(
-      document.querySelector('.home-selected-city__copy'),
-    ).not.toBeInTheDocument();
-    expect(
-      document.querySelector('.home-selected-city__action'),
-    ).not.toBeInTheDocument();
+    expect(screen.getByText('Разводные мосты с воды')).toBeInTheDocument();
   });
 
   it('changes the large image when another city is selected', () => {
@@ -71,16 +73,20 @@ describe('HomePage', () => {
     );
     expect(
       document.querySelector(
-        '.home-selected-city img[src="/images/moscow-kremlin.webp"]',
+        '.home-discovery__hero > img[src="/images/moscow-kremlin.webp"]',
       ),
     ).toBeInTheDocument();
     expect(window.localStorage.getItem('marketplace-city')).toBe('moscow');
     expect(
       screen.getByRole('link', { name: 'Смотреть экскурсии — Москва' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Популярное в Москве' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Москва: первое знакомство')).toBeInTheDocument();
   });
 
-  it('shows a compact search field without a catalog button', () => {
+  it('shows search and catalog actions on the same level', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
@@ -89,7 +95,12 @@ describe('HomePage', () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Открыть каталог' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('link', {
+        name: 'Смотреть экскурсии — Санкт-Петербург',
+      }),
+    ).toBeInTheDocument();
+    expect(document.querySelector('.home-discovery__actions')).toContainElement(
+      screen.getByRole('searchbox', { name: 'Поиск' }),
+    );
   });
 });

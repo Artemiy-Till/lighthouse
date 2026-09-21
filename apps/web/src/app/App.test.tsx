@@ -41,16 +41,16 @@ describe('App navigation', () => {
   it('switches theme and saves the preference', () => {
     renderApp();
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Включить тёмную тему' }),
-    );
+    fireEvent.click(screen.getByRole('link', { name: 'Профиль' }));
+    fireEvent.click(screen.getByRole('switch', { name: /Тёмная тема/ }));
 
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
     expect(document.documentElement.style.colorScheme).toBe('dark');
     expect(window.localStorage.getItem('marketplace-theme')).toBe('dark');
-    expect(
-      screen.getByRole('button', { name: 'Включить светлую тему' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: /Тёмная тема/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
   });
 
   it('opens catalog, favorites, orders and profile from the bottom navigation', () => {
@@ -99,7 +99,7 @@ describe('App navigation', () => {
 
     fireEvent.click(screen.getByRole('link', { name: 'Home' }));
     expect(
-      screen.getByRole('heading', { name: 'Explore new horizons' }),
+      screen.getByRole('heading', { name: 'Санкт-Петербург', level: 1 }),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: 'Profile' }));
     fireEvent.click(screen.getByRole('link', { name: /Settings/ }));
@@ -180,7 +180,10 @@ describe('App navigation', () => {
     renderApp();
 
     expect(
-      await screen.findByRole('heading', { name: 'Время новых впечатлений' }),
+      await screen.findByRole('heading', {
+        name: 'Санкт-Петербург',
+        level: 1,
+      }),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: 'Профиль' }));
 
