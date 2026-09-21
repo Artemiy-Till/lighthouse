@@ -508,14 +508,7 @@ export class MarketplaceService {
     await this.ensureBookingSchema();
     await this.ensureReviewSchema();
     const result = await this.database.query<BookingRow>(
-      `with refreshed_contact as (
-         update experience_bookings
-         set max_username = coalesce($2, max_username)
-         where max_user_id = $1
-           and $2 is not null
-           and max_username is distinct from $2
-       )
-       select b.id, b.experience_id, b.title, b.city_id, b.image_url,
+      `select b.id, b.experience_id, b.title, b.city_id, b.image_url,
          b.meeting_point, b.booking_date, b.booking_time, b.participants,
          b.unit_price_rub, b.total_price_rub,
          case when b.status = 'confirmed' and s.status = 'completed'
@@ -546,7 +539,7 @@ export class MarketplaceService {
              and own_guide.max_user_id = b.max_user_id
          )
        order by b.booking_date desc, b.booking_time desc, b.created_at desc`,
-      [user.id, user.username],
+      [user.id],
     );
     return { items: result.rows.map(mapBooking) };
   }

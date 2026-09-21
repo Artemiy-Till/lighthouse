@@ -185,7 +185,7 @@ describe('MarketplaceService', () => {
     expect(query.mock.calls[8]?.[0]).toContain(
       'booked_guide.max_user_id as guide_max_user_id',
     );
-    expect(query.mock.calls[8]?.[1]).toEqual(['42', 'artemiy']);
+    expect(query.mock.calls[8]?.[1]).toEqual(['42']);
     expect(result.items[0]?.guideContact).toEqual({
       displayName: 'Артемий',
       maxUserId: '84',
@@ -408,8 +408,10 @@ describe('MarketplaceService', () => {
   });
 
   it('saves a manually provided MAX profile link when launch data has no username', async () => {
+    const profileUrl =
+      'https://max.ru/u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I';
     const query = vi.fn().mockResolvedValue({
-      rows: [{ ...guideRow, max_username: 'artemiy_guide' }],
+      rows: [{ ...guideRow, max_username: profileUrl }],
     });
     const service = new MarketplaceService({
       query,
@@ -427,7 +429,7 @@ describe('MarketplaceService', () => {
       {
         bio: guideRow.bio,
         displayName: 'Артемий',
-        maxUsername: 'https://max.ru/artemiy_guide',
+        maxUsername: profileUrl,
       },
     );
 
@@ -436,7 +438,7 @@ describe('MarketplaceService', () => {
       'Артемий',
       guideRow.bio,
       guideRow.photo_url,
-      'artemiy_guide',
+      profileUrl.replace('https://max.ru/', ''),
     ]);
   });
 
