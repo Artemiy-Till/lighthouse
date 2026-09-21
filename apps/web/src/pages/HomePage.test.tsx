@@ -29,15 +29,15 @@ describe('HomePage', () => {
     window.localStorage.clear();
   });
 
-  it('shows the selected city, profile and popular experiences', () => {
+  it('shows the selected city and popular experiences', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
       screen.getByRole('heading', { name: 'Санкт-Петербург', level: 1 }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Открыть профиль' }),
-    ).toHaveAttribute('href', '/profile');
+      screen.queryByRole('link', { name: 'Открыть профиль' }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'Выберите город' }),
     ).toBeInTheDocument();

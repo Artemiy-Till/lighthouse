@@ -6,7 +6,6 @@ import { Icon } from '../components/Icon';
 import { cities } from '../data/cities';
 import { experiences } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
-import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 
 function ratingValue(value: string) {
@@ -17,11 +16,7 @@ export function HomePage() {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const { city, selectCity } = useCity();
-  const { session } = useMaxConnection();
   const { t } = useSettings();
-  const maxUser = session.data?.user;
-  const avatarFallback =
-    maxUser?.firstName?.trim().charAt(0).toUpperCase() || 'М';
   const popularExperiences = experiences
     .filter((experience) => experience.cityId === city.id)
     .sort(
@@ -36,17 +31,6 @@ export function HomePage() {
       <main className="home-discovery">
         <section className="home-discovery__hero">
           <img alt="" key={city.id} src={city.heroImage} />
-          <Link
-            aria-label="Открыть профиль"
-            className="home-discovery__profile"
-            to="/profile"
-          >
-            {maxUser?.photoUrl ? (
-              <img alt="" src={maxUser.photoUrl} />
-            ) : (
-              <span aria-hidden="true">{avatarFallback}</span>
-            )}
-          </Link>
           <div className="home-discovery__hero-copy">
             <p>Выбранный город</p>
             <h1>{city.name}</h1>
