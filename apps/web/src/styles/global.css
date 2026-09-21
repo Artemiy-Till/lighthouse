@@ -6613,7 +6613,7 @@ html[data-theme='dark'] .profile-page .theme-switch {
   min-width: 0;
   min-height: 34px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 999px;
   color: var(--ink);
   background: var(--surface);
 }
