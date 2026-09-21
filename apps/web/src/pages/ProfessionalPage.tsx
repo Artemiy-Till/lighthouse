@@ -539,11 +539,7 @@ export function ProfessionalPage() {
             )}
             <section className="professional-card professional-schedule">
               <div>
-                <p className="section-kicker">Записи пользователей</p>
-                <h2>Актуальные экскурсии</h2>
-                <p>
-                  Здесь подсвечиваются даты, на которые уже записались гости.
-                </p>
+                <h2>Ближайшие экскурсии</h2>
               </div>
               {guideSchedule.isPending ? (
                 <p className="professional-experiences__empty">
@@ -567,7 +563,6 @@ export function ProfessionalPage() {
                       <article
                         key={`${slot.experienceId}-${slot.date}-${slot.time}`}
                       >
-                        <span aria-hidden="true">●</span>
                         <div className="professional-schedule__summary">
                           <strong>{slot.title}</strong>
                           <small>
