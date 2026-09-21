@@ -390,10 +390,10 @@ export function ProfessionalPage() {
               Ссылка на профиль MAX
               <input
                 defaultValue={session.data?.user.username ?? ''}
-                maxLength={120}
+                maxLength={240}
                 name="maxUsername"
-                pattern="(?:https://max\.ru/|@)?[A-Za-zА-Яа-яЁё0-9_]+/?"
-                placeholder="https://max.ru/ваш_ник"
+                pattern="(?:https://max\.ru/)?(?:@?[A-Za-zА-Яа-яЁё0-9_]+|u/[A-Za-z0-9_-]+)/?"
+                placeholder="https://max.ru/u/ссылка_из_MAX"
                 required
               />
               <small>
@@ -458,10 +458,10 @@ export function ProfessionalPage() {
                       session.data?.user.username ??
                       ''
                     }
-                    maxLength={120}
+                    maxLength={240}
                     name="maxUsername"
-                    pattern="(?:https://max\.ru/|@)?[A-Za-zА-Яа-яЁё0-9_]+/?"
-                    placeholder="https://max.ru/ваш_ник"
+                    pattern="(?:https://max\.ru/)?(?:@?[A-Za-zА-Яа-яЁё0-9_]+|u/[A-Za-z0-9_-]+)/?"
+                    placeholder="https://max.ru/u/ссылка_из_MAX"
                     required
                   />
                   <small>

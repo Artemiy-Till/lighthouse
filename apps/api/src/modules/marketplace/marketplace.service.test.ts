@@ -440,6 +440,46 @@ describe('MarketplaceService', () => {
     ]);
   });
 
+  it('preserves a shared MAX profile path when launch data has no username', async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [
+        {
+          ...guideRow,
+          max_username:
+            'u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I',
+        },
+      ],
+    });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await service.upsertGuideProfile(
+      {
+        firstName: 'Артемий',
+        id: '42',
+        languageCode: 'ru',
+        lastName: null,
+        photoUrl: guideRow.photo_url,
+        username: null,
+      },
+      {
+        bio: guideRow.bio,
+        displayName: 'Артемий',
+        maxUsername:
+          'https://max.ru/u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I',
+      },
+    );
+
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('coalesce'), [
+      '42',
+      'Артемий',
+      guideRow.bio,
+      guideRow.photo_url,
+      'u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I',
+    ]);
+  });
+
   it('requires a professional profile before publishing', async () => {
     const query = vi.fn().mockResolvedValue({ rows: [] });
     const service = new MarketplaceService({

@@ -44,8 +44,10 @@ export class UpsertGuideProfileDto {
   })
   @IsOptional()
   @IsString()
-  @MaxLength(120)
-  @Matches(/^(?:https:\/\/max\.ru\/|@)?[\p{L}\d_]{1,80}\/?$/u)
+  @MaxLength(240)
+  @Matches(
+    /^(?:https:\/\/max\.ru\/)?(?:@?[\p{L}\d_]{1,80}|u\/[A-Za-z\d_-]{1,180})\/?$/u,
+  )
   maxUsername?: string;
 }
 
