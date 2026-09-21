@@ -132,7 +132,7 @@ const translations = {
   'catalog.sort': { en: 'Sort', ru: 'Сортировка' },
   'catalog.popular': { en: 'Popular', ru: 'Популярные' },
   'catalog.rating': { en: 'Top rated', ru: 'По рейтингу' },
-  'catalog.price': { en: 'Lowest price', ru: 'Сначала дешевле' },
+  'catalog.price': { en: 'Lowest price', ru: 'По цене (дешевле)' },
   'catalog.emptyTitle': { en: 'Nothing found', ru: 'Ничего не найдено' },
   'catalog.emptyText': {
     en: 'Change your search or choose another category.',
