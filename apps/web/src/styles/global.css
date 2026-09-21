@@ -2332,11 +2332,10 @@ main {
 }
 
 .professional-experiences__header {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .professional-experiences__header h2 {
@@ -2360,13 +2359,21 @@ main {
 }
 
 .professional-experiences__header button {
-  min-height: 36px;
-  padding: 0 13px;
+  display: grid;
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 50%;
   color: var(--ink);
   background: var(--soft-background);
-  font-size: 11px;
+  font-size: 21px;
+  line-height: 1;
+  place-items: center;
+}
+
+.professional-experiences__header button > span {
+  transform: translateY(-1px);
 }
 
 .professional-experiences__empty {

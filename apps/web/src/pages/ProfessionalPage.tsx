@@ -646,8 +646,12 @@ export function ProfessionalPage() {
             <section className="professional-card professional-experiences">
               <div className="professional-experiences__header">
                 <h2>Мои опубликованные экскурсии</h2>
-                <button onClick={resetEditor} type="button">
-                  ＋ Новая
+                <button
+                  aria-label="Новая экскурсия"
+                  onClick={resetEditor}
+                  type="button"
+                >
+                  <span aria-hidden="true">+</span>
                 </button>
               </div>
               {ownExperiences.isPending ? (
