@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import {
   type TranslationKey,
@@ -22,12 +22,25 @@ const navigation: readonly {
 
 export function AppLayout({ children }: { readonly children: ReactNode }) {
   const maxPlatform = getMaxPlatform();
+  const { pathname } = useLocation();
   const { t } = useSettings();
+  const activeNavigationIndex = navigation.findIndex(({ to }) =>
+    to === '/'
+      ? pathname === '/'
+      : pathname === to || pathname.startsWith(`${to}/`),
+  );
 
   return (
     <div className="app-shell" id="top">
       {children}
-      <nav aria-label={t('nav.main')} className="bottom-navigation">
+      <nav
+        aria-label={t('nav.main')}
+        className="bottom-navigation"
+        data-active-index={
+          activeNavigationIndex >= 0 ? activeNavigationIndex : undefined
+        }
+      >
+        <span aria-hidden="true" className="bottom-navigation__indicator" />
         {navigation.map((item) => (
           <NavLink
             className={({ isActive }) =>
