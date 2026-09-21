@@ -6042,17 +6042,19 @@ body * {
 #professional-experience-editor input:not([type='file']),
 #professional-experience-editor select {
   box-sizing: border-box;
-  height: 44px;
-  min-height: 44px;
-  padding: 0 13px;
-  border-radius: 12px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 11px;
+  border-radius: 11px;
+  font-size: 12px;
 }
 
 #professional-experience-editor textarea {
-  height: 44px;
-  min-height: 44px;
-  padding: 11px 13px;
-  border-radius: 12px;
+  height: 38px;
+  min-height: 38px;
+  padding: 9px 11px;
+  border-radius: 11px;
+  font-size: 12px;
 }
 
 #professional-experience-editor .professional-form__row,
@@ -6100,18 +6102,52 @@ body * {
 }
 
 #professional-experience-editor .professional-availability__control {
+  border-radius: 11px;
+}
+
+#professional-experience-editor
+  .professional-availability__picker
+  input[type='date'],
+#professional-experience-editor
+  .professional-availability__picker
+  input[type='time'] {
+  line-height: 38px;
+}
+
+#professional-experience-editor
+  .professional-availability__picker
+  input[type='date']::-webkit-date-and-time-value,
+#professional-experience-editor
+  .professional-availability__picker
+  input[type='time']::-webkit-date-and-time-value {
+  height: 38px;
+  line-height: 38px;
+}
+
+#professional-experience-editor
+  .professional-availability__picker
+  input[type='date']::-webkit-datetime-edit,
+#professional-experience-editor
+  .professional-availability__picker
+  input[type='time']::-webkit-datetime-edit {
+  min-height: 38px;
+}
+
+#professional-experience-editor .professional-photo-picker {
+  min-height: 42px;
   border-radius: 12px;
+  font-size: 12px !important;
 }
 
 #professional-experience-editor .professional-availability__picker button,
 #professional-experience-editor > .professional-submit {
-  min-height: 42px;
+  min-height: 38px;
   margin-top: 0;
   border: 1px solid #3a3a3c;
   border-radius: 999px;
   color: #3a3a3c;
   background: transparent;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 

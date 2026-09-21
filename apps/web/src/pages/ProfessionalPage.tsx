@@ -1006,7 +1006,7 @@ export function ProfessionalPage() {
                     }}
                     type="button"
                   >
-                    Добавить
+                    + Добавить
                   </button>
                 </div>
                 {scheduleSlots.length > 0 ? (
