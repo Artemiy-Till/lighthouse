@@ -2908,15 +2908,6 @@ main {
   background: #dfe3ec;
 }
 
-.experience-details-hero::after {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 110px;
-  background: linear-gradient(rgb(8 13 24 / 38%), transparent);
-  content: '';
-  pointer-events: none;
-}
-
 .experience-details-hero > img {
   width: 100%;
   height: 100%;
@@ -5158,10 +5149,6 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.experience-details-hero::after {
-  background: linear-gradient(180deg, rgb(7 13 20 / 10%), rgb(7 13 20 / 28%));
 }
 
 .experience-details-hero__back,
