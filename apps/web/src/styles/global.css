@@ -2046,18 +2046,16 @@ main {
 
 .professional-schedule {
   display: grid;
-  gap: 15px;
-  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
-  background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--accent) 10%, #fff),
-    #fff 65%
-  );
+  gap: 14px;
+  border-color: var(--line);
+  background: var(--surface);
 }
 
 .professional-schedule h2 {
-  margin: 3px 0 6px;
-  font-size: 24px;
+  margin: 3px 0 5px;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
   overflow-wrap: anywhere;
 }
 
@@ -2074,17 +2072,23 @@ main {
 
 .professional-schedule__active-list article {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 11px;
+  grid-template-columns: 8px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
   padding: 13px;
-  border: 1px solid color-mix(in srgb, #25ad62 35%, var(--line));
-  border-radius: 16px;
-  background: color-mix(in srgb, #25ad62 8%, #fff);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--soft-background);
 }
 
 .professional-schedule__active-list article > span {
-  color: #25ad62;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  overflow: hidden;
+  border-radius: 50%;
+  color: transparent;
+  background: #25ad62;
 }
 
 .professional-schedule__summary {
@@ -2098,40 +2102,58 @@ main {
   overflow-wrap: anywhere;
 }
 
+.professional-schedule__active-list strong {
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: -0.015em;
+  line-height: 1.22;
+}
+
 .professional-schedule__active-list small {
   color: var(--muted);
+  font-size: 10px;
+  line-height: 1.25;
 }
 
 .professional-schedule__actions {
   display: grid;
   grid-column: 1 / -1;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 2px;
 }
 
 .professional-schedule__actions a,
 .professional-schedule__actions button {
   display: flex;
-  min-height: 38px;
+  min-width: 0;
+  min-height: 34px;
   width: 100%;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 800;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 750;
   text-decoration: none;
 }
 
+.professional-schedule__actions .icon {
+  width: 14px;
+  height: 14px;
+}
+
 .professional-schedule__actions a {
-  color: var(--accent-dark);
-  background: color-mix(in srgb, var(--accent) 13%, #fff);
+  color: var(--ink);
+  background: var(--surface);
 }
 
 .professional-schedule__actions button {
   color: #fff;
-  background: #25ad62;
+  border-color: var(--navigation-background);
+  background: var(--navigation-background);
 }
 
 .professional-schedule__history {
@@ -3791,14 +3813,25 @@ html[data-theme='dark'] .professional-form select {
 }
 
 html[data-theme='dark'] .professional-schedule,
-html[data-theme='dark'] .professional-availability,
-html[data-theme='dark'] .professional-schedule__active-list article {
+html[data-theme='dark'] .professional-availability {
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }
 
+html[data-theme='dark'] .professional-schedule__active-list article {
+  border-color: rgb(255 255 255 / 9%);
+  background: var(--soft-background);
+}
+
 html[data-theme='dark'] .professional-schedule__actions a {
-  color: #d9ddff;
-  background: #292e49;
+  color: #fff;
+  border-color: rgb(255 255 255 / 10%);
+  background: #2b2b2e;
+}
+
+html[data-theme='dark'] .professional-schedule__actions button {
+  color: #202022;
+  border-color: #f5f5f6;
+  background: #f5f5f6;
 }
 
 html[data-theme='dark'] .professional-status__edit,

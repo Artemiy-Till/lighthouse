@@ -592,7 +592,7 @@ export function ProfessionalPage() {
                                     }
                                   }}
                                 >
-                                  <span aria-hidden="true">💬</span>
+                                  <Icon name="support" />
                                   {guests.length === 1
                                     ? 'Написать гостю'
                                     : `Написать гостю ${guestIndex + 1}`}
@@ -605,7 +605,8 @@ export function ProfessionalPage() {
                             onClick={() => completeSchedule.mutate(slot)}
                             type="button"
                           >
-                            Пометить завершённой
+                            <Icon name="check" />
+                            Завершить
                           </button>
                         </div>
                       </article>
