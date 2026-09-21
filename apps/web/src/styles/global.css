@@ -2148,44 +2148,42 @@ main {
 
 .professional-schedule__history {
   display: grid;
-  gap: 11px;
-  padding-top: 16px;
+  gap: 9px;
+  padding-top: 13px;
   border-top: 1px solid var(--line);
 }
 
 .professional-schedule__history h3 {
-  margin: 3px 0 0;
+  margin: 0;
   color: var(--ink);
-  font-size: 17px;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   overflow-wrap: anywhere;
 }
 
 .professional-schedule__history-list {
   display: grid;
-  gap: 8px;
+  gap: 7px;
 }
 
 .professional-schedule__history-list article {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-columns: 15px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 15px;
-  background: color-mix(in srgb, var(--ink) 3%, var(--surface));
+  border-radius: 14px;
+  background: var(--soft-background);
 }
 
 .professional-schedule__history-list article > span {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  color: #fff;
-  background: #25ad62;
+  color: #3a3a3c;
   font-size: 13px;
   font-weight: 850;
-  place-items: center;
+  line-height: 1;
+  text-align: center;
 }
 
 .professional-schedule__history-list article > div {
@@ -2199,9 +2197,16 @@ main {
   overflow-wrap: anywhere;
 }
 
+.professional-schedule__history-list strong {
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
 .professional-schedule__history-list small {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 9px;
+  line-height: 1.2;
 }
 
 .professional-availability {
@@ -3801,6 +3806,10 @@ html[data-theme='dark'] .professional-availability {
 html[data-theme='dark'] .professional-schedule__active-list article {
   border-color: rgb(255 255 255 / 9%);
   background: var(--soft-background);
+}
+
+html[data-theme='dark'] .professional-schedule__history-list article > span {
+  color: #dedee1;
 }
 
 html[data-theme='dark'] .professional-schedule__actions a {

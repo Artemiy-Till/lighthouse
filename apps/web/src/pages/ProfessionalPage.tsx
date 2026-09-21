@@ -613,8 +613,7 @@ export function ProfessionalPage() {
               ) : null}
               <div className="professional-schedule__history">
                 <div>
-                  <p className="section-kicker">Архив гида</p>
-                  <h3>История проведённых экскурсий</h3>
+                  <h3>Архив гида</h3>
                 </div>
                 {(guideSchedule.data?.items ?? []).filter(
                   (slot) => slot.status === 'completed',

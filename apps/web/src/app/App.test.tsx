@@ -385,7 +385,7 @@ describe('App navigation', () => {
     ).toHaveAttribute('src', 'https://example.com/artemiy.jpg');
     expect(
       screen.getByRole('heading', {
-        name: 'История проведённых экскурсий',
+        name: 'Архив гида',
       }),
     ).toBeInTheDocument();
     expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
