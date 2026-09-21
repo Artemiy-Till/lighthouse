@@ -4258,8 +4258,8 @@ body {
 .experience-not-found {
   width: calc(100% - 24px);
   max-width: 480px;
-  min-height: calc(100dvh - 28px);
-  margin: 14px auto;
+  min-height: calc(100dvh - 14px);
+  margin: 0 auto 14px;
   overflow: hidden;
   border-radius: 38px;
   color: var(--ink);
@@ -5139,7 +5139,7 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
 .experience-details-page,
 .guide-page {
   max-width: 480px;
-  margin-top: 14px;
+  margin-top: 0;
   margin-bottom: 14px;
 }
 
@@ -5478,8 +5478,8 @@ html[data-theme='dark'] .experience-terms li {
   .guide-page,
   .experience-not-found {
     width: calc(100% - 12px);
-    min-height: calc(100dvh - 12px);
-    margin: 6px auto;
+    min-height: calc(100dvh - 6px);
+    margin: 0 auto 6px;
     border-radius: 28px;
   }
 
@@ -6056,7 +6056,8 @@ body * {
 @media (max-width: 360px) {
   .experience-details-page {
     width: calc(100% - 8px);
-    margin: 4px auto;
+    min-height: calc(100dvh - 4px);
+    margin: 0 auto 4px;
     border-radius: 24px;
   }
 
