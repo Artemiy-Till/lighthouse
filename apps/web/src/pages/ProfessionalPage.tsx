@@ -691,6 +691,7 @@ export function ProfessionalPage() {
                           Редактировать
                         </button>
                         <button
+                          aria-label={`Удалить «${experience.title}»`}
                           className="is-danger"
                           onClick={() => {
                             deleteExperience.reset();
@@ -698,7 +699,7 @@ export function ProfessionalPage() {
                           }}
                           type="button"
                         >
-                          Удалить
+                          <span aria-hidden="true">×</span>
                         </button>
                       </div>
                     </article>

@@ -2341,6 +2341,9 @@ main {
 
 .professional-experiences__header h2 {
   margin: 3px 0 0;
+  font-size: 20px;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
 }
 
 .professional-experiences__header button,
@@ -2355,8 +2358,13 @@ main {
 }
 
 .professional-experiences__header button {
-  min-height: 42px;
-  padding: 0 14px;
+  min-height: 36px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--soft-background);
+  font-size: 11px;
 }
 
 .professional-experiences__empty {
@@ -2367,23 +2375,24 @@ main {
 
 .professional-experiences__list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .professional-experiences__list article {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-columns: 50px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: 16px;
+  background: var(--soft-background);
 }
 
 .professional-experiences__list img {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 11px;
   object-fit: cover;
 }
 
@@ -2397,28 +2406,58 @@ main {
 
 .professional-experiences__list strong {
   overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .professional-experiences__list small {
   color: var(--muted);
+  font-size: 10px;
+  line-height: 1.2;
 }
 
 .professional-experiences__actions {
-  display: flex;
+  display: grid;
   grid-column: 1 / -1;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  gap: 7px;
 }
 
 .professional-experiences__actions button {
-  min-height: 38px;
-  flex: 1;
-  padding: 0 11px;
-  font-size: 11px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 10px;
 }
 
-.professional-experiences__actions button.is-danger,
+.professional-experiences__actions button.is-danger {
+  display: grid;
+  width: 58px;
+  padding: 0;
+  border-color: rgb(200 47 69 / 24%);
+  color: #c82f45;
+  background: rgb(200 47 69 / 6%);
+  place-items: center;
+}
+
+.professional-experiences__actions button.is-danger > span {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  border: 2px solid currentcolor;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1;
+  place-items: center;
+}
+
 .professional-delete-dialog button.is-danger {
   color: #fff;
   background: #d63b48;
