@@ -5407,9 +5407,9 @@ html[data-theme='dark'] .profile-card__verification {
 }
 
 html[data-theme='dark'] .booking-card {
-  border-color: rgb(255 255 255 / 6%);
+  border-color: rgb(255 255 255 / 9%);
   color: #fff;
-  background: #080809;
+  background: #202022;
 }
 
 html[data-theme='dark'] .booking-card__topline {
