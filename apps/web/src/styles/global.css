@@ -2808,13 +2808,14 @@ main {
 
 .order-card__review {
   width: 100%;
-  min-height: 46px;
-  margin-top: 10px;
-  border: 0;
-  border-radius: 14px;
-  color: #fff;
-  background: var(--accent);
-  font-weight: 800;
+  min-height: 38px;
+  margin-top: 9px;
+  border: 1px solid #3a3a3c;
+  border-radius: 999px;
+  color: #3a3a3c;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 750;
 }
 
 .order-review-form,
@@ -5494,6 +5495,12 @@ html[data-theme='dark'] .booking-details strong {
 html[data-theme='dark'] .booking-card__action {
   border-color: rgb(255 255 255 / 72%);
   color: #fff;
+}
+
+html[data-theme='dark'] .order-card__review {
+  border-color: #dedee1;
+  color: #fff;
+  background: transparent;
 }
 
 html[data-theme='dark'] .local-banner,
