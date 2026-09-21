@@ -6470,3 +6470,34 @@ html[data-theme='dark'] .profile-page .theme-switch {
     grid-column: 2;
   }
 }
+
+/* Compact empty state on the favorites page. */
+.favorites-page .empty-state--large {
+  padding: 30px 18px;
+  border-radius: 18px;
+}
+
+.favorites-page .empty-state--large > span {
+  font-size: 27px;
+  line-height: 1;
+}
+
+.favorites-page .empty-state--large h2 {
+  margin: 16px 0 9px;
+  font-size: 22px;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.favorites-page .empty-state--large p {
+  max-width: 310px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.favorites-page .empty-state--large .primary-link {
+  min-height: 40px;
+  padding: 0 22px;
+  margin-top: 18px;
+  font-size: 13px;
+}

@@ -23,7 +23,7 @@ export function FavoritesPage() {
 
   return (
     <AppLayout>
-      <main className="secondary-page">
+      <main className="secondary-page favorites-page">
         <header className="page-header">
           <p className="section-kicker">{t('favorites.kicker')}</p>
           <h1>{t('favorites.title')}</h1>
