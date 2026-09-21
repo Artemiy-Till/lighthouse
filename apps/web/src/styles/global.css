@@ -6898,13 +6898,13 @@ html[data-theme='dark'] .profile-page .theme-switch {
   min-width: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  margin: 0 16px;
+  margin: 0 12px;
 }
 
 .home-discovery__search,
 .home-discovery__catalog-link {
   min-width: 0;
-  min-height: 34px;
+  min-height: 38px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--ink);
@@ -6916,12 +6916,12 @@ html[data-theme='dark'] .profile-page .theme-switch {
   grid-template-columns: 17px minmax(0, 1fr);
   align-items: center;
   gap: 7px;
-  padding: 0 10px;
+  padding: 0 12px;
 }
 
 .home-discovery__search .icon {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 }
 
 .home-discovery__search input {
@@ -6932,7 +6932,8 @@ html[data-theme='dark'] .profile-page .theme-switch {
   outline: 0;
   color: var(--ink);
   background: transparent;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .home-discovery__search input::placeholder {
@@ -6945,8 +6946,8 @@ html[data-theme='dark'] .profile-page .theme-switch {
   align-items: center;
   justify-content: center;
   padding: 0 10px;
-  font-size: 9px;
-  font-weight: 750;
+  font-size: 11px;
+  font-weight: 800;
   text-align: center;
   text-decoration: none;
 }
@@ -7143,7 +7144,7 @@ html[data-theme='dark'] .home-popular-card {
   }
 
   .home-discovery__catalog-link {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .home-discovery__city-list {
@@ -7167,16 +7168,16 @@ html[data-theme='dark'] .home-popular-card {
   }
 
   .home-discovery__catalog-link {
-    padding: 0 7px;
-    font-size: 8px;
+    padding: 0 8px;
+    font-size: 10px;
   }
 }
 
 /* Compact catalog search and city-style category pills. */
 .catalog-page .catalog-search {
   width: 100%;
-  min-height: 34px;
-  padding: 0 11px;
+  min-height: 38px;
+  padding: 0 13px;
   margin-right: 0;
   margin-left: 0;
   border: 1px solid var(--line);
@@ -7186,13 +7187,14 @@ html[data-theme='dark'] .home-popular-card {
 }
 
 .catalog-page .catalog-search > .icon {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 }
 
 .catalog-page .catalog-search input {
-  padding-left: 7px;
-  font-size: 10px;
+  padding-left: 8px;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .catalog-page .filter-chips {
@@ -7203,14 +7205,14 @@ html[data-theme='dark'] .home-popular-card {
 .catalog-page .filter-chips button,
 .catalog-page .filter-chips button:first-child {
   min-width: max-content;
-  min-height: 36px;
-  padding: 0 16px;
+  min-height: 38px;
+  padding: 0 20px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--ink);
   background: transparent;
-  font-size: 11px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 780;
 }
 
 .catalog-page .filter-chips button.is-active {
