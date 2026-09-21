@@ -8,10 +8,6 @@ import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 import { useTheme } from '../features/theme/ThemeContext';
 
-const profileMenu = [
-  { icon: '💬', label: 'Поддержка', meta: 'Ответим в чате' },
-] as const;
-
 function formatBookingDate(value: string) {
   const [year, month, day] = value.split('-');
   return day && month && year ? `${day}.${month}.${year}` : value;
@@ -54,6 +50,14 @@ export function ProfilePage() {
   return (
     <AppLayout>
       <main className="secondary-page profile-page">
+        <div className="profile-settings-header">
+          <Link aria-label="На главную" to="/">
+            <span aria-hidden="true">‹</span>
+          </Link>
+          <h1>Настройки</h1>
+          <span aria-hidden="true" />
+        </div>
+
         <header className="profile-card">
           {maxUser?.photoUrl ? (
             <img
@@ -103,84 +107,85 @@ export function ProfilePage() {
           </section>
         ) : null}
 
-        <section aria-label="Разделы профиля" className="profile-menu">
-          <Link to="/professional">
-            <span aria-hidden="true" className="profile-menu__icon">
-              🧭
-            </span>
-            <span>
-              <strong>{t('profile.guide')}</strong>
-              <small>{t('profile.guideHint')}</small>
-            </span>
-            <span aria-hidden="true" className="profile-menu__arrow">
-              ›
-            </span>
-          </Link>
-          <Link to="/orders">
-            <span aria-hidden="true" className="profile-menu__icon">
-              🎟️
-            </span>
-            <span>
-              <strong>{t('profile.orders')}</strong>
-              <small>
-                {nextBooking ? t('profile.hasOrder') : t('profile.noOrders')}
-              </small>
-            </span>
-            <span aria-hidden="true" className="profile-menu__arrow">
-              ›
-            </span>
-          </Link>
-          <button
-            aria-checked={isDark}
-            className="profile-theme-toggle"
-            onClick={toggleTheme}
-            role="switch"
-            type="button"
-          >
-            <span aria-hidden="true" className="profile-menu__icon">
-              {isDark ? '🌙' : '☀️'}
-            </span>
-            <span>
-              <strong>{t('profile.theme')}</strong>
-              <small>{isDark ? t('common.on') : t('common.off')}</small>
-            </span>
-            <span aria-hidden="true" className="theme-switch">
-              <span />
-            </span>
-          </button>
-          <Link to="/settings">
-            <span aria-hidden="true" className="profile-menu__icon">
-              ⚙️
-            </span>
-            <span>
-              <strong>{t('profile.settings')}</strong>
-              <small>{t('profile.settingsHint')}</small>
-            </span>
-            <span aria-hidden="true" className="profile-menu__arrow">
-              ›
-            </span>
-          </Link>
-          {profileMenu.map((item) => (
-            <button key={item.label} type="button">
+        <section className="profile-settings-group">
+          <h2>Основные настройки</h2>
+          <div aria-label="Разделы профиля" className="profile-menu">
+            <Link to="/professional">
               <span aria-hidden="true" className="profile-menu__icon">
-                {item.icon}
+                <Icon name="map" />
               </span>
               <span>
-                <strong>{item.label}</strong>
-                <small>{item.meta}</small>
+                <strong>{t('profile.guide')}</strong>
+                <small>{t('profile.guideHint')}</small>
+              </span>
+              <span aria-hidden="true" className="profile-menu__arrow">
+                ›
+              </span>
+            </Link>
+            <Link to="/orders">
+              <span aria-hidden="true" className="profile-menu__icon">
+                <Icon name="orders" />
+              </span>
+              <span>
+                <strong>{t('profile.orders')}</strong>
+                <small>
+                  {nextBooking ? t('profile.hasOrder') : t('profile.noOrders')}
+                </small>
+              </span>
+              <span aria-hidden="true" className="profile-menu__arrow">
+                ›
+              </span>
+            </Link>
+            <button
+              aria-checked={isDark}
+              className="profile-theme-toggle"
+              onClick={toggleTheme}
+              role="switch"
+              type="button"
+            >
+              <span aria-hidden="true" className="profile-menu__icon">
+                <Icon name="moon" />
+              </span>
+              <span>
+                <strong>{t('profile.theme')}</strong>
+                <small>{isDark ? t('common.on') : t('common.off')}</small>
+              </span>
+              <span aria-hidden="true" className="theme-switch">
+                <span />
+              </span>
+            </button>
+            <Link to="/settings">
+              <span aria-hidden="true" className="profile-menu__icon">
+                <Icon name="settings" />
+              </span>
+              <span>
+                <strong>{t('profile.settings')}</strong>
+                <small>{t('profile.settingsHint')}</small>
+              </span>
+              <span aria-hidden="true" className="profile-menu__arrow">
+                ›
+              </span>
+            </Link>
+          </div>
+        </section>
+
+        <section className="profile-settings-group">
+          <h2>Помощь</h2>
+          <div className="profile-menu profile-menu--support">
+            <button type="button">
+              <span aria-hidden="true" className="profile-menu__icon">
+                <Icon name="support" />
+              </span>
+              <span>
+                <strong>Поддержка</strong>
+                <small>Ответим в чате</small>
               </span>
               <span aria-hidden="true" className="profile-menu__arrow">
                 ›
               </span>
             </button>
-          ))}
+          </div>
         </section>
-
-        <p className="prototype-caption">
-          {maxUser
-            ? 'Профиль подтверждён подписанными данными запуска MAX. Бронирования пока демонстрационные.'
-            : 'Бронирования пока демонстрационные. Данные профиля появятся автоматически при запуске внутри MAX.'}
-        </p>
       </main>
     </AppLayout>
   );

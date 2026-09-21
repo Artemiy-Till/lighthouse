@@ -6,9 +6,12 @@ export type IconName =
   | 'heart'
   | 'home'
   | 'map'
+  | 'moon'
   | 'orders'
   | 'profile'
-  | 'search';
+  | 'search'
+  | 'settings'
+  | 'support';
 
 export function Icon({ name }: { readonly name: IconName }) {
   const paths: Record<IconName, ReactNode> = {
@@ -34,6 +37,7 @@ export function Icon({ name }: { readonly name: IconName }) {
         <path d="M7 3v14M13 5v14" />
       </>
     ),
+    moon: <path d="M16.5 13.2A7 7 0 0 1 6.8 3.5a7 7 0 1 0 9.7 9.7Z" />,
     orders: (
       <>
         <path d="M4 2h12v16l-2-1.5L12 18l-2-1.5L8 18l-2-1.5L4 18Z" />
@@ -50,6 +54,18 @@ export function Icon({ name }: { readonly name: IconName }) {
       <>
         <circle cx="9" cy="9" r="6" />
         <path d="m14 14 4 4" />
+      </>
+    ),
+    settings: (
+      <>
+        <circle cx="10" cy="10" r="3" />
+        <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M15.7 4.3l-1.4 1.4M5.7 14.3l-1.4 1.4" />
+      </>
+    ),
+    support: (
+      <>
+        <path d="M3 4h14v10H8l-4 3v-3H3Z" />
+        <path d="M7 9h.01M10 9h.01M13 9h.01" />
       </>
     ),
   };
