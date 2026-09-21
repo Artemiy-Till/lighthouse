@@ -50,7 +50,6 @@ export function HomePage() {
           <div className="home-discovery__hero-copy">
             <p>Выбранный город</p>
             <h1>{city.name}</h1>
-            <span>{city.subtitle}</span>
           </div>
         </section>
 
@@ -111,10 +110,7 @@ export function HomePage() {
 
         <section className="home-discovery__popular">
           <header>
-            <div>
-              <p>Лучшее рядом</p>
-              <h2>Популярное в {city.prepositionalName}</h2>
-            </div>
+            <h2>Популярное в {city.prepositionalName}</h2>
             <Link to="/catalog">Все</Link>
           </header>
           <div className="home-discovery__popular-list">
