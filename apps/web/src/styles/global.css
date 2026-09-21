@@ -6863,6 +6863,7 @@ html[data-theme='dark'] .profile-page .theme-switch {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
   animation: home-city-image-in 240ms ease-out;
 }
 
