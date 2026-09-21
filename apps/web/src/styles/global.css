@@ -6018,6 +6018,129 @@ body * {
     -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif !important;
 }
 
+/* Unified controls for the guide's excursion editor. */
+#professional-experience-editor {
+  gap: 14px;
+}
+
+#professional-experience-editor .professional-step--experience {
+  display: block;
+}
+
+#professional-experience-editor .professional-step--experience h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+#professional-experience-editor label {
+  gap: 6px;
+}
+
+#professional-experience-editor input:not([type='file']),
+#professional-experience-editor select {
+  box-sizing: border-box;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 13px;
+  border-radius: 12px;
+}
+
+#professional-experience-editor textarea {
+  height: 44px;
+  min-height: 44px;
+  padding: 11px 13px;
+  border-radius: 12px;
+}
+
+#professional-experience-editor .professional-form__row,
+#professional-experience-editor .professional-catalog-parameters {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+#professional-experience-editor .professional-availability {
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--soft-background);
+}
+
+#professional-experience-editor .professional-availability > div:first-child {
+  gap: 0;
+}
+
+#professional-experience-editor
+  .professional-availability
+  > div:first-child
+  strong {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+#professional-experience-editor .professional-availability__picker {
+  gap: 10px;
+}
+
+#professional-experience-editor .professional-availability__picker label {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+#professional-experience-editor
+  .professional-availability__picker
+  label
+  > span:first-child {
+  white-space: nowrap;
+}
+
+#professional-experience-editor .professional-availability__control {
+  border-radius: 12px;
+}
+
+#professional-experience-editor .professional-availability__picker button,
+#professional-experience-editor > .professional-submit {
+  min-height: 42px;
+  margin-top: 0;
+  border: 1px solid #3a3a3c;
+  border-radius: 999px;
+  color: #3a3a3c;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+#professional-experience-editor .professional-availability__picker button {
+  width: 100%;
+  padding: 0 14px;
+}
+
+#professional-experience-editor > .professional-submit {
+  width: 100%;
+  padding: 0 18px;
+}
+
+html[data-theme='dark']
+  #professional-experience-editor
+  .professional-availability {
+  background: var(--soft-background);
+}
+
+html[data-theme='dark']
+  #professional-experience-editor
+  .professional-availability__picker
+  button,
+html[data-theme='dark'] #professional-experience-editor > .professional-submit {
+  border-color: #dedee1;
+  color: #dedee1;
+  background: transparent;
+}
+
 /* Compact, overflow-safe typography for the experience screen. */
 .experience-details-content {
   padding-right: 22px;

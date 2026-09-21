@@ -725,20 +725,10 @@ export function ProfessionalPage() {
               className="professional-card professional-form"
               onSubmit={handleExperience}
             >
-              <div className="professional-step">
-                <span>2</span>
-                <div>
-                  <h2>
-                    {editing
-                      ? 'Редактирование экскурсии'
-                      : 'Создайте экскурсию'}
-                  </h2>
-                  <p>
-                    {editing
-                      ? 'Изменения сразу появятся в общей карточке.'
-                      : 'После публикации она появится на главной и в каталоге выбранного города.'}
-                  </p>
-                </div>
+              <div className="professional-step professional-step--experience">
+                <h2>
+                  {editing ? 'Редактирование экскурсии' : 'Создайте экскурсию'}
+                </h2>
               </div>
               {editing ? (
                 <div className="professional-editing-bar">
@@ -963,9 +953,6 @@ export function ProfessionalPage() {
               <div className="professional-availability">
                 <div>
                   <strong>Доступные даты и время</strong>
-                  <small>
-                    Пользователь сможет выбрать только добавленные слоты.
-                  </small>
                 </div>
                 <div className="professional-availability__picker">
                   <label>
@@ -1019,7 +1006,7 @@ export function ProfessionalPage() {
                     }}
                     type="button"
                   >
-                    ＋ Добавить
+                    Добавить
                   </button>
                 </div>
                 {scheduleSlots.length > 0 ? (
@@ -1062,8 +1049,8 @@ export function ProfessionalPage() {
                 {saveExperience.isPending
                   ? 'Загружаем фото и публикуем…'
                   : editing
-                    ? 'Сохранить изменения'
-                    : 'Опубликовать в общем каталоге'}
+                    ? 'Сохранить'
+                    : 'Опубликовать'}
               </button>
             </form>
             {deleting ? (
