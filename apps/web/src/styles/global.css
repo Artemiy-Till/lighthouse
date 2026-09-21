@@ -3996,9 +3996,17 @@ html[data-theme='dark'] .guide-profile__verified {
 }
 
 html[data-theme='dark'] .bottom-navigation {
-  border-color: var(--line);
-  background: rgb(24 27 35 / 94%);
+  border-color: rgb(255 255 255 / 7%);
+  background: rgb(36 36 38 / 96%);
   box-shadow: 0 -10px 30px rgb(0 0 0 / 24%);
+}
+
+html[data-theme='dark'] .bottom-navigation__item.is-active {
+  color: #fff;
+}
+
+html[data-theme='dark'] .bottom-navigation__item.is-active::after {
+  background: #fff;
 }
 
 html[data-theme='dark'] .theme-switch {
@@ -4573,10 +4581,11 @@ body {
   gap: 0;
   padding: 8px 12px;
   margin: 0;
-  border: 0;
+  border: 1px solid rgb(20 20 22 / 7%);
   border-radius: 999px;
-  background: var(--navigation-background);
-  box-shadow: 0 18px 38px rgb(0 0 0 / 23%);
+  background: rgb(247 247 248 / 96%);
+  box-shadow: 0 18px 38px rgb(0 0 0 / 14%);
+  backdrop-filter: blur(16px);
   transform: translateX(-50%);
 }
 
@@ -4605,7 +4614,7 @@ body {
 }
 
 .bottom-navigation__item.is-active {
-  color: #fff;
+  color: #202022;
   background: transparent;
 }
 
@@ -4616,7 +4625,7 @@ body {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #fff;
+  background: #202022;
   content: '';
   transform: translateX(-50%);
 }
