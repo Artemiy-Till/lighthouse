@@ -326,9 +326,7 @@ export function ProfessionalPage() {
       <main className="secondary-page professional-page">
         <ProfileBackLink />
         <header className="page-header">
-          <p className="section-kicker">Кабинет гида</p>
           <h1>Профессиональный аккаунт</h1>
-          <p>Создавайте экскурсии — они сразу появятся в общем каталоге.</p>
         </header>
 
         {!platform.isAvailable || !initData ? (
