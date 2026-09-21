@@ -2340,10 +2340,12 @@ main {
 }
 
 .professional-experiences__header h2 {
-  margin: 3px 0 0;
-  font-size: 20px;
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(14px, 3.8vw, 17px);
   letter-spacing: -0.025em;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .professional-experiences__header button,

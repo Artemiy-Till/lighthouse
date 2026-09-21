@@ -645,10 +645,7 @@ export function ProfessionalPage() {
             </section>
             <section className="professional-card professional-experiences">
               <div className="professional-experiences__header">
-                <div>
-                  <p className="section-kicker">Ваши публикации</p>
-                  <h2>Мои экскурсии</h2>
-                </div>
+                <h2>Мои опубликованные экскурсии</h2>
                 <button onClick={resetEditor} type="button">
                   ＋ Новая
                 </button>
