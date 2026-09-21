@@ -7229,3 +7229,61 @@ html[data-theme='dark'] .catalog-page .filter-chips button.is-active {
   color: #242426;
   background: #f2f2f3;
 }
+
+.catalog-page .catalog-summary__actions {
+  display: grid;
+  grid-template-columns: repeat(2, 116px);
+  gap: 8px;
+}
+
+.catalog-page .catalog-summary .catalog-filter-button,
+.catalog-page .catalog-sort select {
+  box-sizing: border-box;
+  width: 116px;
+  min-width: 116px;
+  max-width: 116px;
+  height: 34px;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--soft-background);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.catalog-page .catalog-summary .catalog-filter-button {
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px;
+}
+
+.catalog-page .catalog-filter-button > span {
+  font-size: 13px;
+}
+
+.catalog-page .catalog-sort select {
+  padding: 0 24px 0 10px;
+}
+
+html[data-theme='dark'] .catalog-page .catalog-summary .catalog-filter-button,
+html[data-theme='dark'] .catalog-page .catalog-sort select {
+  border-color: rgb(255 255 255 / 12%);
+  color: var(--ink);
+  background: var(--soft-background);
+}
+
+.catalog-page .catalog-summary .catalog-filter-button.is-active {
+  border-color: #3a3a3c;
+  color: var(--ink);
+  background: #eeeeef;
+}
+
+html[data-theme='dark']
+  .catalog-page
+  .catalog-summary
+  .catalog-filter-button.is-active {
+  border-color: #f2f2f3;
+  color: var(--ink);
+  background: var(--soft-background);
+}
