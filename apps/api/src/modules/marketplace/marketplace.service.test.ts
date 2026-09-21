@@ -133,17 +133,87 @@ describe('MarketplaceService', () => {
     for (let index = 0; index < 7; index += 1) {
       query.mockResolvedValueOnce({ rows: [] });
     }
-    query.mockResolvedValueOnce({ rows: [] });
+    query.mockResolvedValueOnce({
+      rows: [
+        {
+          booking_date: '2099-10-10',
+          booking_time: '12:00:00',
+          city_id: 'kostroma',
+          created_at: new Date('2026-09-21T08:00:00.000Z'),
+          experience_id: 'experience-1',
+          guide_display_name: 'Артемий',
+          guide_max_user_id: '84',
+          id: 'booking-1',
+          image_url: 'https://example.com/photo.jpg',
+          meeting_point: experienceRow.meeting_point,
+          participants: 2,
+          review_comment: null,
+          review_created_at: null,
+          review_id: null,
+          review_rating: null,
+          status: 'confirmed',
+          title: experienceRow.title,
+          total_price_rub: 3400,
+          unit_price_rub: 1700,
+        },
+      ],
+    });
     const service = new MarketplaceService({
       query,
     } as unknown as DatabaseService);
 
-    await service.listBookings('42');
+    const result = await service.listBookings('42');
 
     expect(query.mock.calls[7]?.[0]).toContain('not exists');
     expect(query.mock.calls[7]?.[0]).toContain(
       'own_guide.max_user_id = b.max_user_id',
     );
+    expect(query.mock.calls[7]?.[0]).toContain(
+      'booked_guide.max_user_id as guide_max_user_id',
+    );
+    expect(result.items[0]?.guideContact).toEqual({
+      displayName: 'Артемий',
+      maxUserId: '84',
+    });
+  });
+
+  it('lists guest contacts only inside the guide schedule', async () => {
+    const query = vi.fn();
+    for (let index = 0; index < 5; index += 1) {
+      query.mockResolvedValueOnce({ rows: [] });
+    }
+    query.mockResolvedValueOnce({
+      rows: [
+        {
+          booking_count: 1,
+          booking_date: '2099-10-10',
+          booking_time: '12:00:00',
+          capacity: 8,
+          experience_id: 'experience-1',
+          guests: [
+            {
+              bookingId: 'booking-1',
+              maxUserId: '42',
+              participants: 2,
+            },
+          ],
+          participants: 2,
+          status: 'scheduled',
+          title: experienceRow.title,
+        },
+      ],
+    });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    const result = await service.listGuideSchedule('84');
+
+    expect(query.mock.calls[5]?.[0]).toContain("'maxUserId', b.max_user_id");
+    expect(query.mock.calls[5]?.[1]).toEqual(['84']);
+    expect(result.items[0]?.guests).toEqual([
+      { bookingId: 'booking-1', maxUserId: '42', participants: 2 },
+    ]);
   });
 
   it('creates one review for a completed booking', async () => {

@@ -97,6 +97,11 @@ export interface GuideScheduleItem {
   readonly capacity: number;
   readonly date: string;
   readonly experienceId: string;
+  readonly guests: readonly {
+    readonly bookingId: string;
+    readonly maxUserId: string;
+    readonly participants: number;
+  }[];
   readonly participants: number;
   readonly status: 'completed' | 'scheduled';
   readonly time: string;
@@ -110,6 +115,10 @@ export interface Booking {
   readonly experienceId: string;
   readonly id: string;
   readonly imageUrl: string;
+  readonly guideContact: {
+    readonly displayName: string;
+    readonly maxUserId: string;
+  } | null;
   readonly meetingPoint: string;
   readonly participants: number;
   readonly review: BookingReview | null;

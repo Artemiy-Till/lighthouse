@@ -9,6 +9,7 @@ import {
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { cities } from '../data/cities';
+import { getMaxUserChatUrl } from '../features/max/max-chat';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 
@@ -211,15 +212,28 @@ export function OrdersPage() {
                         {expanded ? t('orders.hide') : t('orders.details')}
                       </button>
                       {upcoming ? (
-                        <button
-                          aria-label={t('orders.cancel')}
-                          className="order-card__cancel"
-                          disabled={cancellation.isPending}
-                          onClick={() => cancellation.mutate(order.id)}
-                          type="button"
-                        >
-                          <span aria-hidden="true">×</span>
-                        </button>
+                        <>
+                          <button
+                            aria-label={t('orders.cancel')}
+                            className="order-card__cancel"
+                            disabled={cancellation.isPending}
+                            onClick={() => cancellation.mutate(order.id)}
+                            type="button"
+                          >
+                            <span aria-hidden="true">×</span>
+                          </button>
+                          {order.guideContact ? (
+                            <a
+                              className="order-card__chat"
+                              href={getMaxUserChatUrl(
+                                order.guideContact.maxUserId,
+                              )}
+                            >
+                              <span aria-hidden="true">💬</span>
+                              {t('orders.chatGuide')}
+                            </a>
+                          ) : null}
+                        </>
                       ) : null}
                     </div>
                     {!upcoming &&

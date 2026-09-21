@@ -71,6 +71,8 @@ interface BookingRow {
   review_rating: number | null;
   review_comment: string | null;
   review_created_at: Date | null;
+  guide_max_user_id?: string | null;
+  guide_display_name?: string | null;
 }
 
 interface ReviewRow {
@@ -146,6 +148,13 @@ function mapBooking(row: BookingRow) {
     imageUrl: row.image_url,
     meetingPoint: row.meeting_point,
     participants: row.participants,
+    guideContact:
+      row.guide_max_user_id && row.guide_display_name
+        ? {
+            displayName: row.guide_display_name,
+            maxUserId: row.guide_max_user_id,
+          }
+        : null,
     status: row.status,
     time: row.booking_time.slice(0, 5),
     title: row.title,
@@ -478,13 +487,19 @@ export class MarketplaceService {
            then 'completed' else b.status end as status,
          b.created_at,
          r.id as review_id, r.rating as review_rating,
-         r.comment as review_comment, r.created_at as review_created_at
+         r.comment as review_comment, r.created_at as review_created_at,
+         booked_guide.max_user_id as guide_max_user_id,
+         booked_guide.display_name as guide_display_name
        from experience_bookings b
        left join experience_reviews r on r.booking_id = b.id
        left join experience_booking_slots s
          on s.experience_id = b.experience_id
         and s.booking_date = b.booking_date
         and s.booking_time = b.booking_time
+       left join published_experiences booked_experience
+         on booked_experience.id::text = b.experience_id
+       left join guide_profiles booked_guide
+         on booked_guide.id = booked_experience.guide_id
        where b.max_user_id = $1
          and not exists (
            select 1
@@ -923,6 +938,11 @@ export class MarketplaceService {
       booking_time: string;
       capacity: number;
       experience_id: string;
+      guests: Array<{
+        bookingId: string;
+        maxUserId: string;
+        participants: number;
+      }>;
       participants: number;
       status: 'completed' | 'scheduled';
       title: string;
@@ -930,7 +950,17 @@ export class MarketplaceService {
       `select e.id::text as experience_id, e.title,
          s.booking_date, s.booking_time, s.capacity, s.status,
          count(b.id)::integer as booking_count,
-         coalesce(sum(b.participants), 0)::integer as participants
+         coalesce(sum(b.participants), 0)::integer as participants,
+         coalesce(
+           jsonb_agg(
+             jsonb_build_object(
+               'bookingId', b.id::text,
+               'maxUserId', b.max_user_id,
+               'participants', b.participants
+             ) order by b.created_at
+           ) filter (where b.id is not null),
+           '[]'::jsonb
+         ) as guests
        from experience_booking_slots s
        join published_experiences e on e.id::text = s.experience_id
        join guide_profiles g on g.id = e.guide_id
@@ -958,6 +988,7 @@ export class MarketplaceService {
             ? row.booking_date.toISOString().slice(0, 10)
             : String(row.booking_date).slice(0, 10),
         experienceId: row.experience_id,
+        guests: row.guests,
         participants: row.participants,
         status: row.status,
         time: row.booking_time.slice(0, 5),

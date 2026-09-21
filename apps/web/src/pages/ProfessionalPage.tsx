@@ -19,6 +19,7 @@ import { AppLayout } from '../components/AppLayout';
 import { ProfileBackLink } from '../components/ProfileBackLink';
 import { categories } from '../data/experiences';
 import { cities, type CityId } from '../data/cities';
+import { getMaxUserChatUrl } from '../features/max/max-chat';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { prepareExperiencePhoto } from '../features/marketplace/prepareExperiencePhoto';
 
@@ -517,20 +518,33 @@ export function ProfessionalPage() {
                         key={`${slot.experienceId}-${slot.date}-${slot.time}`}
                       >
                         <span aria-hidden="true">●</span>
-                        <div>
+                        <div className="professional-schedule__summary">
                           <strong>{slot.title}</strong>
                           <small>
                             {formatScheduleDate(slot.date, slot.time)} ·{' '}
                             {slot.participants} чел.
                           </small>
                         </div>
-                        <button
-                          disabled={completeSchedule.isPending}
-                          onClick={() => completeSchedule.mutate(slot)}
-                          type="button"
-                        >
-                          Пометить завершённой
-                        </button>
+                        <div className="professional-schedule__actions">
+                          {(slot.guests ?? []).map((guest, guestIndex) => (
+                            <a
+                              href={getMaxUserChatUrl(guest.maxUserId)}
+                              key={guest.bookingId}
+                            >
+                              <span aria-hidden="true">💬</span>
+                              {(slot.guests ?? []).length === 1
+                                ? 'Написать гостю'
+                                : `Написать гостю ${guestIndex + 1}`}
+                            </a>
+                          ))}
+                          <button
+                            disabled={completeSchedule.isPending}
+                            onClick={() => completeSchedule.mutate(slot)}
+                            type="button"
+                          >
+                            Пометить завершённой
+                          </button>
+                        </div>
                       </article>
                     ))}
                 </div>

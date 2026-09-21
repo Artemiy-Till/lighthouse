@@ -255,6 +255,10 @@ const translations = {
   'orders.meeting': { en: 'Meeting point', ru: 'Место встречи' },
   'orders.hide': { en: 'Hide details', ru: 'Скрыть детали' },
   'orders.details': { en: 'Booking details', ru: 'Подробнее о заказе' },
+  'orders.chatGuide': {
+    en: 'Message the guide in MAX',
+    ru: 'Написать гиду в MAX',
+  },
   'orders.cancel': { en: 'Cancel booking', ru: 'Отменить запись' },
   'orders.leaveReview': { en: 'Leave a review', ru: 'Оставить отзыв' },
   'orders.yourReview': { en: 'Your review', ru: 'Ваш отзыв' },

@@ -2107,7 +2107,7 @@ main {
   color: #25ad62;
 }
 
-.professional-schedule__active-list article > div {
+.professional-schedule__summary {
   display: grid;
   min-width: 0;
   gap: 3px;
@@ -2122,17 +2122,36 @@ main {
   color: var(--muted);
 }
 
-.professional-schedule__active-list button {
+.professional-schedule__actions {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 8px;
+}
+
+.professional-schedule__actions a,
+.professional-schedule__actions button {
+  display: flex;
   min-height: 38px;
   width: 100%;
-  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   padding: 0 12px;
   border: 0;
   border-radius: 12px;
-  color: #fff;
-  background: #25ad62;
   font-size: 11px;
   font-weight: 800;
+  text-decoration: none;
+}
+
+.professional-schedule__actions a {
+  color: var(--accent-dark);
+  background: color-mix(in srgb, var(--accent) 13%, #fff);
+}
+
+.professional-schedule__actions button {
+  color: #fff;
+  background: #25ad62;
 }
 
 .professional-schedule__history {
@@ -2667,6 +2686,22 @@ main {
   border: 1px solid #d9dced;
   color: var(--accent-dark);
   background: #fff;
+}
+
+.order-card__chat {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .orders-page .prototype-caption {
@@ -3740,6 +3775,11 @@ html[data-theme='dark'] .professional-schedule,
 html[data-theme='dark'] .professional-availability,
 html[data-theme='dark'] .professional-schedule__active-list article {
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+html[data-theme='dark'] .professional-schedule__actions a {
+  color: #d9ddff;
+  background: #292e49;
 }
 
 html[data-theme='dark'] .professional-status__edit,
