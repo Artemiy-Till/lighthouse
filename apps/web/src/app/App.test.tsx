@@ -875,4 +875,25 @@ describe('App navigation', () => {
       'Подробнее об экскурсии «Петербург: первое знакомство»',
     );
   });
+
+  it('searches the catalog by URL, details and small typos', () => {
+    renderApp('/catalog?query=парадние');
+
+    const search = screen.getByRole('searchbox', {
+      name: 'Найти экскурсию',
+    });
+    expect(search).toHaveValue('парадние');
+    expect(screen.getByText('1 предложение')).toBeInTheDocument();
+    expect(
+      screen.getByText('Дворы, парадные и старые истории'),
+    ).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: 'катер мосты' } });
+
+    expect(screen.getByText('1 предложение')).toBeInTheDocument();
+    expect(screen.getByText('Разводные мосты с воды')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Дворы, парадные и старые истории'),
+    ).not.toBeInTheDocument();
+  });
 });

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { AppLayout } from '../components/AppLayout';
 import {
@@ -13,7 +14,14 @@ import {
   formatOfferCount,
   getExperienceDetails,
   getExperiencesForCity,
+  type Experience,
+  type ExperienceDetails,
 } from '../data/experiences';
+import { getGuideForCity } from '../data/guides';
+import {
+  scoreCatalogSearch,
+  type CatalogSearchDocument,
+} from '../features/catalog/catalog-search';
 import { useCity } from '../features/city/CityContext';
 import {
   toExperience,
@@ -23,6 +31,12 @@ import {
 import { useSettings } from '../features/settings/SettingsContext';
 
 type CatalogSort = 'popular' | 'price' | 'rating';
+
+interface CatalogEntry {
+  readonly details: ExperienceDetails | undefined;
+  readonly experience: Experience;
+  readonly searchDocument: CatalogSearchDocument;
+}
 
 function getPrice(price: string) {
   return Number(price.replace(/\D/g, ''));
@@ -80,113 +94,144 @@ function matchesChildrenFilter(
   return true;
 }
 
+function matchesEntryFilters(
+  entry: CatalogEntry,
+  selectedFilters: CatalogFilterState,
+  activeCategory: string | null,
+  query: string,
+) {
+  const { details, experience } = entry;
+  const price = getPrice(experience.price);
+  return (
+    (activeCategory === null || experience.category === activeCategory) &&
+    scoreCatalogSearch(entry.searchDocument, query) !== null &&
+    (selectedFilters.minPrice === null || price >= selectedFilters.minPrice) &&
+    (selectedFilters.maxPrice === null || price <= selectedFilters.maxPrice) &&
+    matchesDuration(
+      getDuration(experience.duration),
+      selectedFilters.duration,
+    ) &&
+    (selectedFilters.format === 'any' ||
+      (details
+        ? getFormatFromDetails(details.format)
+        : getFormat(experience.id)) === selectedFilters.format) &&
+    (selectedFilters.minRating === null ||
+      getRating(experience.rating) >= selectedFilters.minRating) &&
+    matchesChildrenFilter(
+      details
+        ? isChildrenTextSuitable(details.children)
+        : isSuitableForChildren(experience.id),
+      selectedFilters.children,
+    )
+  );
+}
+
 export function CatalogPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [filters, setFilters] =
     useState<CatalogFilterState>(emptyCatalogFilters);
-  const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CatalogSort>('popular');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get('query') ?? '';
   const { city } = useCity();
   const { language, t } = useSettings();
   const published = usePublishedExperiences(city.id);
 
-  const filteredExperiences = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase('ru');
-
+  const catalogEntries = useMemo<CatalogEntry[]>(() => {
     const remoteItems = published.data?.items ?? [];
-    const remoteDetails = new Map(
-      remoteItems.map((item) => [item.id, toExperienceDetails(item)]),
-    );
+    const remoteEntries = remoteItems.map((item) => {
+      const details = toExperienceDetails(item);
+      return {
+        details,
+        experience: toExperience(item),
+        searchDocument: {
+          category: item.category,
+          city: city.name,
+          details: [
+            item.intro,
+            item.description,
+            item.format,
+            item.children,
+            item.meetingPoint,
+            item.groupType,
+            ...item.highlights,
+          ],
+          guide: `${item.guide.displayName} ${item.guide.bio}`,
+          title: item.title,
+        },
+      };
+    });
+    const guide = getGuideForCity(city.id);
+    const localEntries = getExperiencesForCity(city.id).map((experience) => {
+      const details = getExperienceDetails(experience.id);
+      return {
+        details,
+        experience,
+        searchDocument: {
+          category: experience.category,
+          city: city.name,
+          details: details
+            ? [
+                details.intro,
+                details.description,
+                details.format,
+                details.children,
+                details.groupSize,
+                details.groupType,
+                details.meetingPoint,
+                ...details.highlights,
+              ]
+            : [experience.duration],
+          guide: guide
+            ? `${guide.name} ${guide.tagline} ${guide.about} ${guide.languages.join(' ')}`
+            : '',
+          title: experience.title,
+        },
+      };
+    });
 
-    return [...remoteItems.map(toExperience), ...getExperiencesForCity(city.id)]
-      .filter((experience) => {
-        const matchesCategory =
-          activeCategory === null || experience.category === activeCategory;
-        const matchesQuery =
-          normalizedQuery === '' ||
-          `${experience.title} ${experience.category}`
-            .toLocaleLowerCase('ru')
-            .includes(normalizedQuery);
-        const matchesPrice =
-          (filters.minPrice === null ||
-            getPrice(experience.price) >= filters.minPrice) &&
-          (filters.maxPrice === null ||
-            getPrice(experience.price) <= filters.maxPrice);
-        const matchesDurationFilter = matchesDuration(
-          getDuration(experience.duration),
-          filters.duration,
-        );
-        const matchesFormat =
-          filters.format === 'any' ||
-          (remoteDetails.get(experience.id)
-            ? getFormatFromDetails(remoteDetails.get(experience.id)!.format)
-            : getFormat(experience.id)) === filters.format;
-        const matchesRating =
-          filters.minRating === null ||
-          getRating(experience.rating) >= filters.minRating;
-        const matchesChildren = matchesChildrenFilter(
-          remoteDetails.get(experience.id)
-            ? isChildrenTextSuitable(remoteDetails.get(experience.id)!.children)
-            : isSuitableForChildren(experience.id),
-          filters.children,
-        );
+    return [...remoteEntries, ...localEntries];
+  }, [city.id, city.name, published.data]);
 
-        return (
-          matchesCategory &&
-          matchesQuery &&
-          matchesPrice &&
-          matchesDurationFilter &&
-          matchesFormat &&
-          matchesRating &&
-          matchesChildren
-        );
-      })
+  const filteredExperiences = useMemo(() => {
+    return catalogEntries
+      .filter((entry) =>
+        matchesEntryFilters(entry, filters, activeCategory, query),
+      )
+      .map((entry) => ({
+        ...entry,
+        searchScore: scoreCatalogSearch(entry.searchDocument, query) ?? 0,
+      }))
       .sort((first, second) => {
+        if (query.trim() && second.searchScore !== first.searchScore) {
+          return second.searchScore - first.searchScore;
+        }
         if (sort === 'price') {
-          return getPrice(first.price) - getPrice(second.price);
+          return (
+            getPrice(first.experience.price) - getPrice(second.experience.price)
+          );
         }
         if (sort === 'rating') {
-          return getRating(second.rating) - getRating(first.rating);
+          return (
+            getRating(second.experience.rating) -
+            getRating(first.experience.rating)
+          );
         }
-        return second.reviews - first.reviews;
-      });
-  }, [activeCategory, city.id, filters, published.data, query, sort]);
+        return second.experience.reviews - first.experience.reviews;
+      })
+      .map((entry) => entry.experience);
+  }, [activeCategory, catalogEntries, filters, query, sort]);
 
-  const previewFilterCount = (draft: CatalogFilterState) => {
-    const normalizedQuery = query.trim().toLocaleLowerCase('ru');
-    const remoteItems = published.data?.items ?? [];
-    const remoteDetails = new Map(
-      remoteItems.map((item) => [item.id, toExperienceDetails(item)]),
-    );
-    return [
-      ...remoteItems.map(toExperience),
-      ...getExperiencesForCity(city.id),
-    ].filter((experience) => {
-      const price = getPrice(experience.price);
-      const details = remoteDetails.get(experience.id);
-      return (
-        (activeCategory === null || experience.category === activeCategory) &&
-        (normalizedQuery === '' ||
-          `${experience.title} ${experience.category}`
-            .toLocaleLowerCase('ru')
-            .includes(normalizedQuery)) &&
-        (draft.minPrice === null || price >= draft.minPrice) &&
-        (draft.maxPrice === null || price <= draft.maxPrice) &&
-        matchesDuration(getDuration(experience.duration), draft.duration) &&
-        (draft.format === 'any' ||
-          (details
-            ? getFormatFromDetails(details.format)
-            : getFormat(experience.id)) === draft.format) &&
-        (draft.minRating === null ||
-          getRating(experience.rating) >= draft.minRating) &&
-        matchesChildrenFilter(
-          details
-            ? isChildrenTextSuitable(details.children)
-            : isSuitableForChildren(experience.id),
-          draft.children,
-        )
-      );
-    }).length;
+  const previewFilterCount = (draft: CatalogFilterState) =>
+    catalogEntries.filter((entry) =>
+      matchesEntryFilters(entry, draft, activeCategory, query),
+    ).length;
+
+  const updateQuery = (value: string) => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    if (value.trim()) nextSearchParams.set('query', value);
+    else nextSearchParams.delete('query');
+    setSearchParams(nextSearchParams, { replace: true });
   };
 
   const activeFilterLabels = [
@@ -259,7 +304,8 @@ export function CatalogPage() {
         <label className="search-field catalog-search">
           <Icon name="search" />
           <input
-            onChange={(event) => setQuery(event.target.value)}
+            aria-label={t('catalog.search')}
+            onChange={(event) => updateQuery(event.target.value)}
             placeholder={t('catalog.search')}
             type="search"
             value={query}
@@ -360,7 +406,7 @@ export function CatalogPage() {
               onClick={() => {
                 setActiveCategory(null);
                 setFilters(emptyCatalogFilters);
-                setQuery('');
+                updateQuery('');
               }}
               type="button"
             >
