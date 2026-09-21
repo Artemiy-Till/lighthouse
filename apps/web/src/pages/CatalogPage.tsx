@@ -329,7 +329,7 @@ export function CatalogPage() {
               onClick={() => setActiveCategory(category.label)}
               type="button"
             >
-              {category.emoji} {category.label}
+              {category.label}
             </button>
           ))}
         </div>
