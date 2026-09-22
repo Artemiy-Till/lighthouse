@@ -64,7 +64,6 @@ export function GuidePage() {
           <div className="guide-profile__copy">
             <p className="guide-profile__verified">✓ Личность подтверждена</p>
             <h1>{guide.name}</h1>
-            <p className="guide-profile__tagline">{guide.tagline}</p>
             <p className="guide-profile__cities">{cityNames}</p>
           </div>
         </div>

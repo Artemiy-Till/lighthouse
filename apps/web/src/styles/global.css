@@ -7670,14 +7670,8 @@ html[data-theme='dark']
   line-height: 1.08;
 }
 
-.guide-profile__tagline {
-  margin: 8px 0 0;
-  font-size: 11px;
-  line-height: 1.3;
-}
-
 .guide-profile__cities {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   color: var(--muted);
   font-size: 10px;
   font-weight: 650;
