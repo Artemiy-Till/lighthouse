@@ -95,16 +95,6 @@ interface PublicReviewRow {
   rating: number;
 }
 
-function isMissingGuestNameColumn(error: unknown) {
-  if (!error || typeof error !== 'object') return false;
-  const code = 'code' in error ? error.code : undefined;
-  const message = 'message' in error ? error.message : undefined;
-  return (
-    code === '42703' &&
-    (typeof message !== 'string' || message.includes('guest_name'))
-  );
-}
-
 function mapGuide(row: GuideRow) {
   return {
     bio: row.bio,
@@ -418,9 +408,6 @@ export class MarketplaceService {
   }
 
   async createBooking(user: AuthenticatedMaxUser, input: CreateBookingDto) {
-    await this.ensurePhotoSchema();
-    await this.ensureBookingSchema();
-    await this.ensureScheduleSchema();
     const maxUserId = user.id;
     const guestName = [user.firstName, user.lastName]
       .filter(Boolean)
@@ -482,49 +469,55 @@ export class MarketplaceService {
            least(experience_booking_slots.capacity, excluded.capacity)
            and experience_booking_slots.status = 'scheduled'
          returning experience_id`;
-    const bookingValues = [
-      input.experienceId,
-      input.date,
-      input.time,
-      maxUserId,
-      title,
-      cityId,
-      imageUrl,
-      meetingPoint,
-      input.participants,
-      priceRub,
-      groupSize,
-      user.username,
-      guestName || null,
-    ];
-    const insertBooking = (includeGuestName: boolean) =>
-      this.database.query<BookingRow>(
-        `with reserved_slot as (
+    const result = await this.database.query<BookingRow>(
+      `with reserved_slot as (
          ${reservation}
        )
        insert into experience_bookings (
          max_user_id, experience_id, title, city_id, image_url,
          meeting_point, booking_date, booking_time, participants,
-         unit_price_rub, total_price_rub, max_username${includeGuestName ? ', guest_name' : ''}
+         unit_price_rub, total_price_rub
        )
        select $4, $1, $5, $6, $7, $8, $2::date, $3::time,
-         $9, $10, $9 * $10, $12${includeGuestName ? ', $13' : ''}
+         $9, $10, $9 * $10
        from reserved_slot
        returning id, experience_id, title, city_id, image_url, meeting_point,
          booking_date, booking_time, participants, unit_price_rub,
          total_price_rub, status, created_at`,
-        includeGuestName ? bookingValues : bookingValues.slice(0, 12),
-      );
-    let result: { rows: BookingRow[] };
-    try {
-      result = await insertBooking(true);
-    } catch (error) {
-      if (!isMissingGuestNameColumn(error)) throw error;
-      result = await insertBooking(false);
-    }
+      [
+        input.experienceId,
+        input.date,
+        input.time,
+        maxUserId,
+        title,
+        cityId,
+        imageUrl,
+        meetingPoint,
+        input.participants,
+        priceRub,
+        groupSize,
+      ].slice(0, source ? 10 : 11),
+    );
     if (!result.rows[0]) {
       throw new ConflictException('Not enough available places');
     }
+    await this.database
+      .query(
+        `update experience_bookings
+         set max_username = $2, guest_name = $3, updated_at = now()
+         where id = $1`,
+        [result.rows[0].id, user.username, guestName || null],
+      )
+      .catch(() =>
+        this.database
+          .query(
+            `update experience_bookings
+             set max_username = $2, updated_at = now()
+             where id = $1`,
+            [result.rows[0]!.id, user.username],
+          )
+          .catch(() => undefined),
+      );
     return mapBooking(result.rows[0]);
   }
 

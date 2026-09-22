@@ -66,15 +66,9 @@ describe('MarketplaceService', () => {
     };
     const query = vi
       .fn()
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [experienceRow] })
-      .mockResolvedValueOnce({ rows: [bookingRow] });
+      .mockResolvedValueOnce({ rows: [bookingRow] })
+      .mockResolvedValueOnce({ rows: [] });
     const service = new MarketplaceService({
       query,
     } as unknown as DatabaseService);
@@ -93,35 +87,29 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.totalPriceRub).toBe(3400);
-    expect(query.mock.calls[7]?.[1]).toEqual(['experience-1', '42']);
-    expect(query.mock.calls[8]?.[1]).toEqual(
+    expect(query.mock.calls[0]?.[1]).toEqual(['experience-1', '42']);
+    expect(query.mock.calls[1]?.[1]).toEqual(
       expect.arrayContaining([
         'experience-1',
         '2026-10-10',
         '12:00',
         '42',
-        'artemiy',
-        'Артемий',
         experienceRow.title,
         1700,
       ]),
     );
-    expect(query.mock.calls[8]?.[1]).toHaveLength(13);
+    expect(query.mock.calls[1]?.[1]).toHaveLength(10);
+    expect(query.mock.calls[2]?.[1]).toEqual([
+      'booking-1',
+      'artemiy',
+      'Артемий',
+    ]);
   });
 
   it('does not let a guide book their own published experience', async () => {
-    const query = vi
-      .fn()
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({
-        rows: [{ ...experienceRow, is_own: true }],
-      });
+    const query = vi.fn().mockResolvedValueOnce({
+      rows: [{ ...experienceRow, is_own: true }],
+    });
     const service = new MarketplaceService({
       query,
     } as unknown as DatabaseService);
@@ -142,7 +130,7 @@ describe('MarketplaceService', () => {
     ).rejects.toThrow('A guide cannot book their own experience');
   });
 
-  it('creates a booking when the optional guest-name column is not migrated yet', async () => {
+  it('keeps a booking when optional guest metadata cannot be saved', async () => {
     const bookingRow = {
       booking_date: '2026-10-10',
       booking_time: '12:00:00',
@@ -158,18 +146,16 @@ describe('MarketplaceService', () => {
       total_price_rub: 1700,
       unit_price_rub: 1700,
     };
-    const query = vi.fn();
-    for (let index = 0; index < 7; index += 1) {
-      query.mockResolvedValueOnce({ rows: [] });
-    }
-    query
+    const query = vi
+      .fn()
       .mockResolvedValueOnce({ rows: [experienceRow] })
+      .mockResolvedValueOnce({ rows: [bookingRow] })
       .mockRejectedValueOnce(
         Object.assign(new Error('column "guest_name" does not exist'), {
           code: '42703',
         }),
       )
-      .mockResolvedValueOnce({ rows: [bookingRow] });
+      .mockResolvedValueOnce({ rows: [] });
     const service = new MarketplaceService({
       query,
     } as unknown as DatabaseService);
@@ -188,9 +174,9 @@ describe('MarketplaceService', () => {
     });
 
     expect(result.id).toBe('booking-legacy-schema');
-    expect(query.mock.calls[8]?.[0]).toContain('guest_name');
-    expect(query.mock.calls[9]?.[0]).not.toContain('guest_name');
-    expect(query.mock.calls[9]?.[1]).toHaveLength(12);
+    expect(query.mock.calls[1]?.[0]).not.toContain('guest_name');
+    expect(query.mock.calls[2]?.[0]).toContain('guest_name');
+    expect(query.mock.calls[3]?.[0]).not.toContain('guest_name');
   });
 
   it('keeps guide-owned experiences out of regular booking history', async () => {
