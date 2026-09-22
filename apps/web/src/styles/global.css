@@ -7448,3 +7448,13 @@ html[data-theme='dark']
   > span {
   background: #242426;
 }
+
+.favorites-page .page-header {
+  margin-bottom: 12px;
+}
+
+.favorites-page .page-header h1 {
+  font-size: 24px;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}

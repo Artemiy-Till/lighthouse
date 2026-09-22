@@ -25,9 +25,7 @@ export function FavoritesPage() {
     <AppLayout>
       <main className="secondary-page favorites-page">
         <header className="page-header">
-          <p className="section-kicker">{t('favorites.kicker')}</p>
           <h1>{t('favorites.title')}</h1>
-          <p>{t('favorites.subtitle')}</p>
         </header>
 
         {published.isPending &&
