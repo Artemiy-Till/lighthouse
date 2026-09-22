@@ -62,8 +62,16 @@ export function GuidePage() {
             width="720"
           />
           <div className="guide-profile__copy">
-            <p className="guide-profile__verified">✓ Личность подтверждена</p>
-            <h1>{guide.name}</h1>
+            <h1 aria-label={guide.name}>
+              {guide.name}
+              <span
+                aria-label="Личность подтверждена"
+                className="guide-profile__verification-mark"
+                role="img"
+              >
+                ✓
+              </span>
+            </h1>
             <p className="guide-profile__cities">{cityNames}</p>
           </div>
         </div>

@@ -3545,17 +3545,6 @@ html[data-theme='dark'] .booking-success a {
   object-fit: cover;
 }
 
-.guide-profile__verified {
-  width: fit-content;
-  padding: 6px 10px;
-  margin: 13px auto 0;
-  border-radius: 999px;
-  color: #3443b7;
-  background: #eef0ff;
-  font-size: 11px;
-  font-weight: 800;
-}
-
 .guide-profile h1 {
   margin: 12px 0 0;
   color: var(--ink);
@@ -4174,11 +4163,6 @@ html[data-theme='dark'] .guide-page__back,
 html[data-theme='dark'] .guide-stats {
   color: var(--ink);
   background: #242832;
-}
-
-html[data-theme='dark'] .guide-profile__verified {
-  color: #c9ceff;
-  background: #292e49;
 }
 
 html[data-theme='dark'] .bottom-navigation {
@@ -7653,21 +7637,28 @@ html[data-theme='dark']
   box-shadow: none;
 }
 
-.guide-profile__verified {
-  padding: 4px 8px;
-  margin: 0 0 6px;
-  border: 1px solid #343438;
-  color: #343438;
-  background: transparent;
-  font-size: 9px;
-  font-weight: 700;
-}
-
 .guide-profile h1 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   margin: 0;
   font-size: 22px;
   letter-spacing: -0.03em;
   line-height: 1.08;
+}
+
+.guide-profile__verification-mark {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  border-radius: 50%;
+  color: #fff;
+  background: #343438;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  place-items: center;
 }
 
 .guide-profile__cities {
@@ -7769,10 +7760,9 @@ html[data-theme='dark']
   line-height: 1.2;
 }
 
-html[data-theme='dark'] .guide-profile__verified {
-  border-color: #dedee1;
-  color: #dedee1;
-  background: transparent;
+html[data-theme='dark'] .guide-profile__verification-mark {
+  color: #242426;
+  background: #dedee1;
 }
 
 html[data-theme='dark'] .guide-stats {

@@ -930,7 +930,7 @@ describe('App navigation', () => {
     expect(
       screen.getByRole('heading', { name: 'Алексей Смирнов', level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Личность подтверждена/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Личность подтверждена')).toBeInTheDocument();
     expect(screen.getByText('Опыт и квалификация')).toBeInTheDocument();
     expect(screen.getByText('МАРШРУТЫ ГИДА')).toBeInTheDocument();
     expect(
