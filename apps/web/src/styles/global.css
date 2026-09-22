@@ -7684,19 +7684,22 @@ html[data-theme='dark']
 }
 
 .guide-stats {
+  gap: 6px;
   margin-top: 13px;
-  border-color: #343438;
-  border-radius: 16px;
+  border: 0;
+  border-radius: 0;
   background: transparent;
 }
 
 .guide-stats > div {
   padding: 7px 4px;
+  border: 1px solid #343438;
+  border-radius: 14px;
   text-align: center;
 }
 
 .guide-stats > div + div {
-  border-color: #343438;
+  border-left: 1px solid #343438;
 }
 
 .guide-stats dt {
@@ -7779,11 +7782,10 @@ html[data-theme='dark'] .guide-profile__verified {
 }
 
 html[data-theme='dark'] .guide-stats {
-  border-color: #dedee1;
   background: transparent;
 }
 
-html[data-theme='dark'] .guide-stats > div + div {
+html[data-theme='dark'] .guide-stats > div {
   border-color: #dedee1;
 }
 
