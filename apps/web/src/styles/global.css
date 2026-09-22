@@ -7641,6 +7641,7 @@ html[data-theme='dark']
 
 .guide-profile__verified {
   padding: 5px 9px;
+  margin-top: 7px;
   border: 1px solid #343438;
   color: #343438;
   background: transparent;
@@ -7649,7 +7650,7 @@ html[data-theme='dark']
 }
 
 .guide-profile h1 {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 28px;
   letter-spacing: -0.035em;
 }
