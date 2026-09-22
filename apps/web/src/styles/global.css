@@ -3731,22 +3731,23 @@ html[data-theme='dark'] .booking-success a {
 
 .experience-terms ul {
   display: grid;
-  gap: 15px;
+  gap: 9px;
   padding: 0;
-  margin: 18px 0 0;
+  margin: 14px 0 0;
   list-style: none;
 }
 
-.experience-terms li {
+.experience-terms ul > li {
   display: flex;
-  min-height: 44px;
+  min-height: 36px;
   align-items: center;
-  padding: 10px 14px;
+  padding: 7px 11px;
   border: 1px solid var(--line);
+  border-radius: 12px;
   color: var(--ink);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .experience-details-content > .prototype-caption {
