@@ -53,17 +53,21 @@ export function GuidePage() {
       </header>
 
       <section className="guide-profile">
-        <img
-          alt={`Гид ${guide.name}`}
-          className="guide-profile__avatar"
-          height="720"
-          src={guide.avatar}
-          width="720"
-        />
-        <h1>{guide.name}</h1>
-        <p className="guide-profile__verified">✓ Личность подтверждена</p>
-        <p className="guide-profile__tagline">{guide.tagline}</p>
-        <p className="guide-profile__cities">{cityNames}</p>
+        <div className="guide-profile__identity">
+          <img
+            alt={`Гид ${guide.name}`}
+            className="guide-profile__avatar"
+            height="720"
+            src={guide.avatar}
+            width="720"
+          />
+          <div className="guide-profile__copy">
+            <h1>{guide.name}</h1>
+            <p className="guide-profile__verified">✓ Личность подтверждена</p>
+            <p className="guide-profile__tagline">{guide.tagline}</p>
+            <p className="guide-profile__cities">{cityNames}</p>
+          </div>
+        </div>
 
         <dl className="guide-stats">
           <div>
