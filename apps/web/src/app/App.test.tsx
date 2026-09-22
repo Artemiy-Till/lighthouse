@@ -333,7 +333,7 @@ describe('App navigation', () => {
                     guestName: 'Иван Петров',
                     maxUserId: '85',
                     participants: 1,
-                    username: 'ivan',
+                    username: null,
                   },
                 ],
                 participants: 2,
@@ -411,7 +411,7 @@ describe('App navigation', () => {
     expect(screen.getByText('Иван Петров')).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Открыть чат: Иван Петров' }),
-    ).toHaveAttribute('href', 'https://max.ru/ivan');
+    ).toHaveAttribute('href', 'max://user/85');
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])

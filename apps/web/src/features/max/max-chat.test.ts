@@ -30,4 +30,8 @@ describe('getMaxUserChatUrl', () => {
   it('builds a public profile link from a username', () => {
     expect(getMaxUserChatUrl('42', '@artemiy')).toBe('https://max.ru/artemiy');
   });
+
+  it('uses the native MAX user link when there is no username', () => {
+    expect(getMaxUserChatUrl('42', null)).toBe('max://user/42');
+  });
 });

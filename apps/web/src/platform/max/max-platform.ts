@@ -71,7 +71,9 @@ export function getMaxPlatform(): MaxPlatform {
     getViewportSize: () => webApp.getViewportSize(),
     hideBackButton: () => webApp.BackButton.hide(),
     openMaxLink(url) {
-      if (!webApp.openMaxLink) return false;
+      if (!/^https:\/\/max\.ru\//i.test(url) || !webApp.openMaxLink) {
+        return false;
+      }
       webApp.openMaxLink(url);
       return true;
     },

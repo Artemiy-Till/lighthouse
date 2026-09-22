@@ -40,5 +40,9 @@ describe('getMaxPlatform', () => {
     expect(platform.platform).toBe('ios');
     expect(platform.openMaxLink('https://max.ru/artemiy')).toBe(true);
     expect(openMaxLink).toHaveBeenCalledWith('https://max.ru/artemiy');
+
+    openMaxLink.mockClear();
+    expect(platform.openMaxLink('max://user/42')).toBe(false);
+    expect(openMaxLink).not.toHaveBeenCalled();
   });
 });
