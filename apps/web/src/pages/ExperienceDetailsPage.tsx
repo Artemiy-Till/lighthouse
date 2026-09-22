@@ -22,6 +22,23 @@ import {
 } from '../features/marketplace/usePublishedExperiences';
 import { useSettings } from '../features/settings/SettingsContext';
 
+function bookingErrorMessage(message: string) {
+  if (message === 'Not enough available places') {
+    return 'Это время уже занято или свободных мест больше нет. Обновите карточку и выберите другой слот.';
+  }
+  if (message === 'A guide cannot book their own experience') {
+    return 'На свою экскурсию записаться нельзя.';
+  }
+  if (
+    message === 'Expired MAX launch data' ||
+    message === 'Invalid MAX launch data' ||
+    message === 'MAX launch data is required'
+  ) {
+    return 'Сессия MAX устарела. Закройте и снова откройте мини-приложение.';
+  }
+  return 'Не удалось оформить запись. Попробуйте ещё раз.';
+}
+
 export function ExperienceDetailsPage() {
   const { experienceId = '' } = useParams();
   const navigate = useNavigate();
@@ -382,9 +399,7 @@ export function ExperienceDetailsPage() {
             ) : null}
             {booking.isError ? (
               <p className="booking-message booking-message--error">
-                {booking.error.message === 'Not enough available places'
-                  ? 'Это время уже занято или свободных мест больше нет. Обновите карточку и выберите другой слот.'
-                  : 'Не удалось оформить запись. Перезапустите мини-приложение.'}
+                {bookingErrorMessage(booking.error.message)}
               </p>
             ) : null}
           </div>
