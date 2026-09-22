@@ -63,7 +63,7 @@ export function GuidePage() {
         <p className="guide-profile__verified">✓ Личность подтверждена</p>
         <h1>{guide.name}</h1>
         <p className="guide-profile__tagline">{guide.tagline}</p>
-        <p className="guide-profile__cities">⌖ {cityNames}</p>
+        <p className="guide-profile__cities">{cityNames}</p>
 
         <dl className="guide-stats">
           <div>
@@ -107,10 +107,7 @@ export function GuidePage() {
 
         <section className="guide-tours">
           <div className="section-heading">
-            <div>
-              <span>МАРШРУТЫ ГИДА</span>
-              <h2>Экскурсии</h2>
-            </div>
+            <span>МАРШРУТЫ ГИДА</span>
           </div>
           <div className="experience-grid">
             {guideExperiences.map((experience) => (

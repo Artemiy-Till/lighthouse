@@ -932,9 +932,10 @@ describe('App navigation', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Личность подтверждена/)).toBeInTheDocument();
     expect(screen.getByText('Опыт и квалификация')).toBeInTheDocument();
+    expect(screen.getByText('МАРШРУТЫ ГИДА')).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: 'Экскурсии', level: 2 }),
-    ).toBeInTheDocument();
+      screen.queryByRole('heading', { name: 'Экскурсии', level: 2 }),
+    ).not.toBeInTheDocument();
   });
 
   it('filters and sorts catalog experiences', () => {
