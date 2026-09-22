@@ -7117,6 +7117,7 @@ html[data-theme='dark'] .profile-page .theme-switch {
 
 .home-popular-card > img {
   object-fit: cover;
+  object-position: center top;
   transition: transform 240ms ease;
 }
 
