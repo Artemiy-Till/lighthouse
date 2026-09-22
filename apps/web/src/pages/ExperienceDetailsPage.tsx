@@ -101,10 +101,9 @@ export function ExperienceDetailsPage() {
 
   if (!staticExperience && published.isPending) {
     return (
-      <main className="experience-not-found">
-        <span aria-hidden="true">⏳</span>
-        <h1>Загружаем экскурсию</h1>
-      </main>
+      <p className="compact-loading" role="status">
+        Загрузка
+      </p>
     );
   }
 

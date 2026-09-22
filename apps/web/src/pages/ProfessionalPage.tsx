@@ -349,10 +349,9 @@ export function ProfessionalPage() {
             <p>Профиль гида привязывается к подтверждённому MAX-аккаунту.</p>
           </section>
         ) : session.isPending || profile.isPending ? (
-          <section className="professional-card professional-notice">
-            <span aria-hidden="true">⏳</span>
-            <h2>Проверяем профиль</h2>
-          </section>
+          <p className="compact-loading" role="status">
+            Загрузка
+          </p>
         ) : profile.isError ? (
           <section className="professional-card professional-notice is-error">
             <span aria-hidden="true">🗄️</span>

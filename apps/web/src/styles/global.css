@@ -7895,3 +7895,18 @@ html[data-theme='dark'] .settings-segmented button[aria-pressed='true'] {
   background: #f2f2f3;
   box-shadow: none;
 }
+
+.compact-loading {
+  width: 100%;
+  max-width: var(--page-width);
+  padding: 20px 18px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.professional-page > .compact-loading {
+  padding: 4px 0;
+}
