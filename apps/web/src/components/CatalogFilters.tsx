@@ -235,7 +235,7 @@ export function CatalogFilters({
 
                 <fieldset className="catalog-filter-group">
                   <legend>
-                    <Icon name="route" />
+                    <Icon name="map" />
                     {t('filter.format')}
                   </legend>
                   <div className="catalog-filter-options">

@@ -10,7 +10,6 @@ export type IconName =
   | 'moon'
   | 'orders'
   | 'profile'
-  | 'route'
   | 'search'
   | 'settings'
   | 'support'
@@ -58,13 +57,6 @@ export function Icon({ name }: { readonly name: IconName }) {
       <>
         <circle cx="10" cy="7" r="4" />
         <path d="M3 19c.6-4 3-6 7-6s6.4 2 7 6" />
-      </>
-    ),
-    route: (
-      <>
-        <circle cx="5" cy="15" r="2" />
-        <circle cx="15" cy="5" r="2" />
-        <path d="M7 15h2a3 3 0 0 0 3-3V8a3 3 0 0 1 3-3" />
       </>
     ),
     search: (
