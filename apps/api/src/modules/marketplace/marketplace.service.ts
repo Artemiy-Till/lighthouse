@@ -457,15 +457,34 @@ export class MarketplaceService {
     const reservation = source
       ? `update experience_booking_slots
          set booked = booked + $9
+         from booking_lock
          where experience_id = $1
            and booking_date = $2::date
            and booking_time = $3::time
            and status = 'scheduled'
            and booked + $9 <= capacity
+           and not exists (
+             select 1 from experience_bookings existing
+             where existing.max_user_id = $4
+               and existing.experience_id = $1
+               and existing.booking_date = $2::date
+               and existing.booking_time = $3::time
+               and existing.status = 'confirmed'
+           )
          returning experience_id`
       : `insert into experience_booking_slots (
            experience_id, booking_date, booking_time, capacity, booked, status
-         ) values ($1, $2::date, $3::time, $11, $9, 'scheduled')
+         )
+         select $1, $2::date, $3::time, $11, $9, 'scheduled'
+         from booking_lock
+         where not exists (
+           select 1 from experience_bookings existing
+           where existing.max_user_id = $4
+             and existing.experience_id = $1
+             and existing.booking_date = $2::date
+             and existing.booking_time = $3::time
+             and existing.status = 'confirmed'
+         )
          on conflict (experience_id, booking_date, booking_time) do update
          set booked = experience_booking_slots.booked + excluded.booked,
              capacity = least(experience_booking_slots.capacity, excluded.capacity)
@@ -475,7 +494,12 @@ export class MarketplaceService {
          returning experience_id`;
     const maxUsernameParameter = source ? '$11' : '$12';
     const result = await this.database.query<BookingRow>(
-      `with reserved_slot as (
+      `with booking_lock as (
+         select pg_advisory_xact_lock(hashtextextended(
+           $4 || chr(31) || $1 || chr(31) || $2 || chr(31) || $3,
+           0
+         ))
+       ), reserved_slot as (
          ${reservation}
        )
        insert into experience_bookings (
@@ -505,6 +529,20 @@ export class MarketplaceService {
       ],
     );
     if (!result.rows[0]) {
+      const duplicate = await this.database.query<{ exists: boolean }>(
+        `select exists (
+           select 1 from experience_bookings
+           where max_user_id = $1 and experience_id = $2
+             and booking_date = $3::date and booking_time = $4::time
+             and status = 'confirmed'
+         ) as exists`,
+        [maxUserId, input.experienceId, input.date, input.time],
+      );
+      if (duplicate.rows[0]?.exists) {
+        throw new ConflictException(
+          'You are already booked for this experience',
+        );
+      }
       throw new ConflictException('Not enough available places');
     }
     await this.database

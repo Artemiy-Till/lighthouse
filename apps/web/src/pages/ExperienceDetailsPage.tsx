@@ -29,6 +29,9 @@ function bookingErrorMessage(message: string) {
   if (message === 'A guide cannot book their own experience') {
     return 'На свою экскурсию записаться нельзя.';
   }
+  if (message === 'You are already booked for this experience') {
+    return 'Вы уже записаны на эту экскурсию в выбранное время.';
+  }
   if (
     message === 'Expired MAX launch data' ||
     message === 'Invalid MAX launch data' ||

@@ -100,6 +100,8 @@ describe('MarketplaceService', () => {
       ]),
     );
     expect(query.mock.calls[1]?.[0]).toContain('max_username');
+    expect(query.mock.calls[1]?.[0]).toContain('pg_advisory_xact_lock');
+    expect(query.mock.calls[1]?.[0]).toContain("existing.status = 'confirmed'");
     expect(query.mock.calls[1]?.[1]).toHaveLength(11);
     expect(query.mock.calls[1]?.[1]).toContain('artemiy');
     expect(query.mock.calls[2]?.[1]).toEqual(['booking-1', 'Артемий']);
@@ -127,6 +129,40 @@ describe('MarketplaceService', () => {
         title: experienceRow.title,
       }),
     ).rejects.toThrow('A guide cannot book their own experience');
+  });
+
+  it('does not let one user book the same schedule slot twice', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [experienceRow] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [{ exists: true }] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    await expect(
+      service.createBooking(maxUser, {
+        cityId: 'kostroma',
+        date: '2026-10-10',
+        experienceId: 'experience-1',
+        groupSize: 10,
+        imageUrl: experienceRow.photo_urls[0]!,
+        meetingPoint: experienceRow.meeting_point,
+        participants: 1,
+        priceRub: experienceRow.price_rub,
+        time: '12:00',
+        title: experienceRow.title,
+      }),
+    ).rejects.toThrow('You are already booked for this experience');
+
+    expect(query.mock.calls[1]?.[0]).toContain('pg_advisory_xact_lock');
+    expect(query.mock.calls[2]?.[1]).toEqual([
+      '42',
+      'experience-1',
+      '2026-10-10',
+      '12:00',
+    ]);
   });
 
   it('keeps a booking when optional guest metadata cannot be saved', async () => {
