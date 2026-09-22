@@ -142,6 +142,57 @@ describe('MarketplaceService', () => {
     ).rejects.toThrow('A guide cannot book their own experience');
   });
 
+  it('creates a booking when the optional guest-name column is not migrated yet', async () => {
+    const bookingRow = {
+      booking_date: '2026-10-10',
+      booking_time: '12:00:00',
+      city_id: 'kostroma',
+      created_at: new Date('2026-09-19T09:00:00.000Z'),
+      experience_id: 'experience-1',
+      id: 'booking-legacy-schema',
+      image_url: 'https://example.com/photo.jpg',
+      meeting_point: experienceRow.meeting_point,
+      participants: 1,
+      status: 'confirmed' as const,
+      title: experienceRow.title,
+      total_price_rub: 1700,
+      unit_price_rub: 1700,
+    };
+    const query = vi.fn();
+    for (let index = 0; index < 7; index += 1) {
+      query.mockResolvedValueOnce({ rows: [] });
+    }
+    query
+      .mockResolvedValueOnce({ rows: [experienceRow] })
+      .mockRejectedValueOnce(
+        Object.assign(new Error('column "guest_name" does not exist'), {
+          code: '42703',
+        }),
+      )
+      .mockResolvedValueOnce({ rows: [bookingRow] });
+    const service = new MarketplaceService({
+      query,
+    } as unknown as DatabaseService);
+
+    const result = await service.createBooking(maxUser, {
+      cityId: 'kostroma',
+      date: '2026-10-10',
+      experienceId: 'experience-1',
+      groupSize: 10,
+      imageUrl: experienceRow.photo_urls[0]!,
+      meetingPoint: experienceRow.meeting_point,
+      participants: 1,
+      priceRub: 1700,
+      time: '12:00',
+      title: experienceRow.title,
+    });
+
+    expect(result.id).toBe('booking-legacy-schema');
+    expect(query.mock.calls[8]?.[0]).toContain('guest_name');
+    expect(query.mock.calls[9]?.[0]).not.toContain('guest_name');
+    expect(query.mock.calls[9]?.[1]).toHaveLength(12);
+  });
+
   it('keeps guide-owned experiences out of regular booking history', async () => {
     const query = vi.fn();
     for (let index = 0; index < 8; index += 1) {
@@ -272,7 +323,9 @@ describe('MarketplaceService', () => {
 
     const result = await service.listGuideSchedule('84');
 
-    expect(query.mock.calls[6]?.[0]).toContain("'guestName', b.guest_name");
+    expect(query.mock.calls[6]?.[0]).toContain(
+      "'guestName', to_jsonb(b) ->> 'guest_name'",
+    );
     expect(query.mock.calls[6]?.[0]).toContain("'maxUserId', b.max_user_id");
     expect(query.mock.calls[6]?.[1]).toEqual(['84']);
     expect(result.items[0]?.guests).toEqual([
