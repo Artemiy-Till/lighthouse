@@ -374,6 +374,20 @@ describe('App navigation', () => {
       id: 'tour-1',
     });
 
+    expect(
+      screen.queryByRole('heading', { name: 'Создайте экскурсию' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Новая экскурсия' }),
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Создайте экскурсию' }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }));
+    expect(
+      screen.queryByRole('heading', { name: 'Создайте экскурсию' }),
+    ).not.toBeInTheDocument();
+
     fireEvent.click(
       await screen.findByRole('button', { name: 'Редактировать профиль' }),
     );

@@ -1916,6 +1916,10 @@ main {
   gap: 16px;
 }
 
+.professional-form[hidden] {
+  display: none;
+}
+
 .professional-form label {
   display: grid;
   gap: 7px;

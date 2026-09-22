@@ -87,6 +87,7 @@ export function ProfessionalPage() {
   const initData = platform.initData ?? '';
   const [created, setCreated] = useState<PublishedExperience | null>(null);
   const [editing, setEditing] = useState<PublishedExperience | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
   const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
   const [lastAction, setLastAction] = useState<'created' | 'updated'>(
@@ -196,6 +197,7 @@ export function ProfessionalPage() {
       setPhotos([]);
       setExistingPhotoUrls([]);
       setEditing(null);
+      setIsEditorOpen(false);
       setPhotoError(null);
       setScheduleSlots([]);
       setScheduleDate('');
@@ -216,7 +218,7 @@ export function ProfessionalPage() {
   const deleteExperience = useMutation({
     mutationFn: (id: string) => deletePublishedExperience(initData, id),
     onSuccess: (_, id) => {
-      if (editing?.id === id) resetEditor();
+      if (editing?.id === id) closeEditor();
       if (created?.id === id) setCreated(null);
       setDeleting(null);
       void queryClient.invalidateQueries({
@@ -321,21 +323,38 @@ export function ProfessionalPage() {
     setScheduleError(null);
   }
 
+  function scrollToEditor() {
+    window.setTimeout(() => {
+      document
+        .getElementById('professional-experience-editor')
+        ?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  function closeEditor() {
+    resetEditor();
+    setIsEditorOpen(false);
+  }
+
+  function createExperience() {
+    resetEditor();
+    setCreated(null);
+    setIsEditorOpen(true);
+    scrollToEditor();
+  }
+
   function editExperience(experience: PublishedExperience) {
     resetEditor();
     setCreated(null);
     setEditing(experience);
+    setIsEditorOpen(true);
     setExistingPhotoUrls([...experience.photos]);
     setScheduleSlots(
       (experience.availableSlots ?? []).map(
         (slot) => `${slot.date}T${slot.time}`,
       ),
     );
-    window.setTimeout(() => {
-      document
-        .getElementById('professional-experience-editor')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    scrollToEditor();
   }
 
   return (
@@ -652,7 +671,9 @@ export function ProfessionalPage() {
                 <h2>Мои опубликованные экскурсии</h2>
                 <button
                   aria-label="Новая экскурсия"
-                  onClick={resetEditor}
+                  aria-expanded={isEditorOpen && !editing}
+                  aria-controls="professional-experience-editor"
+                  onClick={createExperience}
                   type="button"
                 >
                   <span aria-hidden="true">+</span>
@@ -727,6 +748,7 @@ export function ProfessionalPage() {
               id="professional-experience-editor"
               key={editing?.id ?? 'new-experience'}
               className="professional-card professional-form"
+              hidden={!isEditorOpen}
               onSubmit={handleExperience}
             >
               <div className="professional-step professional-step--experience">
@@ -734,14 +756,16 @@ export function ProfessionalPage() {
                   {editing ? 'Редактирование экскурсии' : 'Создайте экскурсию'}
                 </h2>
               </div>
-              {editing ? (
-                <div className="professional-editing-bar">
-                  <span>Вы редактируете опубликованную экскурсию</span>
-                  <button onClick={resetEditor} type="button">
-                    Отменить
-                  </button>
-                </div>
-              ) : null}
+              <div className="professional-editing-bar">
+                <span>
+                  {editing
+                    ? 'Вы редактируете опубликованную экскурсию'
+                    : 'Форма новой экскурсии'}
+                </span>
+                <button onClick={closeEditor} type="button">
+                  {editing ? 'Отменить' : 'Закрыть'}
+                </button>
+              </div>
               <div className="professional-form__row">
                 <label>
                   Город
