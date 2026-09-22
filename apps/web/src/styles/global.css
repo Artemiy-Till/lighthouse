@@ -7465,3 +7465,101 @@ html[data-theme='dark']
   letter-spacing: -0.035em;
   line-height: 1.05;
 }
+
+/* Compact guide profile editor. */
+.professional-profile-editor {
+  gap: 12px;
+  padding: 16px;
+}
+
+.professional-profile-editor__header {
+  display: grid;
+  gap: 5px;
+}
+
+.professional-profile-editor__header h2,
+.professional-profile-editor__header p {
+  margin: 0;
+}
+
+.professional-profile-editor__header h2 {
+  color: var(--ink);
+  font-size: 18px;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.professional-profile-editor__header p {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.professional-profile-editor label {
+  gap: 5px;
+  font-size: 10px;
+}
+
+.professional-profile-editor input {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.professional-profile-editor textarea {
+  height: 78px;
+  min-height: 78px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.professional-profile-editor label small {
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+.professional-profile-editor__actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.professional-profile-editor__actions > button,
+.professional-profile-editor__actions .professional-submit {
+  min-height: 36px;
+  padding: 0 12px;
+  margin: 0;
+  border: 1px solid #3a3a3c;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 780;
+}
+
+.professional-profile-editor__actions > button:first-child {
+  color: #3a3a3c;
+  background: transparent;
+}
+
+.professional-profile-editor__actions .professional-submit {
+  color: #fff;
+  background: #3a3a3c;
+}
+
+html[data-theme='dark']
+  .professional-profile-editor__actions
+  > button:first-child {
+  border-color: #dedee1;
+  color: #dedee1;
+  background: transparent;
+}
+
+html[data-theme='dark']
+  .professional-profile-editor__actions
+  .professional-submit {
+  border-color: #f2f2f3;
+  color: #242426;
+  background: #f2f2f3;
+}

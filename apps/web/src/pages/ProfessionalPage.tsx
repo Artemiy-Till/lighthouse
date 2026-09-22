@@ -421,13 +421,10 @@ export function ProfessionalPage() {
                 className="professional-card professional-form professional-profile-editor"
                 onSubmit={handleProfile}
               >
-                <div className="professional-step">
-                  <span aria-hidden="true">✎</span>
-                  <div>
-                    <h2>Редактирование профиля</h2>
-                    <p>Имя и описание обновятся во всех ваших экскурсиях.</p>
-                  </div>
-                </div>
+                <header className="professional-profile-editor__header">
+                  <h2>Редактирование профиля</h2>
+                  <p>Имя и описание обновятся во всех ваших экскурсиях.</p>
+                </header>
                 <label>
                   Имя гида
                   <input
