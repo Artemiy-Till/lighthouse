@@ -105,11 +105,8 @@ export function ProfessionalPage() {
     retry: false,
   });
   const saveProfile = useMutation({
-    mutationFn: (value: {
-      bio: string;
-      displayName: string;
-      maxUsername: string;
-    }) => saveGuideProfile(initData, value),
+    mutationFn: (value: { bio: string; displayName: string }) =>
+      saveGuideProfile(initData, value),
     onSuccess: (value) => {
       queryClient.setQueryData(['guide-profile'], value);
       queryClient.setQueriesData<PublishedExperience>(
@@ -232,7 +229,6 @@ export function ProfessionalPage() {
     saveProfile.mutate({
       bio: formValue(form, 'bio'),
       displayName: formValue(form, 'displayName'),
-      maxUsername: formValue(form, 'maxUsername'),
     });
   }
 
@@ -395,20 +391,6 @@ export function ProfessionalPage() {
                 rows={5}
               />
             </label>
-            <label>
-              Ссылка на профиль MAX
-              <input
-                defaultValue={session.data?.user.username ?? ''}
-                maxLength={240}
-                name="maxUsername"
-                pattern="(?:https://max\.ru/)?(?:@?[A-Za-zА-Яа-яЁё0-9_]+|u/[A-Za-z0-9_-]+)/?"
-                placeholder="https://max.ru/u/ссылка_из_MAX"
-                required
-              />
-              <small>
-                Нужна, чтобы гости могли перейти из заказа прямо в чат.
-              </small>
-            </label>
             {saveProfile.isError ? (
               <p className="form-error">
                 Не удалось сохранить. Проверьте поля и повторите.
@@ -455,25 +437,6 @@ export function ProfessionalPage() {
                     required
                     rows={5}
                   />
-                </label>
-                <label>
-                  Ссылка на профиль MAX
-                  <input
-                    defaultValue={
-                      profile.data.maxUsername ??
-                      session.data?.user.username ??
-                      ''
-                    }
-                    maxLength={240}
-                    name="maxUsername"
-                    pattern="(?:https://max\.ru/)?(?:@?[A-Za-zА-Яа-яЁё0-9_]+|u/[A-Za-z0-9_-]+)/?"
-                    placeholder="https://max.ru/u/ссылка_из_MAX"
-                    required
-                  />
-                  <small>
-                    Скопируйте ссылку из своего профиля MAX — по ней гости
-                    откроют чат.
-                  </small>
                 </label>
                 {saveProfile.isError ? (
                   <p className="form-error">

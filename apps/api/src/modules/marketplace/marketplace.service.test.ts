@@ -395,7 +395,7 @@ describe('MarketplaceService', () => {
         languageCode: 'ru',
         lastName: null,
         photoUrl: guideRow.photo_url,
-        username: null,
+        username: 'artemiy',
       },
       { bio: guideRow.bio, displayName: 'Артемий' },
     );
@@ -406,16 +406,14 @@ describe('MarketplaceService', () => {
       'Артемий',
       guideRow.bio,
       guideRow.photo_url,
-      null,
+      'artemiy',
     ]);
     expect(result.photoUrl).toBe(guideRow.photo_url);
   });
 
-  it('saves a manually provided MAX profile link when launch data has no username', async () => {
-    const profileUrl =
-      'https://max.ru/u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I';
+  it('clears a stale username when MAX launch data has no public username', async () => {
     const query = vi.fn().mockResolvedValue({
-      rows: [{ ...guideRow, max_username: profileUrl }],
+      rows: [{ ...guideRow, max_username: null }],
     });
     const service = new MarketplaceService({
       query,
@@ -433,57 +431,13 @@ describe('MarketplaceService', () => {
       {
         bio: guideRow.bio,
         displayName: 'Артемий',
-        maxUsername: profileUrl,
       },
     );
 
-    expect(query).toHaveBeenCalledWith(expect.stringContaining('coalesce'), [
-      '42',
-      'Артемий',
-      guideRow.bio,
-      guideRow.photo_url,
-      profileUrl.replace('https://max.ru/', ''),
-    ]);
-  });
-
-  it('preserves a shared MAX profile path when launch data has no username', async () => {
-    const query = vi.fn().mockResolvedValue({
-      rows: [
-        {
-          ...guideRow,
-          max_username:
-            'u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I',
-        },
-      ],
-    });
-    const service = new MarketplaceService({
-      query,
-    } as unknown as DatabaseService);
-
-    await service.upsertGuideProfile(
-      {
-        firstName: 'Артемий',
-        id: '42',
-        languageCode: 'ru',
-        lastName: null,
-        photoUrl: guideRow.photo_url,
-        username: null,
-      },
-      {
-        bio: guideRow.bio,
-        displayName: 'Артемий',
-        maxUsername:
-          'https://max.ru/u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I',
-      },
+    expect(query).toHaveBeenCalledWith(
+      expect.stringContaining('max_username = excluded.max_username'),
+      ['42', 'Артемий', guideRow.bio, guideRow.photo_url, null],
     );
-
-    expect(query).toHaveBeenCalledWith(expect.stringContaining('coalesce'), [
-      '42',
-      'Артемий',
-      guideRow.bio,
-      guideRow.photo_url,
-      'u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I',
-    ]);
   });
 
   it('requires a professional profile before publishing', async () => {

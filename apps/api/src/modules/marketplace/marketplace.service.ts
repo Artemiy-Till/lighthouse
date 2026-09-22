@@ -106,15 +106,6 @@ function mapGuide(row: GuideRow) {
   };
 }
 
-function normalizeMaxUsername(value?: string) {
-  const normalized = value
-    ?.trim()
-    .replace(/^https:\/\/max\.ru\//i, '')
-    .replace(/^@/, '')
-    .replace(/\/$/, '');
-  return normalized || null;
-}
-
 function mapExperience(row: ExperienceRow) {
   return {
     availableSlots: row.available_slots ?? [],
@@ -643,10 +634,10 @@ export class MarketplaceService {
     const result = await this.database.query<GuideRow>(
       `update guide_profiles
        set photo_url = $2,
-           max_username = coalesce($3, max_username),
+           max_username = $3,
            updated_at = case
              when photo_url is distinct from $2
-               or ($3 is not null and max_username is distinct from $3)
+               or max_username is distinct from $3
              then now()
              else updated_at
            end
@@ -663,8 +654,6 @@ export class MarketplaceService {
     input: UpsertGuideProfileDto,
   ) {
     await this.ensureGuidePhotoSchema();
-    const maxUsername =
-      user.username ?? normalizeMaxUsername(input.maxUsername);
     const result = await this.database.query<GuideRow>(
       `insert into guide_profiles (
          max_user_id, display_name, bio, photo_url, max_username
@@ -674,10 +663,7 @@ export class MarketplaceService {
        set display_name = excluded.display_name,
            bio = excluded.bio,
            photo_url = excluded.photo_url,
-           max_username = coalesce(
-             excluded.max_username,
-             guide_profiles.max_username
-           ),
+           max_username = excluded.max_username,
            updated_at = now()
        returning id, max_user_id, max_username, display_name, bio, photo_url,
          created_at`,
@@ -686,7 +672,7 @@ export class MarketplaceService {
         input.displayName.trim(),
         input.bio.trim(),
         user.photoUrl,
-        maxUsername,
+        user.username,
       ],
     );
     return mapGuide(result.rows[0]!);

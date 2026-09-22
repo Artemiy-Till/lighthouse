@@ -231,7 +231,7 @@ export function getGuideProfile(initData: string) {
 
 export function saveGuideProfile(
   initData: string,
-  profile: Pick<GuideProfile, 'bio' | 'displayName' | 'maxUsername'>,
+  profile: Pick<GuideProfile, 'bio' | 'displayName'>,
 ) {
   return request<GuideProfile>('/professional/profile', {
     body: JSON.stringify(profile),

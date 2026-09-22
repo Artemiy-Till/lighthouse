@@ -3,28 +3,24 @@ import { describe, expect, it } from 'vitest';
 
 import { UpsertGuideProfileDto } from './marketplace.dto.js';
 
-function profileWith(maxUsername: string) {
-  const profile = new UpsertGuideProfileDto();
-  profile.bio = 'Профессиональный гид с большим опытом работы.';
-  profile.displayName = 'Полина';
-  profile.maxUsername = maxUsername;
-  return profile;
-}
-
 describe('UpsertGuideProfileDto', () => {
-  it('accepts a profile link copied from MAX', async () => {
-    const errors = await validate(
-      profileWith(
-        'https://max.ru/u/f9LHodD0cOIPk8AoK_E_B-B36RTkRhkmXXOi99ryKmJwAsRLTzkaFpa-k2I',
-      ),
-    );
+  it('accepts guide details without a manually entered MAX link', async () => {
+    const profile = new UpsertGuideProfileDto();
+    profile.bio = 'Профессиональный гид с большим опытом работы.';
+    profile.displayName = 'Полина';
 
-    expect(errors).toHaveLength(0);
+    await expect(validate(profile)).resolves.toHaveLength(0);
   });
 
-  it('rejects a profile link from another domain', async () => {
-    const errors = await validate(profileWith('https://example.com/u/profile'));
+  it('validates the public guide details', async () => {
+    const profile = new UpsertGuideProfileDto();
+    profile.bio = 'Коротко';
+    profile.displayName = 'П';
 
-    expect(errors.some((error) => error.property === 'maxUsername')).toBe(true);
+    const errors = await validate(profile);
+
+    expect(errors.map((error) => error.property)).toEqual(
+      expect.arrayContaining(['bio', 'displayName']),
+    );
   });
 });
