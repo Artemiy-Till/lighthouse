@@ -355,8 +355,15 @@ export function ExperienceDetailsPage() {
             </div>
             {bookingComplete ? (
               <div className="booking-success" role="status">
-                <strong>✓ Вы записаны</strong>
-                <span>Заказ сохранён и подтверждён.</span>
+                <strong>
+                  <span aria-hidden="true" className="booking-success__check">
+                    ✓
+                  </span>
+                  Вы записаны
+                </strong>
+                <span className="booking-success__caption">
+                  Заказ сохранён и подтверждён.
+                </span>
                 <Link to="/orders">Открыть мои заказы</Link>
               </div>
             ) : (
@@ -406,12 +413,10 @@ export function ExperienceDetailsPage() {
 
           <div className="experience-benefits">
             <p>
-              <span aria-hidden="true">⚡</span>
               <strong>Моментальное подтверждение</strong>
               <small>Без ожидания ответа гида</small>
             </p>
             <p>
-              <span aria-hidden="true">✓</span>
               <strong>Безопасное бронирование</strong>
               <small>Данные заказа будут защищены</small>
             </p>
