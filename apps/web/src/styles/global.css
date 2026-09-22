@@ -3699,16 +3699,19 @@ html[data-theme='dark'] .booking-success a {
 
 .experience-more summary::after {
   position: absolute;
-  top: 14px;
-  right: 4px;
+  top: 50%;
+  right: 12px;
   color: #a1a6b0;
   content: '›';
-  font-size: 25px;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+  transform: translateY(-50%);
   transition: transform 160ms ease;
 }
 
 .experience-more details[open] summary::after {
-  transform: rotate(90deg);
+  transform: translateY(-50%) rotate(90deg);
 }
 
 .experience-more ul,
@@ -3724,9 +3727,21 @@ html[data-theme='dark'] .booking-success a {
   margin-top: 7px;
 }
 
-.experience-more__restrictions li::marker {
-  color: var(--accent);
-  font-size: 1.25em;
+.experience-more li {
+  position: relative;
+  padding-left: 14px;
+}
+
+.experience-more li::before {
+  position: absolute;
+  top: 0.72em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  content: '';
+  transform: translateY(-50%);
 }
 
 .experience-terms ul {
@@ -6092,10 +6107,11 @@ html[data-theme='dark'] .order-review-stars button.is-active {
 .experience-more details {
   overflow: hidden;
   border: 0;
+  border-radius: 12px;
 }
 
 .experience-more details + details {
-  margin-top: 8px;
+  margin-top: 9px;
 }
 
 .experience-more details:first-of-type {
@@ -6104,14 +6120,16 @@ html[data-theme='dark'] .order-review-stars button.is-active {
 
 .experience-more summary {
   display: flex;
-  min-height: 68px;
+  min-height: 36px;
   align-items: center;
-  padding: 18px 52px 18px 20px;
+  padding: 7px 34px 7px 11px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .experience-more summary::after {
   top: 50%;
-  right: 20px;
+  right: 12px;
   transform: translateY(-50%);
 }
 
@@ -6124,11 +6142,14 @@ html[data-theme='dark'] .order-review-stars button.is-active {
 }
 
 .experience-more details p {
-  padding: 16px 20px 20px;
+  padding: 2px 11px 10px;
 }
 
 .experience-more details ul {
-  padding: 16px 20px 20px 40px;
+  padding: 2px 11px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  list-style: none;
 }
 
 html,
@@ -6412,8 +6433,8 @@ html[data-theme='dark'] #professional-experience-editor > .professional-submit {
 }
 
 .experience-more summary {
-  min-height: 60px;
-  font-size: 14px;
+  min-height: 36px;
+  font-size: 12px;
 }
 
 @media (max-width: 360px) {
