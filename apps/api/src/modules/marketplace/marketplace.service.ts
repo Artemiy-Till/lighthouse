@@ -362,8 +362,8 @@ export class MarketplaceService {
          $3, 0, 'scheduled'
        from unnest($2::text[]) slot
        on conflict (experience_id, booking_date, booking_time) do update
-       set capacity = greatest(excluded.capacity, experience_booking_slots.booked)
-       where experience_booking_slots.status = 'scheduled'`,
+       set capacity = greatest(excluded.capacity, experience_booking_slots.booked),
+           status = 'scheduled'`,
       [experienceId, uniqueSlots, capacity],
     );
   }

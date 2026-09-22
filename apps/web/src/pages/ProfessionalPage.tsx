@@ -189,6 +189,7 @@ export function ProfessionalPage() {
         : createPublishedExperience(initData, payload);
     },
     onSuccess: (value, variables) => {
+      queryClient.setQueryData(['published-experience', value.id], value);
       setCreated(value);
       setLastAction(variables.id ? 'updated' : 'created');
       photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
@@ -202,6 +203,9 @@ export function ProfessionalPage() {
       setScheduleError(null);
       void queryClient.invalidateQueries({
         queryKey: ['published-experiences'],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['published-experience', value.id],
       });
       void queryClient.invalidateQueries({
         queryKey: ['own-published-experiences'],

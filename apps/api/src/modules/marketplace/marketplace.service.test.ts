@@ -613,6 +613,10 @@ describe('MarketplaceService', () => {
     expect(result.title).toBe('Обновлённое знакомство с городом');
     expect(result.rating).toBe(0);
     expect(result.reviewCount).toBe(0);
+    expect(query.mock.calls[12]?.[0]).toContain("status = 'scheduled'");
+    expect(query.mock.calls[12]?.[0]).not.toContain(
+      "where experience_booking_slots.status = 'scheduled'",
+    );
     expect(query.mock.calls[10]?.[1]).toEqual([
       'experience-1',
       'guide-1',
