@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useSettings } from '../features/settings/SettingsContext';
+import { Icon } from './Icon';
 
 export interface CatalogFilterState {
   readonly children: 'adults' | 'any' | 'family';
@@ -131,7 +132,10 @@ export function CatalogFilters({
                 </header>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>₽ {t('filter.price')}</legend>
+                  <legend>
+                    <Icon name="wallet" />
+                    {t('filter.price')}
+                  </legend>
                   <div className="catalog-filter-price-inputs">
                     <label>
                       <span>{language === 'en' ? 'From' : 'От'}</span>
@@ -199,7 +203,10 @@ export function CatalogFilters({
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>◷ {t('filter.duration')}</legend>
+                  <legend>
+                    <Icon name="clock" />
+                    {t('filter.duration')}
+                  </legend>
                   <div className="catalog-filter-options">
                     {[
                       { label: t('filter.anyFeminine'), value: 'any' },
@@ -227,7 +234,10 @@ export function CatalogFilters({
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>⌖ {t('filter.format')}</legend>
+                  <legend>
+                    <Icon name="route" />
+                    {t('filter.format')}
+                  </legend>
                   <div className="catalog-filter-options">
                     {[
                       { label: t('filter.anyMasculine'), value: 'any' },
@@ -279,7 +289,10 @@ export function CatalogFilters({
                 </fieldset>
 
                 <fieldset className="catalog-filter-group">
-                  <legend>☀ {t('filter.children')}</legend>
+                  <legend>
+                    <Icon name="users" />
+                    {t('filter.children')}
+                  </legend>
                   <div className="catalog-filter-options catalog-filter-options--children">
                     {[
                       { label: t('filter.doesNotMatter'), value: 'any' },

@@ -1191,11 +1191,21 @@ main {
 }
 
 .catalog-filter-group legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 0;
   margin-bottom: 10px;
   color: var(--ink);
   font-size: 14px;
   font-weight: 800;
+}
+
+.catalog-filter-group legend .icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  stroke-width: 1.8;
 }
 
 .catalog-filter-price-inputs {
