@@ -76,43 +76,4 @@ export class MaxApiClient {
       throw new MaxApiError('invalid_response');
     }
   }
-
-  async sendUserMessage(userId: string, text: string): Promise<void> {
-    const token = this.configService.get<string>('MAX_BOT_TOKEN');
-    if (!token) throw new MaxApiError('invalid_credentials');
-
-    const baseUrl = this.configService.get<string>(
-      'MAX_API_BASE_URL',
-      'https://platform-api2.max.ru',
-    );
-    const timeout = this.configService.get<number>('MAX_API_TIMEOUT_MS', 5000);
-    const url = new URL('/messages', baseUrl);
-    url.searchParams.set('user_id', userId);
-    let response: Awaited<ReturnType<MaxApiTransport['request']>>;
-
-    try {
-      response = await this.transport.request(
-        url,
-        {
-          Accept: 'application/json',
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-        timeout,
-        {
-          body: JSON.stringify({ format: 'markdown', text }),
-          method: 'POST',
-        },
-      );
-    } catch {
-      throw new MaxApiError('unavailable');
-    }
-
-    if (response.status === 401) {
-      throw new MaxApiError('invalid_credentials');
-    }
-    if (response.status < 200 || response.status >= 300) {
-      throw new MaxApiError('unavailable');
-    }
-  }
 }

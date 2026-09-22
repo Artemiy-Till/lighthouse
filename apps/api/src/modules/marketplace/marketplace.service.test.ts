@@ -2,7 +2,6 @@ import { NotFoundException } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { DatabaseService } from '../database/database.service.js';
-import type { MaxApiClient } from '../max/max-api.client.js';
 import { MarketplaceService } from './marketplace.service.js';
 
 const guideRow = {
@@ -99,12 +98,10 @@ describe('MarketplaceService', () => {
         1700,
       ]),
     );
-    expect(query.mock.calls[1]?.[1]).toHaveLength(10);
-    expect(query.mock.calls[2]?.[1]).toEqual([
-      'booking-1',
-      'artemiy',
-      'Артемий',
-    ]);
+    expect(query.mock.calls[1]?.[0]).toContain('max_username');
+    expect(query.mock.calls[1]?.[1]).toHaveLength(11);
+    expect(query.mock.calls[1]?.[1]).toContain('artemiy');
+    expect(query.mock.calls[2]?.[1]).toEqual(['booking-1', 'Артемий']);
   });
 
   it('does not let a guide book their own published experience', async () => {
@@ -155,8 +152,7 @@ describe('MarketplaceService', () => {
         Object.assign(new Error('column "guest_name" does not exist'), {
           code: '42703',
         }),
-      )
-      .mockResolvedValueOnce({ rows: [] });
+      );
     const service = new MarketplaceService({
       query,
     } as unknown as DatabaseService);
@@ -176,8 +172,10 @@ describe('MarketplaceService', () => {
 
     expect(result.id).toBe('booking-legacy-schema');
     expect(query.mock.calls[1]?.[0]).not.toContain('guest_name');
+    expect(query.mock.calls[1]?.[0]).toContain('max_username');
+    expect(query.mock.calls[1]?.[1]).toContain('artemiy');
     expect(query.mock.calls[2]?.[0]).toContain('guest_name');
-    expect(query.mock.calls[3]?.[0]).not.toContain('guest_name');
+    expect(query).toHaveBeenCalledTimes(3);
   });
 
   it('keeps guide-owned experiences out of regular booking history', async () => {
@@ -324,39 +322,6 @@ describe('MarketplaceService', () => {
         username: 'artemiy',
       },
     ]);
-  });
-
-  it('sends the guide a clickable guest mention through the MAX bot', async () => {
-    const query = vi.fn().mockResolvedValue({
-      rows: [
-        {
-          guest_name: 'Мария Иванова',
-          guest_user_id: '84',
-          title: 'Петербург глазами местного',
-        },
-      ],
-    });
-    const sendUserMessage = vi.fn().mockResolvedValue(undefined);
-    const maxApiClient = {
-      getCurrentBot: vi.fn().mockResolvedValue({ username: 'mayak_bot' }),
-      sendUserMessage,
-    } as unknown as MaxApiClient;
-    const service = new MarketplaceService(
-      { query } as unknown as DatabaseService,
-      maxApiClient,
-    );
-
-    await expect(service.sendGuestContact('42', 'booking-1')).resolves.toEqual({
-      botUrl: 'https://max.ru/mayak_bot?start=guest-contact',
-    });
-    expect(sendUserMessage).toHaveBeenCalledWith(
-      '42',
-      expect.stringContaining('[Мария Иванова](max://user/84)'),
-    );
-    expect(query).toHaveBeenCalledWith(
-      expect.stringContaining('g.max_user_id = $2'),
-      ['booking-1', '42'],
-    );
   });
 
   it('creates one review for a completed booking', async () => {

@@ -2186,16 +2186,14 @@ main {
   white-space: nowrap;
 }
 
-.professional-schedule__guest button {
+.professional-schedule__guest a {
   display: inline-flex;
   min-height: 32px;
-  width: auto;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   gap: 5px;
   padding: 0 10px;
-  border: 0;
   border-radius: 10px;
   color: var(--accent-dark);
   background: color-mix(in srgb, var(--accent) 13%, #fff);
@@ -3954,7 +3952,7 @@ html[data-theme='dark'] .professional-schedule__guests {
   background: #2b2b2e;
 }
 
-html[data-theme='dark'] .professional-schedule__guest button {
+html[data-theme='dark'] .professional-schedule__guest a {
   color: #fff;
   background: #3a3a3e;
 }

@@ -265,13 +265,6 @@ export function getGuideSchedule(initData: string) {
   );
 }
 
-export function sendGuestContact(initData: string, bookingId: string) {
-  return request<{ readonly botUrl: string }>(
-    `/professional/bookings/${encodeURIComponent(bookingId)}/contact`,
-    { headers: maxHeaders(initData), method: 'POST' },
-  );
-}
-
 export function completeGuideSchedule(
   initData: string,
   slot: Pick<GuideScheduleItem, 'date' | 'experienceId' | 'time'>,

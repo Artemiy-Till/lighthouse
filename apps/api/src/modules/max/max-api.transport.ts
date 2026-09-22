@@ -9,18 +9,12 @@ export interface MaxTransportResponse {
   readonly status: number;
 }
 
-export interface MaxTransportRequestOptions {
-  readonly body?: string;
-  readonly method?: 'GET' | 'POST';
-}
-
 @Injectable()
 export class MaxApiTransport {
   request(
     url: URL,
     headers: Readonly<Record<string, string>>,
     timeout: number,
-    options: MaxTransportRequestOptions = {},
   ): Promise<MaxTransportResponse> {
     return new Promise((resolve, reject) => {
       const outgoingRequest = request(
@@ -28,7 +22,7 @@ export class MaxApiTransport {
         {
           ca: [...rootCertificates, MAX_TRUSTED_ROOT_CA],
           headers,
-          method: options.method ?? 'GET',
+          method: 'GET',
           timeout,
         },
         (response) => {
@@ -49,7 +43,6 @@ export class MaxApiTransport {
         outgoingRequest.destroy(new Error('MAX API request timed out'));
       });
       outgoingRequest.on('error', reject);
-      if (options.body) outgoingRequest.write(options.body);
       outgoingRequest.end();
     });
   }

@@ -68,32 +68,4 @@ describe('MaxApiClient', () => {
     });
     await expect(request).rejects.not.toThrow('secret-token');
   });
-
-  it('sends a Markdown user mention to a MAX user', async () => {
-    const requestMock = vi.fn().mockResolvedValue({ body: '{}', status: 200 });
-
-    await createClient(
-      { MAX_BOT_TOKEN: 'secret-token' },
-      { request: requestMock },
-    ).sendUserMessage('42', '[Мария](max://user/84)');
-
-    const [url, headers, timeout, options] = requestMock.mock.calls[0] as [
-      URL,
-      Record<string, string>,
-      number,
-      { body: string; method: string },
-    ];
-    expect(url.toString()).toBe(
-      'https://platform-api2.max.ru/messages?user_id=42',
-    );
-    expect(headers.Authorization).toBe('secret-token');
-    expect(timeout).toBe(5000);
-    expect(options).toEqual({
-      body: JSON.stringify({
-        format: 'markdown',
-        text: '[Мария](max://user/84)',
-      }),
-      method: 'POST',
-    });
-  });
 });
