@@ -254,6 +254,7 @@ describe('App navigation', () => {
   });
 
   it('edits an existing guide profile', async () => {
+    const openMaxLink = vi.fn();
     window.WebApp = {
       BackButton: {
         hide() {},
@@ -264,6 +265,7 @@ describe('App navigation', () => {
       initData: 'auth_date=1&hash=signed',
       platform: 'desktop',
       version: '26.20.0',
+      openMaxLink,
       getViewportSize() {
         return Promise.resolve({ height: '800px', width: '390px' });
       },
@@ -310,6 +312,12 @@ describe('App navigation', () => {
                 };
         } else if (requestUrl.endsWith('/professional/experiences')) {
           payload = { items: [] };
+        } else if (
+          requestUrl.endsWith('/professional/bookings/booking-guest-1/contact')
+        ) {
+          payload = {
+            botUrl: 'https://max.ru/mayak_bot?start=guest-contact',
+          };
         } else if (requestUrl.endsWith('/professional/schedule')) {
           payload = {
             items: [
@@ -397,14 +405,19 @@ describe('App navigation', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Открыть чат: Мария Иванова' }),
-    ).toHaveAttribute('href', 'https://max.ru/maria');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Открыть чат: Мария Иванова' }),
+    );
+    await waitFor(() =>
+      expect(openMaxLink).toHaveBeenCalledWith(
+        'https://max.ru/mayak_bot?start=guest-contact',
+      ),
+    );
     expect(screen.getByText('Мария Иванова')).toBeInTheDocument();
     expect(screen.getByText('Иван Петров')).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Открыть чат: Иван Петров' }),
-    ).toHaveAttribute('href', 'https://max.ru/ivan');
+      screen.getByRole('button', { name: 'Открыть чат: Иван Петров' }),
+    ).toBeInTheDocument();
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])

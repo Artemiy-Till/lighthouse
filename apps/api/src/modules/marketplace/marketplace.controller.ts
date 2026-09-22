@@ -124,6 +124,17 @@ export class MarketplaceController {
     return this.marketplace.listGuideSchedule(this.authenticate(initData).id);
   }
 
+  @Post('professional/bookings/:id/contact')
+  sendGuestContact(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Param('id') id: string,
+  ) {
+    return this.marketplace.sendGuestContact(
+      this.authenticate(initData).id,
+      id,
+    );
+  }
+
   @Post('professional/schedule/complete')
   completeGuideSchedule(
     @Headers('x-max-init-data') initData: string | undefined,

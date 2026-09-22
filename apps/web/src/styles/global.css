@@ -2122,7 +2122,7 @@ main {
   margin-top: 2px;
 }
 
-.professional-schedule__actions button {
+.professional-schedule__actions > button {
   display: flex;
   min-width: 0;
   min-height: 34px;
@@ -2143,7 +2143,7 @@ main {
   height: 14px;
 }
 
-.professional-schedule__actions button {
+.professional-schedule__actions > button {
   color: #fff;
   border-color: var(--navigation-background);
   background: var(--navigation-background);
@@ -2186,14 +2186,16 @@ main {
   white-space: nowrap;
 }
 
-.professional-schedule__guest a {
+.professional-schedule__guest button {
   display: inline-flex;
   min-height: 32px;
+  width: auto;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   gap: 5px;
   padding: 0 10px;
+  border: 0;
   border-radius: 10px;
   color: var(--accent-dark);
   background: color-mix(in srgb, var(--accent) 13%, #fff);
@@ -3959,12 +3961,12 @@ html[data-theme='dark'] .professional-schedule__guests {
   background: #2b2b2e;
 }
 
-html[data-theme='dark'] .professional-schedule__guest a {
+html[data-theme='dark'] .professional-schedule__guest button {
   color: #fff;
   background: #3a3a3e;
 }
 
-html[data-theme='dark'] .professional-schedule__actions button {
+html[data-theme='dark'] .professional-schedule__actions > button {
   color: #202022;
   border-color: #f5f5f6;
   background: #f5f5f6;
