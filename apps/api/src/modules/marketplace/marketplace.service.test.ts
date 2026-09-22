@@ -311,6 +311,39 @@ describe('MarketplaceService', () => {
     });
   });
 
+  it('sends the guest a clickable guide contact through the bot', async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [
+        {
+          guide_name: 'Артемий',
+          guide_user_id: '84',
+          title: 'Петербург глазами местного',
+        },
+      ],
+    });
+    const sendUserMessage = vi.fn().mockResolvedValue(undefined);
+    const maxApiClient = {
+      getCurrentBot: vi.fn().mockResolvedValue({ username: 'mayak_bot' }),
+      sendUserMessage,
+    } as unknown as MaxApiClient;
+    const service = new MarketplaceService(
+      { query } as unknown as DatabaseService,
+      maxApiClient,
+    );
+
+    await expect(service.sendGuideContact('42', 'booking-1')).resolves.toEqual({
+      botUrl: 'https://max.ru/mayak_bot?start=guide-contact',
+    });
+    expect(sendUserMessage).toHaveBeenCalledWith(
+      '42',
+      expect.stringContaining('[Артемий](max://user/84)'),
+    );
+    expect(query).toHaveBeenCalledWith(
+      expect.stringContaining('b.max_user_id = $2'),
+      ['booking-1', '42'],
+    );
+  });
+
   it('lists guest contacts only inside the guide schedule', async () => {
     const query = vi.fn();
     for (let index = 0; index < 6; index += 1) {

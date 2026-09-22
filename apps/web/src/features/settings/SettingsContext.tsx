@@ -259,6 +259,10 @@ const translations = {
     en: 'Message the guide in MAX',
     ru: 'Написать гиду в MAX',
   },
+  'orders.chatGuideError': {
+    en: 'Could not open the guide contact. Please try again.',
+    ru: 'Не удалось открыть контакт гида. Попробуйте ещё раз.',
+  },
   'orders.cancel': { en: 'Cancel booking', ru: 'Отменить запись' },
   'orders.leaveReview': { en: 'Leave a review', ru: 'Оставить отзыв' },
   'orders.yourReview': { en: 'Your review', ru: 'Ваш отзыв' },

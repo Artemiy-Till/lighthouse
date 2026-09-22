@@ -596,6 +596,40 @@ export class MarketplaceService {
     return { items: result.rows.map(mapBooking) };
   }
 
+  async sendGuideContact(maxUserId: string, bookingId: string) {
+    if (!this.maxApiClient) {
+      throw new BadRequestException('MAX messaging is unavailable');
+    }
+    const result = await this.database.query<{
+      guide_name: string;
+      guide_user_id: string;
+      title: string;
+    }>(
+      `select g.display_name as guide_name, g.max_user_id as guide_user_id,
+         e.title
+       from experience_bookings b
+       join published_experiences e on e.id::text = b.experience_id
+       join guide_profiles g on g.id = e.guide_id
+       where b.id::text = $1 and b.max_user_id = $2
+         and b.status = 'confirmed'`,
+      [bookingId, maxUserId],
+    );
+    const contact = result.rows[0];
+    if (!contact) throw new NotFoundException('Guide booking not found');
+
+    const bot = await this.maxApiClient.getCurrentBot();
+    if (!bot.username) {
+      throw new BadRequestException('MAX bot username is unavailable');
+    }
+    const guideName = contact.guide_name.trim() || 'Гид MAX';
+    const safeName = guideName.replace(/[\\[\]()_*~`>#+\-=|{}.!]/g, '\\$&');
+    await this.maxApiClient.sendUserMessage(
+      maxUserId,
+      `Гид экскурсии «${contact.title}»: [${safeName}](max://user/${contact.guide_user_id})\n\nНажмите на имя гида, чтобы открыть его профиль и написать.`,
+    );
+    return { botUrl: `https://max.ru/${bot.username}?start=guide-contact` };
+  }
+
   async createReview(
     user: AuthenticatedMaxUser,
     bookingId: string,

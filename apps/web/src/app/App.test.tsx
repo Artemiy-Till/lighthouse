@@ -446,6 +446,7 @@ describe('App navigation', () => {
   });
 
   it('opens the guide chat from an upcoming booking', async () => {
+    const openMaxLink = vi.fn();
     window.WebApp = {
       BackButton: {
         hide() {},
@@ -459,6 +460,7 @@ describe('App navigation', () => {
       getViewportSize() {
         return Promise.resolve({ height: '800px', width: '390px' });
       },
+      openMaxLink,
     };
     vi.stubGlobal(
       'fetch',
@@ -481,37 +483,39 @@ describe('App navigation', () => {
                 username: 'maria',
               },
             }
-          : requestUrl.endsWith('/bookings')
-            ? {
-                items: [
-                  {
-                    cityId: 'saint-petersburg',
-                    createdAt: '2026-09-21T08:00:00.000Z',
-                    date: '2099-10-10',
-                    experienceId: 'experience-1',
-                    guideContact: {
-                      displayName: 'Артемий',
-                      maxUserId: '84',
-                      username: 'artemiy',
+          : requestUrl.endsWith('/bookings/booking-1/contact')
+            ? { botUrl: 'https://max.ru/mayak_bot?start=guide-contact' }
+            : requestUrl.endsWith('/bookings')
+              ? {
+                  items: [
+                    {
+                      cityId: 'saint-petersburg',
+                      createdAt: '2026-09-21T08:00:00.000Z',
+                      date: '2099-10-10',
+                      experienceId: 'experience-1',
+                      guideContact: {
+                        displayName: 'Артемий',
+                        maxUserId: '84',
+                        username: 'artemiy',
+                      },
+                      id: 'booking-1',
+                      imageUrl: '/images/saint-petersburg-hero.webp',
+                      meetingPoint: 'Дворцовая площадь',
+                      participants: 2,
+                      review: null,
+                      status: 'confirmed',
+                      time: '12:00',
+                      title: 'Петербург: первое знакомство',
+                      totalPriceRub: 2580,
+                      unitPriceRub: 1290,
                     },
-                    id: 'booking-1',
-                    imageUrl: '/images/saint-petersburg-hero.webp',
-                    meetingPoint: 'Дворцовая площадь',
-                    participants: 2,
-                    review: null,
-                    status: 'confirmed',
-                    time: '12:00',
-                    title: 'Петербург: первое знакомство',
-                    totalPriceRub: 2580,
-                    unitPriceRub: 1290,
-                  },
-                ],
-              }
-            : {
-                bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
-                configured: true,
-                connected: true,
-              };
+                  ],
+                }
+              : {
+                  bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+                  configured: true,
+                  connected: true,
+                };
 
         return Promise.resolve(
           new Response(JSON.stringify(payload), { status: 200 }),
@@ -521,12 +525,18 @@ describe('App navigation', () => {
 
     renderApp('/orders');
 
-    expect(
-      await screen.findByRole('link', { name: 'Написать гиду в MAX' }),
-    ).toHaveAttribute('href', 'https://max.ru/artemiy');
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Написать гиду в MAX' }),
+    );
+    await waitFor(() =>
+      expect(openMaxLink).toHaveBeenCalledWith(
+        'https://max.ru/mayak_bot?start=guide-contact',
+      ),
+    );
   });
 
   it('shows the guide chat for a legacy booking without a saved username', async () => {
+    const openMaxLink = vi.fn();
     window.WebApp = {
       BackButton: {
         hide() {},
@@ -540,6 +550,7 @@ describe('App navigation', () => {
       getViewportSize() {
         return Promise.resolve({ height: '800px', width: '390px' });
       },
+      openMaxLink,
     };
     vi.stubGlobal(
       'fetch',
@@ -562,37 +573,39 @@ describe('App navigation', () => {
                 username: 'maria',
               },
             }
-          : requestUrl.endsWith('/bookings')
-            ? {
-                items: [
-                  {
-                    cityId: 'kostroma',
-                    createdAt: '2026-09-21T08:00:00.000Z',
-                    date: '2099-10-10',
-                    experienceId: 'experience-1',
-                    guideContact: {
-                      displayName: 'Артемий',
-                      maxUserId: '84',
-                      username: null,
+          : requestUrl.endsWith('/bookings/booking-1/contact')
+            ? { botUrl: 'https://max.ru/mayak_bot?start=guide-contact' }
+            : requestUrl.endsWith('/bookings')
+              ? {
+                  items: [
+                    {
+                      cityId: 'kostroma',
+                      createdAt: '2026-09-21T08:00:00.000Z',
+                      date: '2099-10-10',
+                      experienceId: 'experience-1',
+                      guideContact: {
+                        displayName: 'Артемий',
+                        maxUserId: '84',
+                        username: null,
+                      },
+                      id: 'booking-1',
+                      imageUrl: '/images/kostroma-card.webp',
+                      meetingPoint: 'Центр города',
+                      participants: 1,
+                      review: null,
+                      status: 'confirmed',
+                      time: '12:00',
+                      title: 'Прогулка по Костроме',
+                      totalPriceRub: 1500,
+                      unitPriceRub: 1500,
                     },
-                    id: 'booking-1',
-                    imageUrl: '/images/kostroma-card.webp',
-                    meetingPoint: 'Центр города',
-                    participants: 1,
-                    review: null,
-                    status: 'confirmed',
-                    time: '12:00',
-                    title: 'Прогулка по Костроме',
-                    totalPriceRub: 1500,
-                    unitPriceRub: 1500,
-                  },
-                ],
-              }
-            : {
-                bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
-                configured: true,
-                connected: true,
-              };
+                  ],
+                }
+              : {
+                  bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+                  configured: true,
+                  connected: true,
+                };
 
         return Promise.resolve(
           new Response(JSON.stringify(payload), { status: 200 }),
@@ -602,9 +615,14 @@ describe('App navigation', () => {
 
     renderApp('/orders');
 
-    expect(
-      await screen.findByRole('link', { name: 'Написать гиду в MAX' }),
-    ).toHaveAttribute('href', 'max://user/84');
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Написать гиду в MAX' }),
+    );
+    await waitFor(() =>
+      expect(openMaxLink).toHaveBeenCalledWith(
+        'https://max.ru/mayak_bot?start=guide-contact',
+      ),
+    );
   });
 
   it('publishes a review from a completed booking', async () => {

@@ -5,11 +5,11 @@ import {
   cancelBooking,
   createBookingReview,
   getBookings,
+  sendGuideContact,
   type Booking,
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { cities } from '../data/cities';
-import { getMaxUserChatUrl } from '../features/max/max-chat';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 
@@ -51,6 +51,12 @@ export function OrdersPage() {
     mutationFn: (id: string) => cancelBooking(initData, id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    },
+  });
+  const guideContact = useMutation({
+    mutationFn: (bookingId: string) => sendGuideContact(initData, bookingId),
+    onSuccess: ({ botUrl }) => {
+      platform.openMaxLink(botUrl);
     },
   });
   const review = useMutation({
@@ -136,12 +142,6 @@ export function OrdersPage() {
               const expanded = expandedOrderId === order.id;
               const city = cities.find((item) => item.id === order.cityId);
               const upcoming = isUpcoming(order);
-              const guideChatUrl = order.guideContact
-                ? getMaxUserChatUrl(
-                    order.guideContact.maxUserId,
-                    order.guideContact.username,
-                  )
-                : null;
               const status =
                 order.status === 'cancelled'
                   ? t('orders.cancelled')
@@ -226,22 +226,22 @@ export function OrdersPage() {
                           >
                             <span aria-hidden="true">×</span>
                           </button>
-                          {guideChatUrl ? (
-                            <a
+                          {order.guideContact ? (
+                            <button
                               className="order-card__chat"
-                              href={guideChatUrl}
-                              onClick={(event) => {
-                                if (platform.openMaxLink(guideChatUrl)) {
-                                  event.preventDefault();
-                                }
-                              }}
+                              disabled={guideContact.isPending}
+                              onClick={() => guideContact.mutate(order.id)}
+                              type="button"
                             >
                               {t('orders.chatGuide')}
-                            </a>
+                            </button>
                           ) : null}
                         </>
                       ) : null}
                     </div>
+                    {guideContact.isError ? (
+                      <p className="form-error">{t('orders.chatGuideError')}</p>
+                    ) : null}
                     {!upcoming &&
                     (order.status === 'confirmed' ||
                       order.status === 'completed') ? (

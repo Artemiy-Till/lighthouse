@@ -340,6 +340,13 @@ export function getBookings(initData: string) {
   });
 }
 
+export function sendGuideContact(initData: string, bookingId: string) {
+  return request<{ readonly botUrl: string }>(
+    `/bookings/${encodeURIComponent(bookingId)}/contact`,
+    { headers: maxHeaders(initData), method: 'POST' },
+  );
+}
+
 export function cancelBooking(initData: string, id: string) {
   return request<{ readonly cancelled: true; readonly id: string }>(
     `/bookings/${encodeURIComponent(id)}`,

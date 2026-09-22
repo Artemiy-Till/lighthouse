@@ -69,6 +69,17 @@ export class MarketplaceController {
     return this.marketplace.listBookings(user);
   }
 
+  @Post('bookings/:id/contact')
+  sendGuideContact(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Param('id') id: string,
+  ) {
+    return this.marketplace.sendGuideContact(
+      this.authenticate(initData).id,
+      id,
+    );
+  }
+
   @Delete('bookings/:id')
   cancelBooking(
     @Headers('x-max-init-data') initData: string | undefined,
