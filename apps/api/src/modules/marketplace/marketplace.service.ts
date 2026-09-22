@@ -258,6 +258,7 @@ export class MarketplaceService {
           id uuid primary key default gen_random_uuid(),
           max_user_id text not null,
           max_username text,
+          guest_name varchar(160),
           experience_id text not null,
           title varchar(120) not null,
           city_id varchar(40) not null,
@@ -277,7 +278,8 @@ export class MarketplaceService {
       .then(() =>
         this.database.query(
           `alter table experience_bookings
-           add column if not exists max_username text`,
+           add column if not exists max_username text,
+           add column if not exists guest_name varchar(160)`,
         ),
       )
       .then(() =>
@@ -412,6 +414,10 @@ export class MarketplaceService {
     await this.ensureBookingSchema();
     await this.ensureScheduleSchema();
     const maxUserId = user.id;
+    const guestName = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
     const today = new Date().toISOString().slice(0, 10);
     if (input.date < today) {
       throw new BadRequestException('Choose a future date');
@@ -475,10 +481,10 @@ export class MarketplaceService {
        insert into experience_bookings (
          max_user_id, experience_id, title, city_id, image_url,
          meeting_point, booking_date, booking_time, participants,
-         unit_price_rub, total_price_rub, max_username
+         unit_price_rub, total_price_rub, max_username, guest_name
        )
        select $4, $1, $5, $6, $7, $8, $2::date, $3::time,
-         $9, $10, $9 * $10, $12
+         $9, $10, $9 * $10, $12, $13
        from reserved_slot
        returning id, experience_id, title, city_id, image_url, meeting_point,
          booking_date, booking_time, participants, unit_price_rub,
@@ -496,6 +502,7 @@ export class MarketplaceService {
         priceRub,
         groupSize,
         user.username,
+        guestName || null,
       ],
     );
     if (!result.rows[0]) {
@@ -988,6 +995,7 @@ export class MarketplaceService {
       experience_id: string;
       guests: Array<{
         bookingId: string;
+        guestName: string | null;
         maxUserId: string;
         participants: number;
         username: string | null;
@@ -1004,6 +1012,7 @@ export class MarketplaceService {
            jsonb_agg(
              jsonb_build_object(
                'bookingId', b.id::text,
+               'guestName', b.guest_name,
                'maxUserId', b.max_user_id,
                'participants', b.participants,
                'username', b.max_username

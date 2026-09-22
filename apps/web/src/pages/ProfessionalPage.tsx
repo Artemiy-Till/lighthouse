@@ -70,6 +70,16 @@ function formatScheduleDate(date: string, time: string) {
   }).format(new Date(year!, month! - 1, day))}, ${time}`;
 }
 
+function getGuestDisplayName(guest: {
+  guestName: string | null;
+  username: string | null;
+}) {
+  return (
+    guest.guestName?.trim() ||
+    (guest.username ? `@${guest.username.replace(/^@/, '')}` : 'Гость MAX')
+  );
+}
+
 export function ProfessionalPage() {
   const queryClient = useQueryClient();
   const { platform, session } = useMaxConnection();
@@ -566,30 +576,35 @@ export function ProfessionalPage() {
                           </small>
                         </div>
                         <div className="professional-schedule__actions">
-                          {(slot.guests ?? []).map(
-                            (guest, guestIndex, guests) => {
+                          <div className="professional-schedule__guests">
+                            <strong>Гости</strong>
+                            {(slot.guests ?? []).map((guest) => {
                               const chatUrl = getMaxUserChatUrl(
                                 guest.maxUserId,
                                 guest.username,
                               );
+                              const guestName = getGuestDisplayName(guest);
                               return (
-                                <a
-                                  href={chatUrl}
+                                <div
+                                  className="professional-schedule__guest"
                                   key={guest.bookingId}
-                                  onClick={(event) => {
-                                    if (platform.openMaxLink(chatUrl)) {
-                                      event.preventDefault();
-                                    }
-                                  }}
                                 >
-                                  <Icon name="support" />
-                                  {guests.length === 1
-                                    ? 'Написать гостю'
-                                    : `Написать гостю ${guestIndex + 1}`}
-                                </a>
+                                  <span>{guestName}</span>
+                                  <a
+                                    aria-label={`Открыть чат: ${guestName}`}
+                                    href={chatUrl}
+                                    onClick={(event) => {
+                                      if (platform.openMaxLink(chatUrl)) {
+                                        event.preventDefault();
+                                      }
+                                    }}
+                                  >
+                                    <Icon name="support" />В чат
+                                  </a>
+                                </div>
                               );
-                            },
-                          )}
+                            })}
+                          </div>
                           <button
                             disabled={completeSchedule.isPending}
                             onClick={() => completeSchedule.mutate(slot)}

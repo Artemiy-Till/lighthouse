@@ -101,11 +101,12 @@ describe('MarketplaceService', () => {
         '12:00',
         '42',
         'artemiy',
+        'Артемий',
         experienceRow.title,
         1700,
       ]),
     );
-    expect(query.mock.calls[8]?.[1]).toHaveLength(12);
+    expect(query.mock.calls[8]?.[1]).toHaveLength(13);
   });
 
   it('does not let a guide book their own published experience', async () => {
@@ -253,6 +254,7 @@ describe('MarketplaceService', () => {
           guests: [
             {
               bookingId: 'booking-1',
+              guestName: 'Мария Иванова',
               maxUserId: '42',
               participants: 2,
               username: 'artemiy',
@@ -270,11 +272,13 @@ describe('MarketplaceService', () => {
 
     const result = await service.listGuideSchedule('84');
 
+    expect(query.mock.calls[6]?.[0]).toContain("'guestName', b.guest_name");
     expect(query.mock.calls[6]?.[0]).toContain("'maxUserId', b.max_user_id");
     expect(query.mock.calls[6]?.[1]).toEqual(['84']);
     expect(result.items[0]?.guests).toEqual([
       {
         bookingId: 'booking-1',
+        guestName: 'Мария Иванова',
         maxUserId: '42',
         participants: 2,
         username: 'artemiy',

@@ -49,6 +49,7 @@ model ExperienceBooking {
   id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   maxUserId     String            @map("max_user_id")
   maxUsername   String?           @map("max_username")
+  guestName     String?           @map("guest_name") @db.VarChar(160)
   experienceId  String            @map("experience_id")
   title         String            @db.VarChar(120)
   cityId        String            @map("city_id") @db.VarChar(40)

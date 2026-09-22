@@ -100,6 +100,7 @@ export interface GuideScheduleItem {
   readonly experienceId: string;
   readonly guests: readonly {
     readonly bookingId: string;
+    readonly guestName: string | null;
     readonly maxUserId: string;
     readonly participants: number;
     readonly username: string | null;

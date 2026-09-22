@@ -314,16 +314,24 @@ describe('App navigation', () => {
           payload = {
             items: [
               {
-                bookingCount: 1,
+                bookingCount: 2,
                 capacity: 8,
                 date: '2099-09-19',
                 experienceId: 'tour-1',
                 guests: [
                   {
                     bookingId: 'booking-guest-1',
+                    guestName: 'Мария Иванова',
                     maxUserId: '84',
-                    participants: 2,
+                    participants: 1,
                     username: 'maria',
+                  },
+                  {
+                    bookingId: 'booking-guest-2',
+                    guestName: 'Иван Петров',
+                    maxUserId: '85',
+                    participants: 1,
+                    username: 'ivan',
                   },
                 ],
                 participants: 2,
@@ -390,8 +398,13 @@ describe('App navigation', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Написать гостю' }),
+      screen.getByRole('link', { name: 'Открыть чат: Мария Иванова' }),
     ).toHaveAttribute('href', 'https://max.ru/maria');
+    expect(screen.getByText('Мария Иванова')).toBeInTheDocument();
+    expect(screen.getByText('Иван Петров')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Открыть чат: Иван Петров' }),
+    ).toHaveAttribute('href', 'https://max.ru/ivan');
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])
