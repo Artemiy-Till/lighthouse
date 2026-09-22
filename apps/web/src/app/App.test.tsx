@@ -361,7 +361,7 @@ describe('App navigation', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Редактировать профиль' }),
     );
-    fireEvent.change(screen.getByLabelText('Имя гида'), {
+    fireEvent.change(screen.getByLabelText('Имя'), {
       target: { value: 'Артемий Экскурсовод' },
     });
     fireEvent.change(screen.getByLabelText('О себе'), {

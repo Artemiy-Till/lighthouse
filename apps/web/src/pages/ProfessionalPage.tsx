@@ -365,7 +365,7 @@ export function ProfessionalPage() {
               </div>
             </div>
             <label>
-              Имя гида
+              Имя
               <input
                 defaultValue={maxName}
                 maxLength={80}
@@ -426,7 +426,7 @@ export function ProfessionalPage() {
                   <p>Имя и описание обновятся во всех ваших экскурсиях.</p>
                 </header>
                 <label>
-                  Имя гида
+                  Имя
                   <input
                     defaultValue={profile.data.displayName}
                     maxLength={80}
