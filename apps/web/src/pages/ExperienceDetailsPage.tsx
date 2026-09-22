@@ -580,16 +580,9 @@ export function ExperienceDetailsPage() {
         <section className="experience-terms">
           <h2>Условия бронирования</h2>
           <ul>
-            <li>
-              <span aria-hidden="true">▣</span>Оплата после подтверждения заказа
-            </li>
-            <li>
-              <span aria-hidden="true">↩</span>Бесплатная отмена за 48 часов
-            </li>
-            <li>
-              <span aria-hidden="true">A</span>Экскурсия проходит на русском
-              языке
-            </li>
+            <li>Оплата после подтверждения заказа</li>
+            <li>Бесплатная отмена за 48 часов</li>
+            <li>Экскурсия проходит на русском языке</li>
           </ul>
         </section>
       </div>

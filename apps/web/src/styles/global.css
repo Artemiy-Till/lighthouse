@@ -3740,24 +3740,15 @@ html[data-theme='dark'] .booking-success a {
 }
 
 .experience-terms li {
-  display: grid;
-  grid-template-columns: 32px 1fr;
+  display: flex;
+  min-height: 44px;
   align-items: center;
-  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
   color: var(--ink);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.experience-terms li span {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: #f0f1f4;
   font-size: 13px;
-  font-weight: 800;
-  place-items: center;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .experience-details-content > .prototype-caption {
@@ -4021,8 +4012,7 @@ html[data-theme='dark'] .city-options button {
 html[data-theme='dark'] .city-dialog__close,
 html[data-theme='dark'] .date-dialog__close,
 html[data-theme='dark'] .catalog-filter-dialog__close,
-html[data-theme='dark'] .profile-menu__icon,
-html[data-theme='dark'] .experience-terms li span {
+html[data-theme='dark'] .profile-menu__icon {
   color: var(--ink);
   background: #272b35;
 }
