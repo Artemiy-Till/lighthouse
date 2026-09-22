@@ -50,7 +50,6 @@ export function SettingsPage() {
         <ProfileBackLink />
         <header className="secondary-header">
           <h1>{t('settings.title')}</h1>
-          <p>{t('settings.subtitle')}</p>
         </header>
 
         <section className="settings-section">
