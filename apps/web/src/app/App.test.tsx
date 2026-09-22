@@ -312,6 +312,12 @@ describe('App navigation', () => {
                 };
         } else if (requestUrl.endsWith('/professional/experiences')) {
           payload = { items: [] };
+        } else if (
+          requestUrl.endsWith('/professional/bookings/booking-guest-2/contact')
+        ) {
+          payload = {
+            botUrl: 'https://max.ru/mayak_bot?start=guest-contact',
+          };
         } else if (requestUrl.endsWith('/professional/schedule')) {
           payload = {
             items: [
@@ -402,13 +408,22 @@ describe('App navigation', () => {
     const mariaChat = screen.getByRole('link', {
       name: 'Открыть чат: Мария Иванова',
     });
-    expect(mariaChat).toHaveAttribute('href', 'max://user/84');
-    expect(openMaxLink).not.toHaveBeenCalled();
+    expect(mariaChat).toHaveAttribute('href', 'https://max.ru/maria');
+    fireEvent.click(mariaChat);
+    await waitFor(() =>
+      expect(openMaxLink).toHaveBeenCalledWith('https://max.ru/maria'),
+    );
     expect(screen.getByText('Мария Иванова')).toBeInTheDocument();
     expect(screen.getByText('Иван Петров')).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Открыть чат: Иван Петров' }),
-    ).toHaveAttribute('href', 'max://user/85');
+    openMaxLink.mockClear();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Открыть чат: Иван Петров' }),
+    );
+    await waitFor(() =>
+      expect(openMaxLink).toHaveBeenCalledWith(
+        'https://max.ru/mayak_bot?start=guest-contact',
+      ),
+    );
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])

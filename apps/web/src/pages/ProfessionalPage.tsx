@@ -10,6 +10,7 @@ import {
   getGuideSchedule,
   getOwnPublishedExperiences,
   saveGuideProfile,
+  sendGuestContact,
   type CreateExperienceInput,
   type PublishedExperience,
   uploadExperiencePhoto,
@@ -156,6 +157,12 @@ export function ProfessionalPage() {
         queryClient.invalidateQueries({ queryKey: ['guide-schedule'] }),
         queryClient.invalidateQueries({ queryKey: ['bookings'] }),
       ]);
+    },
+  });
+  const guestContact = useMutation({
+    mutationFn: (bookingId: string) => sendGuestContact(initData, bookingId),
+    onSuccess: ({ botUrl }) => {
+      platform.openMaxLink(botUrl);
     },
   });
   const saveExperience = useMutation({
@@ -544,6 +551,7 @@ export function ProfessionalPage() {
                             {(slot.guests ?? []).map((guest) => {
                               const chatUrl = getMaxUserChatUrl(
                                 guest.maxUserId,
+                                guest.username,
                               );
                               const guestName = getGuestDisplayName(guest);
                               return (
@@ -552,12 +560,30 @@ export function ProfessionalPage() {
                                   key={guest.bookingId}
                                 >
                                   <span>{guestName}</span>
-                                  <a
-                                    aria-label={`Открыть чат: ${guestName}`}
-                                    href={chatUrl}
-                                  >
-                                    <Icon name="support" />В чат
-                                  </a>
+                                  {guest.username ? (
+                                    <a
+                                      aria-label={`Открыть чат: ${guestName}`}
+                                      href={chatUrl}
+                                      onClick={(event) => {
+                                        if (platform.openMaxLink(chatUrl)) {
+                                          event.preventDefault();
+                                        }
+                                      }}
+                                    >
+                                      <Icon name="support" />В чат
+                                    </a>
+                                  ) : (
+                                    <button
+                                      aria-label={`Открыть чат: ${guestName}`}
+                                      disabled={guestContact.isPending}
+                                      onClick={() =>
+                                        guestContact.mutate(guest.bookingId)
+                                      }
+                                      type="button"
+                                    >
+                                      <Icon name="support" />В чат
+                                    </button>
+                                  )}
                                 </div>
                               );
                             })}
@@ -570,6 +596,12 @@ export function ProfessionalPage() {
                             <Icon name="check" />
                             Завершить
                           </button>
+                          {guestContact.isError ? (
+                            <p className="form-error">
+                              Не удалось открыть контакт гостя. Попробуйте ещё
+                              раз.
+                            </p>
+                          ) : null}
                         </div>
                       </article>
                     ))}

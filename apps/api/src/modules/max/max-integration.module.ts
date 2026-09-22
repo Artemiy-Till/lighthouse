@@ -15,6 +15,6 @@ import { MaxIntegrationService } from './max-integration.service.js';
     MaxAuthService,
     MaxIntegrationService,
   ],
-  exports: [MaxAuthService],
+  exports: [MaxApiClient, MaxAuthService],
 })
 export class MaxIntegrationModule {}

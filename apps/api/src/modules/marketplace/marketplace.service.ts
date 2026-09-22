@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { DatabaseService } from '../database/database.service.js';
+import { MaxApiClient } from '../max/max-api.client.js';
 import type { AuthenticatedMaxUser } from '../max/max-auth.service.js';
 import type {
   CompleteScheduleSlotDto,
@@ -206,7 +207,10 @@ export class MarketplaceService {
   private reviewSchemaReady: Promise<void> | null = null;
   private scheduleSchemaReady: Promise<void> | null = null;
 
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly maxApiClient?: MaxApiClient,
+  ) {}
 
   private ensurePhotoSchema() {
     this.photoSchemaReady ??= this.database
@@ -1052,6 +1056,40 @@ export class MarketplaceService {
         title: row.title,
       })),
     };
+  }
+
+  async sendGuestContact(maxUserId: string, bookingId: string) {
+    if (!this.maxApiClient) {
+      throw new BadRequestException('MAX messaging is unavailable');
+    }
+    const result = await this.database.query<{
+      guest_name: string | null;
+      guest_user_id: string;
+      title: string;
+    }>(
+      `select coalesce(to_jsonb(b) ->> 'guest_name', 'Гость MAX') as guest_name,
+         b.max_user_id as guest_user_id, e.title
+       from experience_bookings b
+       join published_experiences e on e.id::text = b.experience_id
+       join guide_profiles g on g.id = e.guide_id
+       where b.id::text = $1 and g.max_user_id = $2
+         and b.status = 'confirmed'`,
+      [bookingId, maxUserId],
+    );
+    const contact = result.rows[0];
+    if (!contact) throw new NotFoundException('Guest booking not found');
+
+    const bot = await this.maxApiClient.getCurrentBot();
+    if (!bot.username) {
+      throw new BadRequestException('MAX bot username is unavailable');
+    }
+    const guestName = contact.guest_name?.trim() || 'Гость MAX';
+    const safeName = guestName.replace(/[\\[\]()_*~`>#+\-=|{}.!]/g, '\\$&');
+    await this.maxApiClient.sendUserMessage(
+      maxUserId,
+      `Гость экскурсии «${contact.title}»: [${safeName}](max://user/${contact.guest_user_id})\n\nНажмите на имя гостя, чтобы открыть его профиль и написать.`,
+    );
+    return { botUrl: `https://max.ru/${bot.username}?start=guest-contact` };
   }
 
   async completeGuideSchedule(
