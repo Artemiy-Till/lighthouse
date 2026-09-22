@@ -6366,7 +6366,7 @@ html[data-theme='dark'] #professional-experience-editor > .professional-submit {
 }
 
 .experience-facts-card h2 {
-  font-size: 20px;
+  font-size: 17px;
   overflow-wrap: anywhere;
 }
 
@@ -6415,7 +6415,7 @@ html[data-theme='dark'] #professional-experience-editor > .professional-submit {
 .experience-guide h2,
 .experience-more h2,
 .experience-terms h2 {
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .experience-description p {
@@ -6483,7 +6483,7 @@ html[data-theme='dark'] #professional-experience-editor > .professional-submit {
   }
 
   .experience-facts-card h2 {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .experience-facts-card dl {
@@ -6524,7 +6524,7 @@ html[data-theme='dark'] #professional-experience-editor > .professional-submit {
   .experience-guide h2,
   .experience-more h2,
   .experience-terms h2 {
-    font-size: 18px;
+    font-size: 17px;
   }
 }
 
@@ -6751,7 +6751,7 @@ html[data-theme='dark'] .profile-page .theme-switch {
 .experience-reviews__heading h2 {
   margin: 0;
   color: var(--ink);
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .experience-reviews__heading > span {
