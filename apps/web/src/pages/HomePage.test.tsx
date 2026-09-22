@@ -55,10 +55,8 @@ describe('HomePage', () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', {
-        name: 'Смотреть экскурсии — Санкт-Петербург',
-      }),
-    ).toHaveAttribute('href', '/catalog');
+      screen.queryByRole('link', { name: /Смотреть все экскурсии/i }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText('Разводные мосты с воды')).toBeInTheDocument();
   });
 
@@ -78,29 +76,21 @@ describe('HomePage', () => {
     ).toBeInTheDocument();
     expect(window.localStorage.getItem('marketplace-city')).toBe('moscow');
     expect(
-      screen.getByRole('link', { name: 'Смотреть экскурсии — Москва' }),
-    ).toBeInTheDocument();
-    expect(
       screen.getByRole('heading', { name: 'Популярное в Москве' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Москва: первое знакомство')).toBeInTheDocument();
   });
 
-  it('shows search and catalog actions on the same level', () => {
+  it('shows a single full-width search action', () => {
     render(<HomePage />, { wrapper: TestProviders });
 
+    const actions = document.querySelector('.home-discovery__actions');
+    const search = screen.getByRole('searchbox', { name: 'Поиск' });
+
+    expect(actions).toContainElement(search);
+    expect(actions?.children).toHaveLength(1);
     expect(
-      screen.getByRole('searchbox', {
-        name: 'Поиск',
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', {
-        name: 'Смотреть экскурсии — Санкт-Петербург',
-      }),
-    ).toBeInTheDocument();
-    expect(document.querySelector('.home-discovery__actions')).toContainElement(
-      screen.getByRole('searchbox', { name: 'Поиск' }),
-    );
+      screen.queryByRole('link', { name: /Смотреть все экскурсии/i }),
+    ).not.toBeInTheDocument();
   });
 });

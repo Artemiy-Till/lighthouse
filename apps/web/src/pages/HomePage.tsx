@@ -59,13 +59,6 @@ export function HomePage() {
               value={query}
             />
           </form>
-          <Link
-            aria-label={`${t('home.seeTours')} — ${city.name}`}
-            className="home-discovery__catalog-link"
-            to="/catalog"
-          >
-            Смотреть все экскурсии
-          </Link>
         </div>
 
         <section className="home-discovery__cities">

@@ -862,11 +862,7 @@ describe('App navigation', () => {
   it('opens an experience card and shows its complete details', () => {
     renderApp();
 
-    fireEvent.click(
-      screen.getByRole('link', {
-        name: 'Смотреть экскурсии — Санкт-Петербург',
-      }),
-    );
+    fireEvent.click(screen.getByRole('link', { name: 'Все' }));
 
     fireEvent.click(
       screen.getByRole('link', {
