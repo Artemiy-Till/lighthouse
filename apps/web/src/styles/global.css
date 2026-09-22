@@ -2789,17 +2789,24 @@ main {
 .order-card__chat {
   display: flex;
   width: 100%;
-  min-height: 46px;
+  min-height: 38px;
   grid-column: 1 / -1;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   margin: 0;
-  border-radius: 14px;
-  color: #fff;
-  background: var(--accent);
-  font-weight: 800;
+  border: 1px solid #3a3a3c;
+  border-radius: 999px;
+  color: #3a3a3c;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 750;
   text-decoration: none;
+}
+
+html[data-theme='dark'] .order-card__chat {
+  border-color: #dedee1;
+  color: #dedee1;
+  background: transparent;
 }
 
 .orders-page .prototype-caption {

@@ -236,7 +236,6 @@ export function OrdersPage() {
                                 }
                               }}
                             >
-                              <span aria-hidden="true">💬</span>
                               {t('orders.chatGuide')}
                             </a>
                           ) : null}
