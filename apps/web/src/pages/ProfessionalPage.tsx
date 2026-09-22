@@ -516,8 +516,8 @@ export function ProfessionalPage() {
                 <h2>Ближайшие экскурсии</h2>
               </div>
               {guideSchedule.isPending ? (
-                <p className="professional-experiences__empty">
-                  Загружаем расписание…
+                <p className="compact-loading" role="status">
+                  Загрузка
                 </p>
               ) : (guideSchedule.data?.items ?? []).filter(
                   (slot) =>
@@ -655,8 +655,8 @@ export function ProfessionalPage() {
                 </button>
               </div>
               {ownExperiences.isPending ? (
-                <p className="professional-experiences__empty">
-                  Загружаем экскурсии…
+                <p className="compact-loading" role="status">
+                  Загрузка
                 </p>
               ) : ownExperiences.isError ? (
                 <p className="form-error">Не удалось загрузить экскурсии.</p>

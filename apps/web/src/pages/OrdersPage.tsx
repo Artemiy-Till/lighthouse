@@ -113,9 +113,9 @@ export function OrdersPage() {
             <p>{t('orders.openMaxHint')}</p>
           </div>
         ) : orders.isPending ? (
-          <div className="orders-empty">
-            <p>{t('orders.loading')}</p>
-          </div>
+          <p className="compact-loading" role="status">
+            Загрузка
+          </p>
         ) : orders.isError ? (
           <div className="orders-empty">
             <p>{t('orders.error')}</p>

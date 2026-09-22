@@ -31,9 +31,9 @@ export function FavoritesPage() {
         {published.isPending &&
         favoriteExperiences.length === 0 &&
         favoriteIds.size > 0 ? (
-          <div className="empty-state empty-state--large">
-            <p>{t('favorites.loading')}</p>
-          </div>
+          <p className="compact-loading" role="status">
+            Загрузка
+          </p>
         ) : favoriteExperiences.length > 0 ? (
           <div className="catalog-grid">
             {favoriteExperiences.map((experience) => (

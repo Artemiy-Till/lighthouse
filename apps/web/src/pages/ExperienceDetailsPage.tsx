@@ -500,8 +500,8 @@ export function ExperienceDetailsPage() {
             </div>
 
             {publishedReviews.isPending ? (
-              <p className="experience-reviews__state">
-                {t('reviews.loading')}
+              <p className="compact-loading" role="status">
+                Загрузка
               </p>
             ) : publishedReviews.isError ? (
               <p className="experience-reviews__state is-error">
