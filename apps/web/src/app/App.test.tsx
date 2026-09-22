@@ -402,11 +402,8 @@ describe('App navigation', () => {
     const mariaChat = screen.getByRole('link', {
       name: 'Открыть чат: Мария Иванова',
     });
-    expect(mariaChat).toHaveAttribute('href', 'https://max.ru/maria');
-    fireEvent.click(mariaChat);
-    await waitFor(() =>
-      expect(openMaxLink).toHaveBeenCalledWith('https://max.ru/maria'),
-    );
+    expect(mariaChat).toHaveAttribute('href', 'max://user/84');
+    expect(openMaxLink).not.toHaveBeenCalled();
     expect(screen.getByText('Мария Иванова')).toBeInTheDocument();
     expect(screen.getByText('Иван Петров')).toBeInTheDocument();
     expect(

@@ -544,7 +544,6 @@ export function ProfessionalPage() {
                             {(slot.guests ?? []).map((guest) => {
                               const chatUrl = getMaxUserChatUrl(
                                 guest.maxUserId,
-                                guest.username,
                               );
                               const guestName = getGuestDisplayName(guest);
                               return (
@@ -556,11 +555,6 @@ export function ProfessionalPage() {
                                   <a
                                     aria-label={`Открыть чат: ${guestName}`}
                                     href={chatUrl}
-                                    onClick={(event) => {
-                                      if (platform.openMaxLink(chatUrl)) {
-                                        event.preventDefault();
-                                      }
-                                    }}
                                   >
                                     <Icon name="support" />В чат
                                   </a>
