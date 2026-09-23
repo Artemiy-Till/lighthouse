@@ -435,45 +435,7 @@ export class MarketplaceService {
         chat.title,
         chat.invite_link,
       );
-      return;
     }
-
-    const claim = await this.database.query<{ id: string }>(
-      `update experience_tour_chats
-       set guide_notified_at = now(), updated_at = now()
-       where id = $1 and status = 'pending' and guide_notified_at is null
-       returning id`,
-      [chat.id],
-    );
-    if (!claim.rows[0]) return;
-
-    try {
-      await this.sendTourChatCreationButton(chat);
-    } catch (error) {
-      await this.database
-        .query(
-          `update experience_tour_chats
-           set guide_notified_at = null, updated_at = now()
-           where id = $1 and status = 'pending'`,
-          [chat.id],
-        )
-        .catch(() => undefined);
-      throw error;
-    }
-  }
-
-  private sendTourChatCreationButton(chat: TourChatRow) {
-    if (!this.maxApiClient) {
-      throw new BadRequestException('MAX messaging is unavailable');
-    }
-    return this.maxApiClient.sendTourChatButton(chat.guide_max_user_id, {
-      description: `Чат гида и участников экскурсии «${chat.title}»`.slice(
-        0,
-        400,
-      ),
-      startPayload: `tour-chat:${chat.id}`,
-      title: chat.title,
-    });
   }
 
   private sendTourChatLink(userId: string, title: string, inviteLink: string) {
@@ -1233,11 +1195,13 @@ export class MarketplaceService {
 
   async listGuideSchedule(maxUserId: string) {
     await this.ensureScheduleSchema();
+    await this.ensureTourChatSchema();
     const result = await this.database.query<{
       booking_count: number;
       booking_date: string | Date;
       booking_time: string;
       capacity: number;
+      chat_url: string | null;
       experience_id: string;
       guests: Array<{
         bookingId: string;
@@ -1252,6 +1216,7 @@ export class MarketplaceService {
     }>(
       `select e.id::text as experience_id, e.title,
          s.booking_date, s.booking_time, s.capacity, s.status,
+         tc.invite_link as chat_url,
          count(b.id)::integer as booking_count,
          coalesce(sum(b.participants), 0)::integer as participants,
          coalesce(
@@ -1269,6 +1234,10 @@ export class MarketplaceService {
        from experience_booking_slots s
        join published_experiences e on e.id::text = s.experience_id
        join guide_profiles g on g.id = e.guide_id
+       left join experience_tour_chats tc
+         on tc.experience_id = s.experience_id
+        and tc.booking_date = s.booking_date
+        and tc.booking_time = s.booking_time
        left join experience_bookings b
          on b.experience_id = s.experience_id
         and b.booking_date = s.booking_date
@@ -1277,7 +1246,7 @@ export class MarketplaceService {
        where g.max_user_id = $1 and e.status = 'published'
          and (s.status = 'completed' or s.booking_date >= current_date)
        group by e.id, e.title, s.booking_date, s.booking_time,
-         s.capacity, s.status
+         s.capacity, s.status, tc.invite_link
        order by case when s.status = 'scheduled' then 0 else 1 end,
          case when s.status = 'scheduled' then s.booking_date end asc,
          case when s.status = 'completed' then s.booking_date end desc,
@@ -1288,6 +1257,7 @@ export class MarketplaceService {
       items: result.rows.map((row) => ({
         bookingCount: row.booking_count,
         capacity: row.capacity,
+        chatUrl: row.chat_url,
         date:
           row.booking_date instanceof Date
             ? row.booking_date.toISOString().slice(0, 10)
@@ -1343,115 +1313,74 @@ export class MarketplaceService {
         contact.invite_link,
       );
     } else {
-      const date =
-        contact.booking_date instanceof Date
-          ? contact.booking_date.toISOString().slice(0, 10)
-          : String(contact.booking_date).slice(0, 10);
-      const chat = contact.tour_chat_id
-        ? ({
-            ...contact,
-            chat_id: null,
-            guide_max_user_id: maxUserId,
-            guide_notified_at: null,
-            id: contact.tour_chat_id,
-            status: 'pending' as const,
-            title: formatTourChatTitle(
-              contact.title,
-              date,
-              contact.booking_time,
-            ),
-          } satisfies TourChatRow)
-        : await this.getOrCreateTourChat({
-            date,
-            experienceId: contact.experience_id,
-            guideMaxUserId: maxUserId,
-            time: contact.booking_time,
-            title: contact.title,
-          });
-      await this.sendTourChatCreationButton(chat);
+      await this.maxApiClient.sendUserMessage(
+        maxUserId,
+        `Создайте группу в MAX для экскурсии «${escapeMaxMarkdown(contact.title)}», затем вставьте ссылку на группу в карточке экскурсии.`,
+      );
     }
     return { botUrl: `https://max.ru/${bot.username}?start=tour-chat` };
   }
 
-  async handleMaxWebhook(update: unknown) {
-    if (!this.maxApiClient || !update || typeof update !== 'object') {
-      return { processed: false } as const;
+  async connectTourChat(
+    maxUserId: string,
+    bookingId: string,
+    inviteLink: string,
+  ) {
+    if (!this.maxApiClient) {
+      throw new BadRequestException('MAX messaging is unavailable');
     }
-    const value = update as Record<string, unknown>;
-    if (value.update_type !== 'message_chat_created') {
-      return { processed: false } as const;
-    }
-    const payload = value.start_payload;
-    const chatValue = value.chat;
-    if (
-      typeof payload !== 'string' ||
-      !payload.startsWith('tour-chat:') ||
-      !chatValue ||
-      typeof chatValue !== 'object'
-    ) {
-      return { processed: false } as const;
-    }
-    const tourChatId = payload.slice('tour-chat:'.length);
-    if (
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        tourChatId,
-      )
-    ) {
-      return { processed: false } as const;
-    }
-    const chat = chatValue as Record<string, unknown>;
-    const chatId =
-      typeof chat.chat_id === 'number' || typeof chat.chat_id === 'string'
-        ? String(chat.chat_id)
-        : null;
-    if (!chatId || !/^-?\d+$/.test(chatId)) {
-      return { processed: false } as const;
-    }
-    let inviteLink = typeof chat.link === 'string' ? chat.link : null;
-    if (!inviteLink) {
-      inviteLink = (await this.maxApiClient.getChat(chatId)).link ?? null;
-    }
-    if (!inviteLink) {
-      throw new BadRequestException('MAX chat invite link is unavailable');
-    }
-
     await this.ensureTourChatSchema();
-    const activated = await this.database.query<TourChatRow>(
-      `update experience_tour_chats
-       set status = 'active', chat_id = $2::bigint, invite_link = $3,
-           activated_at = coalesce(activated_at, now()), updated_at = now()
-       where id = $1 and status = 'pending'
-       returning id, booking_date, booking_time, title, guide_max_user_id,
-         status, chat_id::text, invite_link, guide_notified_at`,
-      [tourChatId, chatId, inviteLink],
-    );
-    const tourChat = activated.rows[0];
-    if (!tourChat) return { processed: false } as const;
-
-    const participants = await this.database.query<{ max_user_id: string }>(
-      `select distinct b.max_user_id
+    const result = await this.database.query<{
+      booking_date: string | Date;
+      booking_time: string;
+      experience_id: string;
+      title: string;
+    }>(
+      `select b.experience_id, b.booking_date, b.booking_time, e.title
        from experience_bookings b
-       join experience_tour_chats tc
-         on tc.experience_id = b.experience_id
-        and tc.booking_date = b.booking_date
-        and tc.booking_time = b.booking_time
-       where tc.id = $1 and b.status = 'confirmed'`,
-      [tourChatId],
+       join published_experiences e on e.id::text = b.experience_id
+       join guide_profiles g on g.id = e.guide_id
+       where b.id::text = $1 and g.max_user_id = $2
+         and b.status = 'confirmed'`,
+      [bookingId, maxUserId],
+    );
+    const booking = result.rows[0];
+    if (!booking) throw new NotFoundException('Guest booking not found');
+    const date =
+      booking.booking_date instanceof Date
+        ? booking.booking_date.toISOString().slice(0, 10)
+        : String(booking.booking_date).slice(0, 10);
+    const chat = await this.getOrCreateTourChat({
+      date,
+      experienceId: booking.experience_id,
+      guideMaxUserId: maxUserId,
+      time: booking.booking_time,
+      title: booking.title,
+    });
+    await this.database.query(
+      `update experience_tour_chats
+       set status = 'active', invite_link = $2, activated_at = now(),
+           updated_at = now()
+       where id = $1`,
+      [chat.id, inviteLink],
+    );
+    const participants = await this.database.query<{ max_user_id: string }>(
+      `select distinct max_user_id
+       from experience_bookings
+       where experience_id = $1 and booking_date = $2::date
+         and booking_time = $3::time and status = 'confirmed'`,
+      [booking.experience_id, date, booking.booking_time],
     );
     const notifications = await Promise.allSettled(
       participants.rows.map((participant) =>
-        this.sendTourChatLink(
-          participant.max_user_id,
-          tourChat.title,
-          inviteLink,
-        ),
+        this.sendTourChatLink(participant.max_user_id, chat.title, inviteLink),
       ),
     );
     return {
+      chatUrl: inviteLink,
       notified: notifications.filter((item) => item.status === 'fulfilled')
         .length,
-      processed: true,
-    } as const;
+    };
   }
 
   async completeGuideSchedule(

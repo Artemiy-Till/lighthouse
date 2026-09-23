@@ -313,10 +313,11 @@ describe('App navigation', () => {
         } else if (requestUrl.endsWith('/professional/experiences')) {
           payload = { items: [] };
         } else if (
-          requestUrl.endsWith('/professional/bookings/booking-guest-1/contact')
+          requestUrl.endsWith('/professional/bookings/booking-guest-1/chat')
         ) {
           payload = {
-            botUrl: 'https://max.ru/mayak_bot?start=tour-chat',
+            chatUrl: 'https://max.ru/join/tour-chat',
+            notified: 2,
           };
         } else if (requestUrl.endsWith('/professional/schedule')) {
           payload = {
@@ -324,6 +325,7 @@ describe('App navigation', () => {
               {
                 bookingCount: 2,
                 capacity: 8,
+                chatUrl: null,
                 date: '2099-09-19',
                 experienceId: 'tour-1',
                 guests: [
@@ -421,12 +423,25 @@ describe('App navigation', () => {
     expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
     expect(screen.getByText('Мария Иванова')).toBeInTheDocument();
     expect(screen.getByText('Иван Петров')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Чат экскурсии' }));
+    fireEvent.change(
+      screen.getByRole('textbox', {
+        name: 'Ссылка на чат: Петербург глазами местного',
+      }),
+      { target: { value: 'https://max.ru/join/tour-chat' } },
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Подключить чат' }));
     await waitFor(() =>
-      expect(openMaxLink).toHaveBeenCalledWith(
-        'https://max.ru/mayak_bot?start=tour-chat',
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+        expect.stringContaining('/professional/bookings/booking-guest-1/chat'),
+        expect.objectContaining({
+          body: JSON.stringify({
+            inviteLink: 'https://max.ru/join/tour-chat',
+          }),
+          method: 'PUT',
+        }),
       ),
     );
+    expect(openMaxLink).not.toHaveBeenCalled();
     await waitFor(() =>
       expect(
         queryClient.getQueryState(['published-experience', 'tour-1'])

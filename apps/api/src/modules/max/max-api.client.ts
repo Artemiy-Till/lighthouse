@@ -11,30 +11,7 @@ const maxBotInfoSchema = z.object({
   username: z.string().nullable(),
 });
 
-const maxChatSchema = z.object({
-  chat_id: z.number().int(),
-  link: z.string().nullable().optional(),
-  title: z.string().nullable().optional(),
-  type: z.enum(['chat', 'channel', 'dialog']),
-});
-
-const maxSubscriptionsSchema = z.object({
-  subscriptions: z.array(
-    z.object({
-      update_types: z.array(z.string()).optional().default([]),
-      url: z.string(),
-    }),
-  ),
-});
-
 export type MaxBotInfo = z.infer<typeof maxBotInfoSchema>;
-export type MaxChat = z.infer<typeof maxChatSchema>;
-
-export interface MaxTourChatButton {
-  readonly description: string;
-  readonly startPayload: string;
-  readonly title: string;
-}
 
 export type MaxApiFailureReason =
   'invalid_credentials' | 'invalid_response' | 'unavailable';
@@ -104,108 +81,6 @@ export class MaxApiClient {
     await this.sendMessage(userId, { format: 'markdown', text });
   }
 
-  async sendTourChatButton(
-    userId: string,
-    chat: MaxTourChatButton,
-  ): Promise<void> {
-    await this.sendMessage(userId, {
-      attachments: [
-        {
-          payload: {
-            buttons: [
-              [
-                {
-                  chat_description: chat.description,
-                  chat_title: chat.title,
-                  start_payload: chat.startPayload,
-                  text: 'Создать чат экскурсии',
-                  type: 'chat',
-                },
-              ],
-            ],
-          },
-          type: 'inline_keyboard',
-        },
-      ],
-      format: 'markdown',
-      text: `На вашу экскурсию появилась запись. Создайте групповой чат «${chat.title}» — бот сам пришлёт ссылку всем участникам.`,
-    });
-  }
-
-  async getChat(chatId: string): Promise<MaxChat> {
-    const token = this.configService.get<string>('MAX_BOT_TOKEN');
-    if (!token) throw new MaxApiError('invalid_credentials');
-
-    const baseUrl = this.configService.get<string>(
-      'MAX_API_BASE_URL',
-      'https://platform-api2.max.ru',
-    );
-    const timeout = this.configService.get<number>('MAX_API_TIMEOUT_MS', 5000);
-    const url = new URL(`/chats/${encodeURIComponent(chatId)}`, baseUrl);
-    let response: Awaited<ReturnType<MaxApiTransport['request']>>;
-
-    try {
-      response = await this.transport.request(
-        url,
-        {
-          Accept: 'application/json',
-          Authorization: token,
-        },
-        timeout,
-      );
-    } catch {
-      throw new MaxApiError('unavailable');
-    }
-
-    if (response.status === 401) {
-      throw new MaxApiError('invalid_credentials');
-    }
-    if (response.status < 200 || response.status >= 300) {
-      throw new MaxApiError('unavailable');
-    }
-
-    try {
-      return maxChatSchema.parse(JSON.parse(response.body));
-    } catch {
-      throw new MaxApiError('invalid_response');
-    }
-  }
-
-  async ensureWebhookSubscription(
-    webhookUrl: string,
-    secret: string,
-  ): Promise<void> {
-    const subscriptions = await this.requestJson(
-      new URL(
-        '/subscriptions',
-        this.configService.get<string>(
-          'MAX_API_BASE_URL',
-          'https://platform-api2.max.ru',
-        ),
-      ),
-      maxSubscriptionsSchema,
-    );
-    const existing = subscriptions.subscriptions.find(
-      (subscription) => subscription.url === webhookUrl,
-    );
-    if (existing?.update_types.includes('message_chat_created')) return;
-
-    await this.sendApiRequest(
-      new URL(
-        '/subscriptions',
-        this.configService.get<string>(
-          'MAX_API_BASE_URL',
-          'https://platform-api2.max.ru',
-        ),
-      ),
-      {
-        secret,
-        update_types: ['message_chat_created'],
-        url: webhookUrl,
-      },
-    );
-  }
-
   private async sendMessage(
     userId: string,
     body: Readonly<Record<string, unknown>>,
@@ -245,63 +120,6 @@ export class MaxApiClient {
     }
     if (response.status < 200 || response.status >= 300) {
       throw new MaxApiError('unavailable');
-    }
-  }
-
-  private async sendApiRequest(
-    url: URL,
-    body: Readonly<Record<string, unknown>>,
-  ): Promise<void> {
-    const token = this.configService.get<string>('MAX_BOT_TOKEN');
-    if (!token) throw new MaxApiError('invalid_credentials');
-    const timeout = this.configService.get<number>('MAX_API_TIMEOUT_MS', 5000);
-    let response: Awaited<ReturnType<MaxApiTransport['request']>>;
-    try {
-      response = await this.transport.request(
-        url,
-        {
-          Accept: 'application/json',
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-        timeout,
-        { body: JSON.stringify(body), method: 'POST' },
-      );
-    } catch {
-      throw new MaxApiError('unavailable');
-    }
-    if (response.status === 401) {
-      throw new MaxApiError('invalid_credentials');
-    }
-    if (response.status < 200 || response.status >= 300) {
-      throw new MaxApiError('unavailable');
-    }
-  }
-
-  private async requestJson<T>(url: URL, schema: z.ZodType<T>): Promise<T> {
-    const token = this.configService.get<string>('MAX_BOT_TOKEN');
-    if (!token) throw new MaxApiError('invalid_credentials');
-    const timeout = this.configService.get<number>('MAX_API_TIMEOUT_MS', 5000);
-    let response: Awaited<ReturnType<MaxApiTransport['request']>>;
-    try {
-      response = await this.transport.request(
-        url,
-        { Accept: 'application/json', Authorization: token },
-        timeout,
-      );
-    } catch {
-      throw new MaxApiError('unavailable');
-    }
-    if (response.status === 401) {
-      throw new MaxApiError('invalid_credentials');
-    }
-    if (response.status < 200 || response.status >= 300) {
-      throw new MaxApiError('unavailable');
-    }
-    try {
-      return schema.parse(JSON.parse(response.body));
-    } catch {
-      throw new MaxApiError('invalid_response');
     }
   }
 }

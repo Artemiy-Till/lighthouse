@@ -2126,7 +2126,9 @@ main {
   margin-top: 2px;
 }
 
-.professional-schedule__actions > button {
+.professional-schedule__actions > button,
+.professional-schedule__chat-link,
+.professional-schedule__chat-form > button {
   display: flex;
   min-width: 0;
   min-height: 34px;
@@ -2147,10 +2149,30 @@ main {
   height: 14px;
 }
 
-.professional-schedule__actions > button {
+.professional-schedule__actions > button,
+.professional-schedule__chat-link,
+.professional-schedule__chat-form > button {
   color: #fff;
   border-color: var(--navigation-background);
   background: var(--navigation-background);
+}
+
+.professional-schedule__chat-form {
+  display: grid;
+  gap: 7px;
+}
+
+.professional-schedule__chat-form input {
+  min-width: 0;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font: inherit;
+  font-size: 11px;
 }
 
 .professional-schedule__guests {

@@ -13,9 +13,9 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 
 import { MaxAuthService } from '../max/max-auth.service.js';
-import { MaxIntegrationService } from '../max/max-integration.service.js';
 import {
   CompleteScheduleSlotDto,
+  ConnectTourChatDto,
   CreateBookingDto,
   CreateExperienceDto,
   CreateReviewDto,
@@ -32,24 +32,12 @@ export class MarketplaceController {
     private readonly marketplace: MarketplaceService,
     private readonly maxAuth: MaxAuthService,
     private readonly photoStorage: PhotoStorageService,
-    private readonly maxIntegration: MaxIntegrationService,
   ) {}
 
   private authenticate(initData?: string) {
     if (!initData)
       throw new UnauthorizedException('MAX launch data is required');
     return this.maxAuth.authenticate(initData).user;
-  }
-
-  @Post('integrations/max/webhook')
-  handleMaxWebhook(
-    @Headers('x-max-bot-api-secret') receivedSecret: string | undefined,
-    @Body() body: unknown,
-  ) {
-    if (!this.maxIntegration.isValidWebhookSecret(receivedSecret)) {
-      throw new UnauthorizedException('Invalid MAX webhook secret');
-    }
-    return this.marketplace.handleMaxWebhook(body);
   }
 
   @Get('experiences')
@@ -156,6 +144,19 @@ export class MarketplaceController {
     return this.marketplace.sendGuestContact(
       this.authenticate(initData).id,
       id,
+    );
+  }
+
+  @Put('professional/bookings/:id/chat')
+  connectTourChat(
+    @Headers('x-max-init-data') initData: string | undefined,
+    @Param('id') id: string,
+    @Body() body: ConnectTourChatDto,
+  ) {
+    return this.marketplace.connectTourChat(
+      this.authenticate(initData).id,
+      id,
+      body.inviteLink,
     );
   }
 

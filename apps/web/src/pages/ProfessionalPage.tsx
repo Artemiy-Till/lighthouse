@@ -10,7 +10,7 @@ import {
   getGuideSchedule,
   getOwnPublishedExperiences,
   saveGuideProfile,
-  sendGuestContact,
+  connectTourChat,
   type CreateExperienceInput,
   type PublishedExperience,
   uploadExperiencePhoto,
@@ -99,6 +99,9 @@ export function ProfessionalPage() {
   const [scheduleTime, setScheduleTime] = useState('12:00');
   const [scheduleSlots, setScheduleSlots] = useState<string[]>([]);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
+  const [tourChatLinks, setTourChatLinks] = useState<Record<string, string>>(
+    {},
+  );
   const profile = useQuery({
     enabled: Boolean(initData && session.data?.authenticated),
     queryFn: () => getGuideProfile(initData),
@@ -159,10 +162,11 @@ export function ProfessionalPage() {
       ]);
     },
   });
-  const guestContact = useMutation({
-    mutationFn: (bookingId: string) => sendGuestContact(initData, bookingId),
-    onSuccess: ({ botUrl }) => {
-      platform.openMaxLink(botUrl);
+  const tourChat = useMutation({
+    mutationFn: (value: { bookingId: string; inviteLink: string }) =>
+      connectTourChat(initData, value.bookingId, value.inviteLink),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['guide-schedule'] });
     },
   });
   const saveExperience = useMutation({
@@ -555,56 +559,99 @@ export function ProfessionalPage() {
                       (slot) =>
                         slot.status === 'scheduled' && slot.bookingCount > 0,
                     )
-                    .map((slot) => (
-                      <article
-                        key={`${slot.experienceId}-${slot.date}-${slot.time}`}
-                      >
-                        <div className="professional-schedule__summary">
-                          <strong>{slot.title}</strong>
-                          <small>
-                            {formatScheduleDate(slot.date, slot.time)} ·{' '}
-                            {slot.participants} чел.
-                          </small>
-                        </div>
-                        <div className="professional-schedule__actions">
-                          <div className="professional-schedule__guests">
-                            <strong>Гости</strong>
-                            {(slot.guests ?? []).map((guest) => (
-                              <div
-                                className="professional-schedule__guest"
-                                key={guest.bookingId}
-                              >
-                                <span>{getGuestDisplayName(guest)}</span>
-                              </div>
-                            ))}
+                    .map((slot) => {
+                      const slotKey = `${slot.experienceId}-${slot.date}-${slot.time}`;
+                      return (
+                        <article key={slotKey}>
+                          <div className="professional-schedule__summary">
+                            <strong>{slot.title}</strong>
+                            <small>
+                              {formatScheduleDate(slot.date, slot.time)} ·{' '}
+                              {slot.participants} чел.
+                            </small>
                           </div>
-                          <button
-                            disabled={guestContact.isPending || !slot.guests[0]}
-                            onClick={() =>
-                              guestContact.mutate(slot.guests[0]!.bookingId)
-                            }
-                            type="button"
-                          >
-                            <Icon name="support" />
-                            Чат экскурсии
-                          </button>
-                          <button
-                            disabled={completeSchedule.isPending}
-                            onClick={() => completeSchedule.mutate(slot)}
-                            type="button"
-                          >
-                            <Icon name="check" />
-                            Завершить
-                          </button>
-                          {guestContact.isError ? (
-                            <p className="form-error">
-                              Не удалось открыть чат экскурсии. Попробуйте ещё
-                              раз.
-                            </p>
-                          ) : null}
-                        </div>
-                      </article>
-                    ))}
+                          <div className="professional-schedule__actions">
+                            <div className="professional-schedule__guests">
+                              <strong>Гости</strong>
+                              {(slot.guests ?? []).map((guest) => (
+                                <div
+                                  className="professional-schedule__guest"
+                                  key={guest.bookingId}
+                                >
+                                  <span>{getGuestDisplayName(guest)}</span>
+                                </div>
+                              ))}
+                            </div>
+                            {slot.chatUrl ? (
+                              <a
+                                className="professional-schedule__chat-link"
+                                href={slot.chatUrl}
+                                onClick={(event) => {
+                                  if (platform.openMaxLink(slot.chatUrl!)) {
+                                    event.preventDefault();
+                                  }
+                                }}
+                              >
+                                <Icon name="support" />
+                                Открыть чат
+                              </a>
+                            ) : (
+                              <form
+                                className="professional-schedule__chat-form"
+                                onSubmit={(event) => {
+                                  event.preventDefault();
+                                  if (!slot.guests[0]) return;
+                                  tourChat.mutate({
+                                    bookingId: slot.guests[0].bookingId,
+                                    inviteLink: tourChatLinks[slotKey] ?? '',
+                                  });
+                                }}
+                              >
+                                <small>
+                                  Создайте группу в MAX, скопируйте ссылку и
+                                  вставьте её сюда. Бот пригласит всех гостей.
+                                </small>
+                                <input
+                                  aria-label={`Ссылка на чат: ${slot.title}`}
+                                  onChange={(event) =>
+                                    setTourChatLinks((links) => ({
+                                      ...links,
+                                      [slotKey]: event.target.value,
+                                    }))
+                                  }
+                                  pattern="https://(www\.)?max\.ru/.+"
+                                  placeholder="https://max.ru/..."
+                                  required
+                                  type="url"
+                                  value={tourChatLinks[slotKey] ?? ''}
+                                />
+                                <button
+                                  disabled={tourChat.isPending}
+                                  type="submit"
+                                >
+                                  <Icon name="support" />
+                                  Подключить чат
+                                </button>
+                              </form>
+                            )}
+                            <button
+                              disabled={completeSchedule.isPending}
+                              onClick={() => completeSchedule.mutate(slot)}
+                              type="button"
+                            >
+                              <Icon name="check" />
+                              Завершить
+                            </button>
+                            {tourChat.isError ? (
+                              <p className="form-error">
+                                Не удалось сохранить ссылку. Проверьте ссылку
+                                MAX и попробуйте ещё раз.
+                              </p>
+                            ) : null}
+                          </div>
+                        </article>
+                      );
+                    })}
                 </div>
               )}
               {completeSchedule.isError ? (

@@ -62,10 +62,6 @@ Copy `.env.example` to `.env`. Environment files are ignored by Git.
 - `CORS_ORIGINS`: comma-separated development origins. Production should prefer a same-origin deployment.
 - `LOG_LEVEL`: structured API log level.
 - `MAX_BOT_TOKEN`: server-only MAX bot token; never expose it to the frontend.
-- `MAX_WEBHOOK_URL`: public HTTPS endpoint used for automatic MAX webhook
-  registration.
-- `MAX_WEBHOOK_SECRET`: optional webhook secret. When omitted, the API derives
-  a stable secret from `MAX_BOT_TOKEN` without exposing it.
 - `MAX_API_BASE_URL`: MAX API origin; defaults to `https://platform-api2.max.ru`.
 - `MAX_API_TIMEOUT_MS`: timeout for outgoing MAX API calls.
 - `VITE_API_BASE_URL`: public API origin used by the frontend. This value is not
@@ -100,8 +96,6 @@ Add the following server-side environment variables to the API project:
 - `NODE_ENV=production`
 - `CORS_ORIGINS=https://lighthouse-api-one.vercel.app`
 - `MAX_BOT_TOKEN`: a newly issued bot token
-- `MAX_WEBHOOK_URL=https://YOUR_API_HOST/api/v1/integrations/max/webhook`
-- `MAX_WEBHOOK_SECRET`: optional; leave unset to derive it from the bot token
 - `DATABASE_URL`: PostgreSQL connection string supplied by the database provider
 
 After connecting PostgreSQL, apply the committed schema once from a trusted
@@ -118,16 +112,11 @@ After deployment, verify `/api/v1/health` and
 `/api/v1/integrations/max/status`. The status response exposes only the public
 bot identity and never returns the token.
 
-On startup, the API checks the bot's MAX subscriptions and registers
-`MAX_WEBHOOK_URL` for `message_chat_created` automatically when it is missing.
-No manual API request is required. The tour-chat table is also created lazily
-before its first use, while the committed migration remains the canonical
-schema for new environments.
-
-When the first booking for a schedule slot is created, the guide receives a
-MAX button. Pressing it creates the group chat. The webhook stores its invite
-link and the bot sends that link to every confirmed guest for the same
-experience, date and time. Later bookings receive the existing link
+The tour-chat table is created lazily before its first use, while the committed
+migration remains the canonical schema for new environments. The guide creates
+a regular group in MAX, copies its invite link and pastes it into the upcoming
+excursion card. The bot then sends that link to every confirmed guest for the
+same experience, date and time. Later bookings receive the existing link
 automatically.
 
 The frontend uses `https://lighthouse-api-lwsx.vercel.app` as the current
