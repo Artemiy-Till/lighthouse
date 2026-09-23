@@ -10,11 +10,10 @@ import {
   Query,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
-import { timingSafeEqual } from 'node:crypto';
 
 import { MaxAuthService } from '../max/max-auth.service.js';
+import { MaxIntegrationService } from '../max/max-integration.service.js';
 import {
   CompleteScheduleSlotDto,
   CreateBookingDto,
@@ -33,7 +32,7 @@ export class MarketplaceController {
     private readonly marketplace: MarketplaceService,
     private readonly maxAuth: MaxAuthService,
     private readonly photoStorage: PhotoStorageService,
-    private readonly config: ConfigService,
+    private readonly maxIntegration: MaxIntegrationService,
   ) {}
 
   private authenticate(initData?: string) {
@@ -47,14 +46,7 @@ export class MarketplaceController {
     @Headers('x-max-bot-api-secret') receivedSecret: string | undefined,
     @Body() body: unknown,
   ) {
-    const expectedSecret = this.config.get<string>('MAX_WEBHOOK_SECRET');
-    const received = Buffer.from(receivedSecret ?? '');
-    const expected = Buffer.from(expectedSecret ?? '');
-    if (
-      !expectedSecret ||
-      received.length !== expected.length ||
-      !timingSafeEqual(received, expected)
-    ) {
+    if (!this.maxIntegration.isValidWebhookSecret(receivedSecret)) {
       throw new UnauthorizedException('Invalid MAX webhook secret');
     }
     return this.marketplace.handleMaxWebhook(body);

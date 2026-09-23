@@ -151,4 +151,31 @@ describe('MaxApiClient', () => {
       'https://platform-api2.max.ru/chats/123',
     );
   });
+
+  it('registers the tour chat webhook when it is missing', async () => {
+    const requestMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        body: JSON.stringify({ subscriptions: [] }),
+        status: 200,
+      })
+      .mockResolvedValueOnce({ body: '{"success":true}', status: 200 });
+    const client = createClient(
+      { MAX_BOT_TOKEN: 'secret-token' },
+      { request: requestMock },
+    );
+
+    await client.ensureWebhookSubscription(
+      'https://api.example.com/api/v1/integrations/max/webhook',
+      'webhook-secret',
+    );
+
+    expect(requestMock).toHaveBeenCalledTimes(2);
+    const createOptions = requestMock.mock.calls[1]?.[3] as { body: string };
+    expect(JSON.parse(createOptions.body)).toEqual({
+      secret: 'webhook-secret',
+      update_types: ['message_chat_created'],
+      url: 'https://api.example.com/api/v1/integrations/max/webhook',
+    });
+  });
 });

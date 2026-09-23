@@ -38,6 +38,7 @@ const environmentSchema = z.object({
     .string()
     .regex(/^[a-zA-Z0-9_-]{5,256}$/)
     .optional(),
+  MAX_WEBHOOK_URL: z.url().startsWith('https://').optional(),
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
