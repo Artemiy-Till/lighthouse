@@ -62,6 +62,8 @@ Copy `.env.example` to `.env`. Environment files are ignored by Git.
 - `CORS_ORIGINS`: comma-separated development origins. Production should prefer a same-origin deployment.
 - `LOG_LEVEL`: structured API log level.
 - `MAX_BOT_TOKEN`: server-only MAX bot token; never expose it to the frontend.
+- `MAX_WEBHOOK_SECRET`: random value (5–256 letters, digits, `_` or `-`) used
+  to authenticate MAX webhook requests.
 - `MAX_API_BASE_URL`: MAX API origin; defaults to `https://platform-api2.max.ru`.
 - `MAX_API_TIMEOUT_MS`: timeout for outgoing MAX API calls.
 - `VITE_API_BASE_URL`: public API origin used by the frontend. This value is not
@@ -96,6 +98,8 @@ Add the following server-side environment variables to the API project:
 - `NODE_ENV=production`
 - `CORS_ORIGINS=https://lighthouse-api-one.vercel.app`
 - `MAX_BOT_TOKEN`: a newly issued bot token
+- `MAX_WEBHOOK_SECRET`: a random webhook secret that is also passed when the
+  MAX subscription is created
 - `DATABASE_URL`: PostgreSQL connection string supplied by the database provider
 
 After connecting PostgreSQL, apply the committed schema once from a trusted
@@ -111,6 +115,22 @@ The bot token and database URL remain server-only.
 After deployment, verify `/api/v1/health` and
 `/api/v1/integrations/max/status`. The status response exposes only the public
 bot identity and never returns the token.
+
+Create the MAX webhook subscription once after the API is deployed. Replace
+the placeholders with the production values (the endpoint must be HTTPS):
+
+```bash
+curl -X POST "https://platform-api2.max.ru/subscriptions" \
+  -H "Authorization: YOUR_MAX_BOT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://YOUR_API_HOST/api/v1/integrations/max/webhook","update_types":["message_chat_created"],"secret":"YOUR_MAX_WEBHOOK_SECRET"}'
+```
+
+When the first booking for a schedule slot is created, the guide receives a
+MAX button. Pressing it creates the group chat. The webhook stores its invite
+link and the bot sends that link to every confirmed guest for the same
+experience, date and time. Later bookings receive the existing link
+automatically.
 
 The frontend uses `https://lighthouse-api-lwsx.vercel.app` as the current
 production API fallback. Set `VITE_API_BASE_URL` on the frontend Vercel project

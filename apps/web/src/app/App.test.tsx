@@ -313,10 +313,10 @@ describe('App navigation', () => {
         } else if (requestUrl.endsWith('/professional/experiences')) {
           payload = { items: [] };
         } else if (
-          requestUrl.endsWith('/professional/bookings/booking-guest-2/contact')
+          requestUrl.endsWith('/professional/bookings/booking-guest-1/contact')
         ) {
           payload = {
-            botUrl: 'https://max.ru/mayak_bot?start=guest-contact',
+            botUrl: 'https://max.ru/mayak_bot?start=tour-chat',
           };
         } else if (requestUrl.endsWith('/professional/schedule')) {
           payload = {
@@ -419,23 +419,12 @@ describe('App navigation', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
-    const mariaChat = screen.getByRole('link', {
-      name: 'Открыть чат: Мария Иванова',
-    });
-    expect(mariaChat).toHaveAttribute('href', 'https://max.ru/maria');
-    fireEvent.click(mariaChat);
-    await waitFor(() =>
-      expect(openMaxLink).toHaveBeenCalledWith('https://max.ru/maria'),
-    );
     expect(screen.getByText('Мария Иванова')).toBeInTheDocument();
     expect(screen.getByText('Иван Петров')).toBeInTheDocument();
-    openMaxLink.mockClear();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Открыть чат: Иван Петров' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Чат экскурсии' }));
     await waitFor(() =>
       expect(openMaxLink).toHaveBeenCalledWith(
-        'https://max.ru/mayak_bot?start=guest-contact',
+        'https://max.ru/mayak_bot?start=tour-chat',
       ),
     );
     await waitFor(() =>
@@ -498,7 +487,7 @@ describe('App navigation', () => {
               },
             }
           : requestUrl.endsWith('/bookings/booking-1/contact')
-            ? { botUrl: 'https://max.ru/mayak_bot?start=guide-contact' }
+            ? { botUrl: 'https://max.ru/mayak_bot?start=tour-chat' }
             : requestUrl.endsWith('/bookings')
               ? {
                   items: [
@@ -540,11 +529,11 @@ describe('App navigation', () => {
     renderApp('/orders');
 
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Написать гиду в MAX' }),
+      await screen.findByRole('button', { name: 'Чат экскурсии' }),
     );
     await waitFor(() =>
       expect(openMaxLink).toHaveBeenCalledWith(
-        'https://max.ru/mayak_bot?start=guide-contact',
+        'https://max.ru/mayak_bot?start=tour-chat',
       ),
     );
   });
@@ -588,7 +577,7 @@ describe('App navigation', () => {
               },
             }
           : requestUrl.endsWith('/bookings/booking-1/contact')
-            ? { botUrl: 'https://max.ru/mayak_bot?start=guide-contact' }
+            ? { botUrl: 'https://max.ru/mayak_bot?start=tour-chat' }
             : requestUrl.endsWith('/bookings')
               ? {
                   items: [
@@ -630,11 +619,11 @@ describe('App navigation', () => {
     renderApp('/orders');
 
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Написать гиду в MAX' }),
+      await screen.findByRole('button', { name: 'Чат экскурсии' }),
     );
     await waitFor(() =>
       expect(openMaxLink).toHaveBeenCalledWith(
-        'https://max.ru/mayak_bot?start=guide-contact',
+        'https://max.ru/mayak_bot?start=tour-chat',
       ),
     );
   });

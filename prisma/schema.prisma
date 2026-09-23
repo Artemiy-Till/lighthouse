@@ -97,3 +97,22 @@ model ExperienceBookingSlot {
   @@id([experienceId, bookingDate, bookingTime])
   @@map("experience_booking_slots")
 }
+
+model ExperienceTourChat {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  experienceId      String    @map("experience_id")
+  bookingDate       DateTime  @map("booking_date") @db.Date
+  bookingTime       DateTime  @map("booking_time") @db.Time
+  title             String    @db.VarChar(200)
+  guideMaxUserId    String    @map("guide_max_user_id")
+  status            String    @default("pending") @db.VarChar(20)
+  chatId            BigInt?   @unique @map("chat_id")
+  inviteLink        String?   @map("invite_link")
+  guideNotifiedAt   DateTime? @map("guide_notified_at") @db.Timestamptz
+  activatedAt       DateTime? @map("activated_at") @db.Timestamptz
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@unique([experienceId, bookingDate, bookingTime], map: "experience_tour_chats_slot_key")
+  @@map("experience_tour_chats")
+}

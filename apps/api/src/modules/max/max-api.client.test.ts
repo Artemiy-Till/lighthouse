@@ -96,4 +96,59 @@ describe('MaxApiClient', () => {
       method: 'POST',
     });
   });
+
+  it('sends the guide a button that creates a tour chat', async () => {
+    const requestMock = vi.fn().mockResolvedValue({ body: '{}', status: 200 });
+
+    await createClient(
+      { MAX_BOT_TOKEN: 'secret-token' },
+      { request: requestMock },
+    ).sendTourChatButton('84', {
+      description: 'Чат участников',
+      startPayload: 'tour-chat:123',
+      title: 'Казань · 10.10.2026 · 12:00',
+    });
+
+    const options = requestMock.mock.calls[0]?.[3] as { body: string };
+    expect(JSON.parse(options.body)).toMatchObject({
+      attachments: [
+        {
+          payload: {
+            buttons: [
+              [
+                {
+                  chat_title: 'Казань · 10.10.2026 · 12:00',
+                  start_payload: 'tour-chat:123',
+                  type: 'chat',
+                },
+              ],
+            ],
+          },
+          type: 'inline_keyboard',
+        },
+      ],
+    });
+  });
+
+  it('loads the invite link for a created chat', async () => {
+    const requestMock = vi.fn().mockResolvedValue({
+      body: JSON.stringify({
+        chat_id: 123,
+        link: 'https://max.ru/join/example',
+        title: 'Чат экскурсии',
+        type: 'chat',
+      }),
+      status: 200,
+    });
+
+    const chat = await createClient(
+      { MAX_BOT_TOKEN: 'secret-token' },
+      { request: requestMock },
+    ).getChat('123');
+
+    expect(chat.link).toBe('https://max.ru/join/example');
+    expect((requestMock.mock.calls[0]?.[0] as URL).toString()).toBe(
+      'https://platform-api2.max.ru/chats/123',
+    );
+  });
 });

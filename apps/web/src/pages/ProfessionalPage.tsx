@@ -21,7 +21,6 @@ import { Icon } from '../components/Icon';
 import { ProfileBackLink } from '../components/ProfileBackLink';
 import { categories } from '../data/experiences';
 import { cities, type CityId } from '../data/cities';
-import { getMaxUserChatUrl } from '../features/max/max-chat';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { prepareExperiencePhoto } from '../features/marketplace/prepareExperiencePhoto';
 
@@ -570,46 +569,25 @@ export function ProfessionalPage() {
                         <div className="professional-schedule__actions">
                           <div className="professional-schedule__guests">
                             <strong>Гости</strong>
-                            {(slot.guests ?? []).map((guest) => {
-                              const chatUrl = getMaxUserChatUrl(
-                                guest.maxUserId,
-                                guest.username,
-                              );
-                              const guestName = getGuestDisplayName(guest);
-                              return (
-                                <div
-                                  className="professional-schedule__guest"
-                                  key={guest.bookingId}
-                                >
-                                  <span>{guestName}</span>
-                                  {guest.username ? (
-                                    <a
-                                      aria-label={`Открыть чат: ${guestName}`}
-                                      href={chatUrl}
-                                      onClick={(event) => {
-                                        if (platform.openMaxLink(chatUrl)) {
-                                          event.preventDefault();
-                                        }
-                                      }}
-                                    >
-                                      <Icon name="support" />В чат
-                                    </a>
-                                  ) : (
-                                    <button
-                                      aria-label={`Открыть чат: ${guestName}`}
-                                      disabled={guestContact.isPending}
-                                      onClick={() =>
-                                        guestContact.mutate(guest.bookingId)
-                                      }
-                                      type="button"
-                                    >
-                                      <Icon name="support" />В чат
-                                    </button>
-                                  )}
-                                </div>
-                              );
-                            })}
+                            {(slot.guests ?? []).map((guest) => (
+                              <div
+                                className="professional-schedule__guest"
+                                key={guest.bookingId}
+                              >
+                                <span>{getGuestDisplayName(guest)}</span>
+                              </div>
+                            ))}
                           </div>
+                          <button
+                            disabled={guestContact.isPending || !slot.guests[0]}
+                            onClick={() =>
+                              guestContact.mutate(slot.guests[0]!.bookingId)
+                            }
+                            type="button"
+                          >
+                            <Icon name="support" />
+                            Чат экскурсии
+                          </button>
                           <button
                             disabled={completeSchedule.isPending}
                             onClick={() => completeSchedule.mutate(slot)}
@@ -620,7 +598,7 @@ export function ProfessionalPage() {
                           </button>
                           {guestContact.isError ? (
                             <p className="form-error">
-                              Не удалось открыть контакт гостя. Попробуйте ещё
+                              Не удалось открыть чат экскурсии. Попробуйте ещё
                               раз.
                             </p>
                           ) : null}

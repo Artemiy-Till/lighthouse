@@ -256,12 +256,12 @@ const translations = {
   'orders.hide': { en: 'Hide details', ru: 'Скрыть детали' },
   'orders.details': { en: 'Booking details', ru: 'Подробнее о заказе' },
   'orders.chatGuide': {
-    en: 'Message the guide in MAX',
-    ru: 'Написать гиду в MAX',
+    en: 'Tour group chat',
+    ru: 'Чат экскурсии',
   },
   'orders.chatGuideError': {
-    en: 'Could not open the guide contact. Please try again.',
-    ru: 'Не удалось открыть контакт гида. Попробуйте ещё раз.',
+    en: 'Could not open the tour chat. Please try again.',
+    ru: 'Не удалось открыть чат экскурсии. Попробуйте ещё раз.',
   },
   'orders.cancel': { en: 'Cancel booking', ru: 'Отменить запись' },
   'orders.leaveReview': { en: 'Leave a review', ru: 'Оставить отзыв' },
