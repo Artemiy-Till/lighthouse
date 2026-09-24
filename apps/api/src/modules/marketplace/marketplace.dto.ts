@@ -161,13 +161,6 @@ export class CreateBookingDto {
   groupSize!: number;
 }
 
-export class ConnectTourChatDto {
-  @IsString()
-  @Matches(/^https:\/\/(?:www\.)?max\.ru\/.+/i)
-  @MaxLength(2048)
-  inviteLink!: string;
-}
-
 export class CreateReviewDto {
   @IsInt()
   @Min(1)

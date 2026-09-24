@@ -96,29 +96,6 @@ interface PublicReviewRow {
   rating: number;
 }
 
-interface TourChatRow {
-  booking_date: string | Date;
-  booking_time: string;
-  chat_id: string | null;
-  guide_max_user_id: string;
-  guide_notified_at: Date | null;
-  id: string;
-  invite_link: string | null;
-  status: 'active' | 'pending';
-  title: string;
-}
-
-function escapeMaxMarkdown(value: string) {
-  return value.replace(/[\\[\]()_*~`>#+\-=|{}.!]/g, '\\$&');
-}
-
-function formatTourChatTitle(title: string, date: string, time: string) {
-  const [year, month, day] = date.split('-');
-  const suffix = `${day}.${month}.${year} · ${time.slice(0, 5)}`;
-  const availableTitleLength = 200 - suffix.length - 3;
-  return `${title.slice(0, availableTitleLength)} · ${suffix}`;
-}
-
 function mapGuide(row: GuideRow) {
   return {
     bio: row.bio,
@@ -229,7 +206,6 @@ export class MarketplaceService {
   private bookingSchemaReady: Promise<void> | null = null;
   private reviewSchemaReady: Promise<void> | null = null;
   private scheduleSchemaReady: Promise<void> | null = null;
-  private tourChatSchemaReady: Promise<void> | null = null;
 
   constructor(
     private readonly database: DatabaseService,
@@ -359,95 +335,6 @@ export class MarketplaceService {
     return this.scheduleSchemaReady;
   }
 
-  private ensureTourChatSchema() {
-    this.tourChatSchemaReady ??= this.database
-      .query(
-        `create table if not exists experience_tour_chats (
-          id uuid primary key default gen_random_uuid(),
-          experience_id text not null,
-          booking_date date not null,
-          booking_time time not null,
-          title varchar(200) not null,
-          guide_max_user_id text not null,
-          status varchar(20) not null default 'pending'
-            check (status in ('pending', 'active')),
-          chat_id bigint unique,
-          invite_link text,
-          guide_notified_at timestamptz,
-          activated_at timestamptz,
-          created_at timestamptz not null default now(),
-          updated_at timestamptz not null default now(),
-          unique (experience_id, booking_date, booking_time)
-        )`,
-      )
-      .then(() => undefined)
-      .catch((error: unknown) => {
-        this.tourChatSchemaReady = null;
-        throw error;
-      });
-    return this.tourChatSchemaReady;
-  }
-
-  private async getOrCreateTourChat(input: {
-    date: string;
-    experienceId: string;
-    guideMaxUserId: string;
-    time: string;
-    title: string;
-  }) {
-    await this.ensureTourChatSchema();
-    const chatTitle = formatTourChatTitle(input.title, input.date, input.time);
-    const result = await this.database.query<TourChatRow>(
-      `insert into experience_tour_chats (
-         experience_id, booking_date, booking_time, title, guide_max_user_id
-       ) values ($1, $2::date, $3::time, $4, $5)
-       on conflict (experience_id, booking_date, booking_time) do update
-       set title = excluded.title,
-           guide_max_user_id = excluded.guide_max_user_id,
-           updated_at = now()
-       returning id, booking_date, booking_time, title, guide_max_user_id,
-         status, chat_id::text, invite_link, guide_notified_at`,
-      [
-        input.experienceId,
-        input.date,
-        input.time,
-        chatTitle,
-        input.guideMaxUserId,
-      ],
-    );
-    return result.rows[0]!;
-  }
-
-  private async prepareTourChatForBooking(input: {
-    date: string;
-    experienceId: string;
-    guestMaxUserId: string;
-    guideMaxUserId: string;
-    time: string;
-    title: string;
-  }) {
-    if (!this.maxApiClient) return;
-    const chat = await this.getOrCreateTourChat(input);
-
-    if (chat.status === 'active' && chat.invite_link) {
-      await this.sendTourChatLink(
-        input.guestMaxUserId,
-        chat.title,
-        chat.invite_link,
-      );
-    }
-  }
-
-  private sendTourChatLink(userId: string, title: string, inviteLink: string) {
-    if (!this.maxApiClient) {
-      throw new BadRequestException('MAX messaging is unavailable');
-    }
-    return this.maxApiClient.sendUserMessage(
-      userId,
-      `Чат экскурсии «${escapeMaxMarkdown(title)}» готов.\n\n[Присоединиться к группе](${inviteLink})`,
-    );
-  }
-
   private async replaceExperienceSchedule(
     experienceId: string,
     capacity: number,
@@ -544,11 +431,10 @@ export class MarketplaceService {
         | 'photo_urls'
         | 'price_rub'
         | 'title'
-      > & { guide_max_user_id: string; is_own: boolean }
+      > & { is_own: boolean }
     >(
       `select e.city_id, e.group_size, e.meeting_point, e.photo_urls,
-         e.price_rub, e.title, g.max_user_id as guide_max_user_id,
-         g.max_user_id = $2 as is_own
+         e.price_rub, e.title, g.max_user_id = $2 as is_own
        from published_experiences e
        join guide_profiles g on g.id = e.guide_id
        where e.id::text = $1 and e.status = 'published'`,
@@ -667,16 +553,6 @@ export class MarketplaceService {
         [result.rows[0].id, guestName || null],
       )
       .catch(() => undefined);
-    if (source?.guide_max_user_id) {
-      await this.prepareTourChatForBooking({
-        date: input.date,
-        experienceId: input.experienceId,
-        guestMaxUserId: maxUserId,
-        guideMaxUserId: source.guide_max_user_id,
-        time: input.time,
-        title,
-      }).catch(() => undefined);
-    }
     return mapBooking(result.rows[0]);
   }
 
@@ -724,20 +600,16 @@ export class MarketplaceService {
     if (!this.maxApiClient) {
       throw new BadRequestException('MAX messaging is unavailable');
     }
-    await this.ensureTourChatSchema();
     const result = await this.database.query<{
-      invite_link: string | null;
-      status: 'active' | 'pending' | null;
+      guide_name: string;
+      guide_user_id: string;
       title: string;
     }>(
-      `select e.title, tc.status, tc.invite_link
+      `select g.display_name as guide_name, g.max_user_id as guide_user_id,
+         e.title
        from experience_bookings b
        join published_experiences e on e.id::text = b.experience_id
        join guide_profiles g on g.id = e.guide_id
-       left join experience_tour_chats tc
-         on tc.experience_id = b.experience_id
-        and tc.booking_date = b.booking_date
-        and tc.booking_time = b.booking_time
        where b.id::text = $1 and b.max_user_id = $2
          and b.status = 'confirmed'`,
       [bookingId, maxUserId],
@@ -749,19 +621,13 @@ export class MarketplaceService {
     if (!bot.username) {
       throw new BadRequestException('MAX bot username is unavailable');
     }
-    if (contact.status === 'active' && contact.invite_link) {
-      await this.sendTourChatLink(
-        maxUserId,
-        contact.title,
-        contact.invite_link,
-      );
-    } else {
-      await this.maxApiClient.sendUserMessage(
-        maxUserId,
-        `Гид ещё не создал групповой чат экскурсии «${escapeMaxMarkdown(contact.title)}». Как только чат будет готов, бот автоматически пришлёт вам ссылку.`,
-      );
-    }
-    return { botUrl: `https://max.ru/${bot.username}?start=tour-chat` };
+    const guideName = contact.guide_name.trim() || 'Гид MAX';
+    const safeName = guideName.replace(/[\\[\]()_*~`>#+\-=|{}.!]/g, '\\$&');
+    await this.maxApiClient.sendUserMessage(
+      maxUserId,
+      `Гид экскурсии «${contact.title}»: [${safeName}](max://user/${contact.guide_user_id})\n\nНажмите на имя гида, чтобы открыть его профиль и написать.`,
+    );
+    return { botUrl: `https://max.ru/${bot.username}?start=guide-contact` };
   }
 
   async createReview(
@@ -1195,13 +1061,11 @@ export class MarketplaceService {
 
   async listGuideSchedule(maxUserId: string) {
     await this.ensureScheduleSchema();
-    await this.ensureTourChatSchema();
     const result = await this.database.query<{
       booking_count: number;
       booking_date: string | Date;
       booking_time: string;
       capacity: number;
-      chat_url: string | null;
       experience_id: string;
       guests: Array<{
         bookingId: string;
@@ -1216,7 +1080,6 @@ export class MarketplaceService {
     }>(
       `select e.id::text as experience_id, e.title,
          s.booking_date, s.booking_time, s.capacity, s.status,
-         tc.invite_link as chat_url,
          count(b.id)::integer as booking_count,
          coalesce(sum(b.participants), 0)::integer as participants,
          coalesce(
@@ -1234,10 +1097,6 @@ export class MarketplaceService {
        from experience_booking_slots s
        join published_experiences e on e.id::text = s.experience_id
        join guide_profiles g on g.id = e.guide_id
-       left join experience_tour_chats tc
-         on tc.experience_id = s.experience_id
-        and tc.booking_date = s.booking_date
-        and tc.booking_time = s.booking_time
        left join experience_bookings b
          on b.experience_id = s.experience_id
         and b.booking_date = s.booking_date
@@ -1246,7 +1105,7 @@ export class MarketplaceService {
        where g.max_user_id = $1 and e.status = 'published'
          and (s.status = 'completed' or s.booking_date >= current_date)
        group by e.id, e.title, s.booking_date, s.booking_time,
-         s.capacity, s.status, tc.invite_link
+         s.capacity, s.status
        order by case when s.status = 'scheduled' then 0 else 1 end,
          case when s.status = 'scheduled' then s.booking_date end asc,
          case when s.status = 'completed' then s.booking_date end desc,
@@ -1257,7 +1116,6 @@ export class MarketplaceService {
       items: result.rows.map((row) => ({
         bookingCount: row.booking_count,
         capacity: row.capacity,
-        chatUrl: row.chat_url,
         date:
           row.booking_date instanceof Date
             ? row.booking_date.toISOString().slice(0, 10)
@@ -1276,25 +1134,16 @@ export class MarketplaceService {
     if (!this.maxApiClient) {
       throw new BadRequestException('MAX messaging is unavailable');
     }
-    await this.ensureTourChatSchema();
     const result = await this.database.query<{
-      booking_date: string | Date;
-      booking_time: string;
-      experience_id: string;
-      invite_link: string | null;
-      status: 'active' | 'pending' | null;
-      tour_chat_id: string | null;
+      guest_name: string | null;
+      guest_user_id: string;
       title: string;
     }>(
-      `select b.experience_id, b.booking_date, b.booking_time, e.title,
-         tc.id::text as tour_chat_id, tc.status, tc.invite_link
+      `select coalesce(to_jsonb(b) ->> 'guest_name', 'Гость MAX') as guest_name,
+         b.max_user_id as guest_user_id, e.title
        from experience_bookings b
        join published_experiences e on e.id::text = b.experience_id
        join guide_profiles g on g.id = e.guide_id
-       left join experience_tour_chats tc
-         on tc.experience_id = b.experience_id
-        and tc.booking_date = b.booking_date
-        and tc.booking_time = b.booking_time
        where b.id::text = $1 and g.max_user_id = $2
          and b.status = 'confirmed'`,
       [bookingId, maxUserId],
@@ -1306,81 +1155,13 @@ export class MarketplaceService {
     if (!bot.username) {
       throw new BadRequestException('MAX bot username is unavailable');
     }
-    if (contact.status === 'active' && contact.invite_link) {
-      await this.sendTourChatLink(
-        maxUserId,
-        contact.title,
-        contact.invite_link,
-      );
-    } else {
-      await this.maxApiClient.sendUserMessage(
-        maxUserId,
-        `Создайте группу в MAX для экскурсии «${escapeMaxMarkdown(contact.title)}», затем вставьте ссылку на группу в карточке экскурсии.`,
-      );
-    }
-    return { botUrl: `https://max.ru/${bot.username}?start=tour-chat` };
-  }
-
-  async connectTourChat(
-    maxUserId: string,
-    bookingId: string,
-    inviteLink: string,
-  ) {
-    if (!this.maxApiClient) {
-      throw new BadRequestException('MAX messaging is unavailable');
-    }
-    await this.ensureTourChatSchema();
-    const result = await this.database.query<{
-      booking_date: string | Date;
-      booking_time: string;
-      experience_id: string;
-      title: string;
-    }>(
-      `select b.experience_id, b.booking_date, b.booking_time, e.title
-       from experience_bookings b
-       join published_experiences e on e.id::text = b.experience_id
-       join guide_profiles g on g.id = e.guide_id
-       where b.id::text = $1 and g.max_user_id = $2
-         and b.status = 'confirmed'`,
-      [bookingId, maxUserId],
+    const guestName = contact.guest_name?.trim() || 'Гость MAX';
+    const safeName = guestName.replace(/[\\[\]()_*~`>#+\-=|{}.!]/g, '\\$&');
+    await this.maxApiClient.sendUserMessage(
+      maxUserId,
+      `Гость экскурсии «${contact.title}»: [${safeName}](max://user/${contact.guest_user_id})\n\nНажмите на имя гостя, чтобы открыть его профиль и написать.`,
     );
-    const booking = result.rows[0];
-    if (!booking) throw new NotFoundException('Guest booking not found');
-    const date =
-      booking.booking_date instanceof Date
-        ? booking.booking_date.toISOString().slice(0, 10)
-        : String(booking.booking_date).slice(0, 10);
-    const chat = await this.getOrCreateTourChat({
-      date,
-      experienceId: booking.experience_id,
-      guideMaxUserId: maxUserId,
-      time: booking.booking_time,
-      title: booking.title,
-    });
-    await this.database.query(
-      `update experience_tour_chats
-       set status = 'active', invite_link = $2, activated_at = now(),
-           updated_at = now()
-       where id = $1`,
-      [chat.id, inviteLink],
-    );
-    const participants = await this.database.query<{ max_user_id: string }>(
-      `select distinct max_user_id
-       from experience_bookings
-       where experience_id = $1 and booking_date = $2::date
-         and booking_time = $3::time and status = 'confirmed'`,
-      [booking.experience_id, date, booking.booking_time],
-    );
-    const notifications = await Promise.allSettled(
-      participants.rows.map((participant) =>
-        this.sendTourChatLink(participant.max_user_id, chat.title, inviteLink),
-      ),
-    );
-    return {
-      chatUrl: inviteLink,
-      notified: notifications.filter((item) => item.status === 'fulfilled')
-        .length,
-    };
+    return { botUrl: `https://max.ru/${bot.username}?start=guest-contact` };
   }
 
   async completeGuideSchedule(

@@ -112,13 +112,6 @@ After deployment, verify `/api/v1/health` and
 `/api/v1/integrations/max/status`. The status response exposes only the public
 bot identity and never returns the token.
 
-The tour-chat table is created lazily before its first use, while the committed
-migration remains the canonical schema for new environments. The guide creates
-a regular group in MAX, copies its invite link and pastes it into the upcoming
-excursion card. The bot then sends that link to every confirmed guest for the
-same experience, date and time. Later bookings receive the existing link
-automatically.
-
 The frontend uses `https://lighthouse-api-lwsx.vercel.app` as the current
 production API fallback. Set `VITE_API_BASE_URL` on the frontend Vercel project
 when the API domain changes. Inside MAX, `POST /api/v1/auth/max` verifies the

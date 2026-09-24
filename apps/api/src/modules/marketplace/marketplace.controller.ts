@@ -15,7 +15,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { MaxAuthService } from '../max/max-auth.service.js';
 import {
   CompleteScheduleSlotDto,
-  ConnectTourChatDto,
   CreateBookingDto,
   CreateExperienceDto,
   CreateReviewDto,
@@ -144,19 +143,6 @@ export class MarketplaceController {
     return this.marketplace.sendGuestContact(
       this.authenticate(initData).id,
       id,
-    );
-  }
-
-  @Put('professional/bookings/:id/chat')
-  connectTourChat(
-    @Headers('x-max-init-data') initData: string | undefined,
-    @Param('id') id: string,
-    @Body() body: ConnectTourChatDto,
-  ) {
-    return this.marketplace.connectTourChat(
-      this.authenticate(initData).id,
-      id,
-      body.inviteLink,
     );
   }
 

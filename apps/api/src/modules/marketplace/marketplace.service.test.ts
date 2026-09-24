@@ -107,71 +107,6 @@ describe('MarketplaceService', () => {
     expect(query.mock.calls[2]?.[1]).toEqual(['booking-1', 'Артемий']);
   });
 
-  it('prepares a tour chat record after the first booking', async () => {
-    const tourChatId = '3c999a75-cf3b-41d3-b13f-996e9f11f8db';
-    const bookingRow = {
-      booking_date: '2026-10-10',
-      booking_time: '12:00:00',
-      city_id: 'kostroma',
-      created_at: new Date('2026-09-19T09:00:00.000Z'),
-      experience_id: 'experience-1',
-      id: 'booking-1',
-      image_url: 'https://example.com/photo.jpg',
-      meeting_point: experienceRow.meeting_point,
-      participants: 1,
-      status: 'confirmed' as const,
-      title: experienceRow.title,
-      total_price_rub: 1700,
-      unit_price_rub: 1700,
-    };
-    const query = vi
-      .fn()
-      .mockResolvedValueOnce({
-        rows: [{ ...experienceRow, guide_max_user_id: '84' }],
-      })
-      .mockResolvedValueOnce({ rows: [bookingRow] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({
-        rows: [
-          {
-            booking_date: '2026-10-10',
-            booking_time: '12:00:00',
-            chat_id: null,
-            guide_max_user_id: '84',
-            guide_notified_at: null,
-            id: tourChatId,
-            invite_link: null,
-            status: 'pending',
-            title: `${experienceRow.title} · 10.10.2026 · 12:00`,
-          },
-        ],
-      })
-      .mockResolvedValueOnce({ rows: [{ id: tourChatId }] });
-    const service = new MarketplaceService(
-      { query } as unknown as DatabaseService,
-      { sendUserMessage: vi.fn() } as unknown as MaxApiClient,
-    );
-
-    await service.createBooking(maxUser, {
-      cityId: 'kostroma',
-      date: '2026-10-10',
-      experienceId: 'experience-1',
-      groupSize: 10,
-      imageUrl: experienceRow.photo_urls[0]!,
-      meetingPoint: experienceRow.meeting_point,
-      participants: 1,
-      priceRub: 1700,
-      time: '12:00',
-      title: experienceRow.title,
-    });
-
-    expect(query).toHaveBeenCalledWith(
-      expect.stringContaining('insert into experience_tour_chats'),
-      expect.arrayContaining(['experience-1', '2026-10-10', '12:00', '84']),
-    );
-  });
-
   it('does not let a guide book their own published experience', async () => {
     const query = vi.fn().mockResolvedValueOnce({
       rows: [{ ...experienceRow, is_own: true }],
@@ -376,19 +311,16 @@ describe('MarketplaceService', () => {
     });
   });
 
-  it('sends the guest the active tour chat link through the bot', async () => {
-    const query = vi
-      .fn()
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({
-        rows: [
-          {
-            invite_link: 'https://max.ru/join/tour-chat',
-            status: 'active',
-            title: 'Петербург глазами местного',
-          },
-        ],
-      });
+  it('sends the guest a clickable guide contact through the bot', async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [
+        {
+          guide_name: 'Артемий',
+          guide_user_id: '84',
+          title: 'Петербург глазами местного',
+        },
+      ],
+    });
     const sendUserMessage = vi.fn().mockResolvedValue(undefined);
     const maxApiClient = {
       getCurrentBot: vi.fn().mockResolvedValue({ username: 'mayak_bot' }),
@@ -400,23 +332,21 @@ describe('MarketplaceService', () => {
     );
 
     await expect(service.sendGuideContact('42', 'booking-1')).resolves.toEqual({
-      botUrl: 'https://max.ru/mayak_bot?start=tour-chat',
+      botUrl: 'https://max.ru/mayak_bot?start=guide-contact',
     });
     expect(sendUserMessage).toHaveBeenCalledWith(
       '42',
-      expect.stringContaining(
-        '[Присоединиться к группе](https://max.ru/join/tour-chat)',
-      ),
+      expect.stringContaining('[Артемий](max://user/84)'),
     );
-    expect(query.mock.calls[1]).toEqual([
+    expect(query).toHaveBeenCalledWith(
       expect.stringContaining('b.max_user_id = $2'),
       ['booking-1', '42'],
-    ]);
+    );
   });
 
   it('lists guest contacts only inside the guide schedule', async () => {
     const query = vi.fn();
-    for (let index = 0; index < 7; index += 1) {
+    for (let index = 0; index < 6; index += 1) {
       query.mockResolvedValueOnce({ rows: [] });
     }
     query.mockResolvedValueOnce({
@@ -426,7 +356,6 @@ describe('MarketplaceService', () => {
           booking_date: '2099-10-10',
           booking_time: '12:00:00',
           capacity: 8,
-          chat_url: null,
           experience_id: 'experience-1',
           guests: [
             {
@@ -449,12 +378,11 @@ describe('MarketplaceService', () => {
 
     const result = await service.listGuideSchedule('84');
 
-    expect(query.mock.calls[7]?.[0]).toContain(
+    expect(query.mock.calls[6]?.[0]).toContain(
       "'guestName', to_jsonb(b) ->> 'guest_name'",
     );
-    expect(query.mock.calls[7]?.[0]).toContain("'maxUserId', b.max_user_id");
-    expect(query.mock.calls[7]?.[1]).toEqual(['84']);
-    expect(result.items[0]?.chatUrl).toBeNull();
+    expect(query.mock.calls[6]?.[0]).toContain("'maxUserId', b.max_user_id");
+    expect(query.mock.calls[6]?.[1]).toEqual(['84']);
     expect(result.items[0]?.guests).toEqual([
       {
         bookingId: 'booking-1',
@@ -466,24 +394,16 @@ describe('MarketplaceService', () => {
     ]);
   });
 
-  it('tells the guide how to connect a pending tour chat', async () => {
-    const tourChatId = '3c999a75-cf3b-41d3-b13f-996e9f11f8db';
-    const query = vi
-      .fn()
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({
-        rows: [
-          {
-            booking_date: '2026-10-10',
-            booking_time: '12:00:00',
-            experience_id: 'experience-1',
-            invite_link: null,
-            status: 'pending',
-            title: 'Петербург глазами местного',
-            tour_chat_id: tourChatId,
-          },
-        ],
-      });
+  it('sends the guide a clickable contact for a guest without username', async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [
+        {
+          guest_name: 'Мария Иванова',
+          guest_user_id: '84',
+          title: 'Петербург глазами местного',
+        },
+      ],
+    });
     const sendUserMessage = vi.fn().mockResolvedValue(undefined);
     const maxApiClient = {
       getCurrentBot: vi.fn().mockResolvedValue({ username: 'mayak_bot' }),
@@ -495,65 +415,16 @@ describe('MarketplaceService', () => {
     );
 
     await expect(service.sendGuestContact('42', 'booking-1')).resolves.toEqual({
-      botUrl: 'https://max.ru/mayak_bot?start=tour-chat',
+      botUrl: 'https://max.ru/mayak_bot?start=guest-contact',
     });
     expect(sendUserMessage).toHaveBeenCalledWith(
       '42',
-      expect.stringContaining('вставьте ссылку на группу'),
+      expect.stringContaining('[Мария Иванова](max://user/84)'),
     );
-    expect(query.mock.calls[1]).toEqual([
+    expect(query).toHaveBeenCalledWith(
       expect.stringContaining('g.max_user_id = $2'),
       ['booking-1', '42'],
-    ]);
-  });
-
-  it('connects a MAX group link and notifies every booked guest', async () => {
-    const inviteLink = 'https://max.ru/join/tour-chat';
-    const query = vi
-      .fn()
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({
-        rows: [
-          {
-            booking_date: '2026-10-10',
-            booking_time: '12:00:00',
-            experience_id: 'experience-1',
-            title: 'Петербург глазами местного',
-          },
-        ],
-      })
-      .mockResolvedValueOnce({
-        rows: [
-          {
-            id: '3c999a75-cf3b-41d3-b13f-996e9f11f8db',
-            invite_link: null,
-            status: 'pending',
-            title: 'Петербург глазами местного · 10.10.2026 · 12:00',
-          },
-        ],
-      })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({
-        rows: [{ max_user_id: '42' }, { max_user_id: '43' }],
-      });
-    const sendUserMessage = vi.fn().mockResolvedValue(undefined);
-    const service = new MarketplaceService(
-      { query } as unknown as DatabaseService,
-      { sendUserMessage } as unknown as MaxApiClient,
     );
-
-    await expect(
-      service.connectTourChat('84', 'booking-1', inviteLink),
-    ).resolves.toEqual({ chatUrl: inviteLink, notified: 2 });
-    expect(sendUserMessage).toHaveBeenCalledTimes(2);
-    expect(sendUserMessage).toHaveBeenCalledWith(
-      '42',
-      expect.stringContaining(inviteLink),
-    );
-    expect(query.mock.calls[3]).toEqual([
-      expect.stringContaining("set status = 'active'"),
-      ['3c999a75-cf3b-41d3-b13f-996e9f11f8db', inviteLink],
-    ]);
   });
 
   it('creates one review for a completed booking', async () => {

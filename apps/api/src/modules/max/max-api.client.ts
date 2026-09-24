@@ -78,13 +78,6 @@ export class MaxApiClient {
   }
 
   async sendUserMessage(userId: string, text: string): Promise<void> {
-    await this.sendMessage(userId, { format: 'markdown', text });
-  }
-
-  private async sendMessage(
-    userId: string,
-    body: Readonly<Record<string, unknown>>,
-  ): Promise<void> {
     const token = this.configService.get<string>('MAX_BOT_TOKEN');
     if (!token) throw new MaxApiError('invalid_credentials');
 
@@ -107,7 +100,7 @@ export class MaxApiClient {
         },
         timeout,
         {
-          body: JSON.stringify(body),
+          body: JSON.stringify({ format: 'markdown', text }),
           method: 'POST',
         },
       );

@@ -96,7 +96,6 @@ export interface CreateExperienceInput {
 export interface GuideScheduleItem {
   readonly bookingCount: number;
   readonly capacity: number;
-  readonly chatUrl: string | null;
   readonly date: string;
   readonly experienceId: string;
   readonly guests: readonly {
@@ -270,21 +269,6 @@ export function sendGuestContact(initData: string, bookingId: string) {
   return request<{ readonly botUrl: string }>(
     `/professional/bookings/${encodeURIComponent(bookingId)}/contact`,
     { headers: maxHeaders(initData), method: 'POST' },
-  );
-}
-
-export function connectTourChat(
-  initData: string,
-  bookingId: string,
-  inviteLink: string,
-) {
-  return request<{ readonly chatUrl: string; readonly notified: number }>(
-    `/professional/bookings/${encodeURIComponent(bookingId)}/chat`,
-    {
-      body: JSON.stringify({ inviteLink }),
-      headers: maxHeaders(initData),
-      method: 'PUT',
-    },
   );
 }
 
