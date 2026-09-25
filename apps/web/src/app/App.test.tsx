@@ -923,6 +923,84 @@ describe('App navigation', () => {
     expect(screen.getByText('20 сентября 2026 г.')).toBeInTheDocument();
   });
 
+  it('opens the public profile of a marketplace guide from an experience', async () => {
+    const experience = {
+      availableSlots: [],
+      category: 'История',
+      children: 'Можно с детьми',
+      cityId: 'saint-petersburg',
+      createdAt: '2026-09-19T09:00:00.000Z',
+      description: 'Авторская прогулка по городу.',
+      durationMinutes: 120,
+      format: 'Пешком',
+      groupSize: 8,
+      groupType: 'Авторская экскурсия',
+      guide: {
+        bio: 'Гид по Петербургу и автор городских маршрутов.',
+        displayName: 'Артемий',
+        id: 'guide-1',
+        photoUrl: 'https://example.com/artemiy.jpg',
+      },
+      highlights: ['Новая Голландия'],
+      id: 'published-user-tour',
+      intro: 'Увидим город глазами местного жителя.',
+      meetingPoint: 'У входа в Новую Голландию',
+      photos: ['/images/hidden-courtyards.webp'],
+      priceRub: 2200,
+      rating: 4.8,
+      reviewCount: 5,
+      status: 'published',
+      title: 'Петербург глазами местного',
+    };
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        const payload = requestUrl.endsWith(
+          '/experiences/published-user-tour/reviews',
+        )
+          ? { items: [] }
+          : requestUrl.endsWith('/experiences/published-user-tour')
+            ? experience
+            : requestUrl.endsWith('/experiences')
+              ? { items: [experience] }
+              : {
+                  bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+                  configured: true,
+                  connected: true,
+                };
+
+        return Promise.resolve(
+          new Response(JSON.stringify(payload), { status: 200 }),
+        );
+      }),
+    );
+
+    renderApp('/experiences/published-user-tour');
+
+    const guideLink = await screen.findByRole('link', {
+      name: 'Открыть профиль гида Артемий',
+    });
+    expect(guideLink).toHaveAttribute('href', '/guides/guide-1');
+
+    fireEvent.click(guideLink);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Артемий', level: 1 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Гид по Петербургу и автор городских маршрутов.'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText('5 отзывов')).not.toHaveLength(0);
+    expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
+  });
+
   it('opens an experience card and shows its complete details', () => {
     renderApp();
 

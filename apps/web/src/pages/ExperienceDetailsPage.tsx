@@ -460,7 +460,11 @@ export function ExperienceDetailsPage() {
         ) : published.data ? (
           <section className="experience-guide">
             <h2>Ваш гид</h2>
-            <div className="experience-guide__card">
+            <Link
+              aria-label={`Открыть профиль гида ${published.data.guide.displayName}`}
+              className="experience-guide__card"
+              to={`/guides/${published.data.guide.id}`}
+            >
               {published.data.guide.photoUrl ? (
                 <img
                   alt={`Фото гида ${published.data.guide.displayName}`}
@@ -479,7 +483,10 @@ export function ExperienceDetailsPage() {
                 <small>{published.data.guide.bio}</small>
                 <span>✓ Профиль гида подтверждён через MAX</span>
               </span>
-            </div>
+              <span aria-hidden="true" className="experience-guide__arrow">
+                ›
+              </span>
+            </Link>
           </section>
         ) : null}
 
