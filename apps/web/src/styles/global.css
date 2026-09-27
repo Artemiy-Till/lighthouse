@@ -5469,9 +5469,10 @@ html[data-theme='dark'] .home-city-tabs button:not(.is-active) {
   right: 22px;
 }
 
+html[data-theme='dark'] .favorite-button.is-favorite,
 html[data-theme='dark'] .experience-details-hero__favorite.is-favorite {
   color: #fff;
-  background: #7484ff;
+  background: #18181a;
 }
 
 .experience-details-hero__counter {
