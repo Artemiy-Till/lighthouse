@@ -6085,6 +6085,26 @@ html[data-theme='dark'] .date-dialog__reset {
   box-shadow: none;
 }
 
+html[data-theme='dark'] .date-input-field input,
+html[data-theme='dark'] .date-dialog__close,
+html[data-theme='dark'] .date-dialog__apply:disabled {
+  border-color: #424246;
+  background: #29292c;
+}
+
+html[data-theme='dark'] .date-input-field input:focus {
+  border-color: #dedee1;
+  box-shadow: 0 0 0 2px rgb(222 222 225 / 12%);
+}
+
+html[data-theme='dark'] .date-dialog__close {
+  color: #f5f5f5;
+}
+
+html[data-theme='dark'] .date-dialog__apply:disabled {
+  color: #8d8d94;
+}
+
 .catalog-filter-button > strong,
 .settings-option--toggle[aria-checked='true'] .settings-toggle,
 .profile-theme-toggle[aria-checked='true'] .theme-switch {
