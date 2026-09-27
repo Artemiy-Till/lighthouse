@@ -7783,7 +7783,7 @@ html[data-theme='dark']
 
 /* Compact guide profile aligned with the app's outlined controls. */
 .guide-profile {
-  margin: 14px 18px 0;
+  margin: 14px 18px;
   padding: 20px 18px 18px;
   border: 1px solid var(--line);
   border-radius: 24px;
