@@ -8124,7 +8124,7 @@ html[data-theme='dark'] .order-facts div {
 
 .order-facts div:last-child {
   width: calc(50% - 4px);
-  justify-self: center;
+  justify-self: start;
   grid-column: 1 / -1;
 }
 
