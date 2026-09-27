@@ -8105,7 +8105,7 @@ html[data-theme='dark'] .order-facts div {
 }
 
 .order-facts {
-  grid-template-columns: minmax(0, 1.35fr) repeat(2, minmax(0, 0.8fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -8120,6 +8120,12 @@ html[data-theme='dark'] .order-facts div {
   grid-column: auto;
   flex-direction: column;
   text-align: center;
+}
+
+.order-facts div:last-child {
+  width: calc(50% - 4px);
+  justify-self: center;
+  grid-column: 1 / -1;
 }
 
 .order-facts dt {
