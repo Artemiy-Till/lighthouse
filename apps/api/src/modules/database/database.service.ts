@@ -18,7 +18,10 @@ export class DatabaseService implements OnModuleDestroy {
     }
 
     const hostname = new URL(connectionString).hostname;
-    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isLocal =
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === 'postgres';
     this.pool = new Pool({
       connectionString,
       max: 5,

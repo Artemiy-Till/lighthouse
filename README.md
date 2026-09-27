@@ -121,22 +121,54 @@ Vercel Blob используется для хранения фотографи�
 
 ## Требования к окружению
 
-Для локального запуска необходимы:
+Для рекомендуемого запуска всего решения необходимы:
+
+- Docker Engine или Docker Desktop;
+- Docker Compose v2;
+- Git.
+
+Для запуска без Docker дополнительно необходимы:
 
 - Node.js 24.15 или новее, но ниже версии 25;
 - pnpm версии 11;
 - PostgreSQL;
-- Git;
 - доступ к MAX Bot API для проверки полной интеграции;
 - действующий бот MAX для авторизованных сценариев.
 
-## Установка зависимостей
+## Запуск всех компонентов через Docker
+
+Все локальные компоненты — frontend, backend и PostgreSQL — собираются и запускаются одной командой:
+
+```bash
+docker compose up --build
+```
+
+При первом запуске Docker:
+
+1. создаёт том для PostgreSQL;
+2. дожидается готовности базы данных;
+3. автоматически применяет Prisma-миграции;
+4. запускает API;
+5. запускает frontend через Nginx.
+
+После запуска доступны:
+
+- frontend: http://localhost:5173
+- API: http://localhost:3000/api/v1
+- проверка API: http://localhost:3000/api/v1/health
+- PostgreSQL: `localhost:5432`
+
+Публичный каталог запустится без секретов. Для проверки авторизации MAX и загрузки фотографий создайте `.env` и задайте `MAX_BOT_TOKEN` и `BLOB_READ_WRITE_TOKEN`.
+
+## Локальный запуск без Docker
+
+### Установка зависимостей
 
 ```bash
 pnpm install
 ```
 
-## Подготовка окружения
+### Подготовка окружения
 
 Создайте локальный файл `.env` на основе примера:
 
@@ -156,7 +188,7 @@ pnpm db:generate
 pnpm db:migrate:deploy
 ```
 
-## Запуск приложения
+### Запуск приложения
 
 После установки зависимостей и подготовки PostgreSQL frontend и backend запускаются одной командой:
 
@@ -208,6 +240,8 @@ LOG_LEVEL=info
 DATABASE_URL=postgresql://marketplace:marketplace@localhost:5432/marketplace?schema=public
 ```
 
+В Docker Compose адрес базы задаётся автоматически и использует внутреннее имя сервиса `postgres`.
+
 ### CORS_ORIGINS
 
 Разрешённые адреса клиентского приложения.
@@ -251,6 +285,8 @@ MAX_API_TIMEOUT_MS=5000
 ```env
 VITE_API_BASE_URL=http://localhost:3000
 ```
+
+В Docker-сборке frontend обращается к `/api` через Nginx, поэтому задавать эту переменную вручную не требуется.
 
 ### BLOB_READ_WRITE_TOKEN
 
@@ -517,7 +553,15 @@ GET /api/v1/health
 
 ## Остановка решения
 
-Для остановки frontend и backend нажмите:
+Для остановки Docker-окружения выполните:
+
+```bash
+docker compose down
+```
+
+Данные PostgreSQL при этом сохраняются в Docker volume.
+
+Для остановки frontend и backend, запущенных без Docker, нажмите:
 
 ```text
 Ctrl+C
@@ -529,7 +573,19 @@ PostgreSQL останавливается отдельно способом, с�
 
 ## Повторный запуск
 
-Убедитесь, что PostgreSQL запущен, затем выполните:
+Для повторного запуска Docker-окружения выполните:
+
+```bash
+docker compose up
+```
+
+Если изменились исходный код или зависимости, пересоберите образы:
+
+```bash
+docker compose up --build
+```
+
+Для повторного запуска без Docker убедитесь, что PostgreSQL запущен, затем выполните:
 
 ```bash
 pnpm dev
@@ -542,4 +598,3 @@ pnpm dev
 ```bash
 pnpm db:migrate:deploy
 ```
-
