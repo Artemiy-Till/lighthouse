@@ -3095,7 +3095,7 @@ html[data-theme='dark'] .order-card__chat {
 }
 
 .order-review-summary strong {
-  color: #c77d00;
+  color: var(--ink);
   font-size: 12px;
 }
 
@@ -4192,6 +4192,11 @@ html[data-theme='dark'] .order-review-form,
 html[data-theme='dark'] .order-review-summary {
   border-color: #343a60;
   background: #22263c;
+}
+
+html[data-theme='dark'] .order-review-summary {
+  border-color: var(--line);
+  background: var(--surface);
 }
 
 html[data-theme='dark'] .order-review-form textarea,
