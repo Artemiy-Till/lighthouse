@@ -33,11 +33,18 @@ async function bootstrap() {
     }),
   );
 
-  if (environment.CORS_ORIGINS.length > 0) {
+  const corsOrigins =
+    environment.CORS_ORIGINS.length > 0
+      ? environment.CORS_ORIGINS
+      : environment.NODE_ENV === 'production'
+        ? ['https://lighthouse-api-one.vercel.app']
+        : [];
+
+  if (corsOrigins.length > 0) {
     app.enableCors({
       credentials: true,
       methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      origin: environment.CORS_ORIGINS,
+      origin: corsOrigins,
     });
   }
 

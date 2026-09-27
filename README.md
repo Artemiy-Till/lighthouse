@@ -257,6 +257,8 @@ DATABASE_URL=postgresql://marketplace:marketplace@localhost:5432/marketplace?sch
 
 Разрешённые адреса клиентского приложения.
 
+Для production API по умолчанию разрешён frontend `https://lighthouse-api-one.vercel.app`, если переменная не задана. Для другого production-домена укажите его явно. Переменная принимает несколько origin через запятую.
+
 ```env
 CORS_ORIGINS=http://localhost:5173
 ```
