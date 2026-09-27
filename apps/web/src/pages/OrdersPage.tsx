@@ -10,15 +10,11 @@ import {
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { cities } from '../data/cities';
+import { isUpcomingBooking } from '../features/bookings/booking-status';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 
 type OrderTab = 'completed' | 'upcoming';
-
-function isUpcoming(order: Booking) {
-  const startsAt = new Date(`${order.date}T${order.time}:00`).getTime();
-  return order.status === 'confirmed' && startsAt > Date.now();
-}
 
 function formatDate(order: Booking, locale: string) {
   const [year, month, day] = order.date.split('-').map(Number);
@@ -80,10 +76,12 @@ export function OrdersPage() {
     },
   });
   const allOrders = orders.data?.items ?? [];
-  const upcomingCount = allOrders.filter(isUpcoming).length;
+  const upcomingCount = allOrders.filter(isUpcomingBooking).length;
   const completedCount = allOrders.length - upcomingCount;
   const visibleOrders = allOrders.filter((order) =>
-    activeTab === 'upcoming' ? isUpcoming(order) : !isUpcoming(order),
+    activeTab === 'upcoming'
+      ? isUpcomingBooking(order)
+      : !isUpcomingBooking(order),
   );
 
   return (
@@ -141,7 +139,7 @@ export function OrdersPage() {
             {visibleOrders.map((order) => {
               const expanded = expandedOrderId === order.id;
               const city = cities.find((item) => item.id === order.cityId);
-              const upcoming = isUpcoming(order);
+              const upcoming = isUpcomingBooking(order);
               const status =
                 order.status === 'cancelled'
                   ? t('orders.cancelled')

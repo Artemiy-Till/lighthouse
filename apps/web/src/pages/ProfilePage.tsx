@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { getBookings } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
 import { Icon } from '../components/Icon';
+import { isUpcomingBooking } from '../features/bookings/booking-status';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 import { useTheme } from '../features/theme/ThemeContext';
@@ -27,9 +28,8 @@ export function ProfilePage() {
     queryKey: ['bookings'],
     retry: false,
   });
-  const today = new Date().toISOString().slice(0, 10);
   const nextBooking = bookings.data?.items
-    .filter((item) => item.status === 'confirmed' && item.date >= today)
+    .filter(isUpcomingBooking)
     .sort((left, right) =>
       `${left.date}${left.time}`.localeCompare(`${right.date}${right.time}`),
     )[0];
