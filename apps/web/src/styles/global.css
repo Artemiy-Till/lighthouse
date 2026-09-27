@@ -6062,12 +6062,27 @@ html[data-theme='dark'] .experience-terms li {
 
 .catalog-active-filters button,
 .catalog-summary .catalog-filter-button.is-active,
-.date-quick-options button.is-selected,
 .catalog-filter-options input:checked + span,
 .catalog-filter-presets button.is-active {
   border-color: #252527;
   color: var(--ink);
   background: #eeeeef;
+}
+
+.date-quick-options button.is-selected,
+.date-dialog__reset {
+  border: 1px solid #252527;
+  color: #252527;
+  background: transparent;
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .date-quick-options button.is-selected,
+html[data-theme='dark'] .date-dialog__reset {
+  border-color: #dedee1;
+  color: #f5f5f5;
+  background: transparent;
+  box-shadow: none;
 }
 
 .catalog-filter-button > strong,
