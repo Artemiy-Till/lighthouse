@@ -5716,9 +5716,8 @@ html[data-theme='dark'] .booking-card__topline {
 }
 
 html[data-theme='dark'] .booking-card__topline strong {
-  border: 1px solid #4a4a4f;
-  color: #dedee1;
-  background: transparent;
+  color: #8ee1ad;
+  background: #193627;
 }
 
 html[data-theme='dark'] .booking-card h2 {

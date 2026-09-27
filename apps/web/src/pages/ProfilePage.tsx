@@ -90,7 +90,7 @@ export function ProfilePage() {
           <section aria-labelledby="next-booking" className="booking-card">
             <div className="booking-card__topline">
               <span>Ближайшая прогулка</span>
-              <strong>Подтверждено</strong>
+              <strong className="status-confirmed">Подтверждено</strong>
             </div>
             <h2 id="next-booking">{nextBooking.title}</h2>
             <div className="booking-details">
