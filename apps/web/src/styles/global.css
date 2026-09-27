@@ -8095,3 +8095,11 @@ html[data-theme='dark'] .settings-segmented button[aria-pressed='true'] {
 .professional-page > .compact-loading {
   padding: 4px 0;
 }
+
+.order-facts div,
+html[data-theme='dark'] .order-facts div {
+  border: 1px solid #4a4a4f;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+}
