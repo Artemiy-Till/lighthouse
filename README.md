@@ -1,128 +1,548 @@
+С учётом предыдущей просьбы раздел про Docker пока не включаю. Остальные обязательные разделы можно оформить так:
+
+```markdown
 # MAX Travel Marketplace
 
-Production-oriented foundation for a mobile-first marketplace of tours and local experiences inside MAX.
+Маркетплейс экскурсий и локальных впечатлений, реализованный в формате мини-приложения для мессенджера MAX.
 
-The first marketplace vertical slice includes verified MAX profiles, professional
-guide accounts and globally published excursions backed by PostgreSQL.
+## Назначение решения
 
-## Requirements
+Сервис объединяет путешественников и локальных гидов внутри MAX.
 
-- Node.js 24.15+ LTS
-- pnpm 11
-- Docker with Compose
+Пользователи могут:
 
-## Local development
+- выбирать город;
+- искать и просматривать экскурсии;
+- добавлять предложения в избранное;
+- выбирать дату и время;
+- бронировать места;
+- просматривать свои заказы;
+- оставлять отзывы;
+- связываться с гидом через MAX.
+
+Гиды могут:
+
+- создавать профиль;
+- публиковать экскурсии;
+- загружать фотографии;
+- управлять расписанием;
+- редактировать предложения;
+- просматривать бронирования гостей.
+
+## Работающая версия
+
+Чат-бот в MAX:
+
+https://max.ru/se14377272_bot
+
+Прямая ссылка на мини-приложение:
+
+https://max.ru/se14377272_bot?startapp
+
+Веб-версия:
+
+https://lighthouse-api-one.vercel.app
+
+Backend API:
+
+https://lighthouse-api-lwsx.vercel.app/api/v1
+
+Проверка состояния API:
+
+https://lighthouse-api-lwsx.vercel.app/api/v1/health
+
+## Основной пользовательский сценарий
+
+1. Пользователь открывает чат-бота «Маяк» в MAX.
+2. Запускает мини-приложение.
+3. Выбирает город.
+4. Открывает каталог экскурсий.
+5. Использует поиск и фильтры.
+6. Открывает карточку подходящей экскурсии.
+7. Просматривает описание, фотографии, информацию о гиде и отзывы.
+8. Выбирает доступные дату и время.
+9. Указывает количество участников.
+10. Подтверждает бронирование.
+11. Открывает раздел «Заказы» для просмотра созданной записи.
+12. При необходимости связывается с гидом через MAX.
+
+Дополнительный сценарий для гида:
+
+1. Открыть раздел «Профиль».
+2. Перейти в кабинет гида.
+3. Создать или отредактировать профиль.
+4. Добавить новую экскурсию.
+5. Загрузить фотографии.
+6. Указать описание, стоимость и параметры экскурсии.
+7. Добавить доступные даты и время.
+8. Опубликовать экскурсию в общем каталоге.
+
+## Состав решения
+
+Проект организован как монорепозиторий:
+
+- `apps/web` — клиентское React-приложение;
+- `apps/api` — серверное NestJS-приложение;
+- `prisma` — схема PostgreSQL и миграции;
+- `docs` — описание архитектуры и архитектурные решения;
+- `.github/workflows` — автоматические проверки проекта.
+
+## Архитектура
+
+Решение построено как модульный монолит и состоит из следующих компонентов:
+
+### MAX Mini App
+
+React, TypeScript и Vite.
+
+Отвечает за интерфейс каталога, бронирование, отзывы, профиль пользователя и кабинет гида.
+
+### Backend API
+
+NestJS, Fastify и TypeScript.
+
+Отвечает за:
+
+- проверку авторизации MAX;
+- бизнес-логику маркетплейса;
+- управление экскурсиями;
+- управление расписанием;
+- бронирования;
+- отзывы;
+- профили гидов;
+- загрузку фотографий.
+
+### Хранилища
+
+PostgreSQL используется для хранения профилей, экскурсий, расписания, бронирований и отзывов.
+
+Vercel Blob используется для хранения фотографий пользовательских экскурсий.
+
+### Поток данных
+
+Пользователь → бот MAX → React Mini App → NestJS API → PostgreSQL или Vercel Blob.
+
+## Требования к окружению
+
+Для локального запуска необходимы:
+
+- Node.js 24.15 или новее, но ниже версии 25;
+- pnpm версии 11;
+- PostgreSQL;
+- Git;
+- доступ к MAX Bot API для проверки полной интеграции;
+- действующий бот MAX для авторизованных сценариев.
+
+## Установка зависимостей
+
+```bash
+pnpm install
+```
+
+## Подготовка окружения
+
+Создайте локальный файл `.env` на основе примера:
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres
-pnpm install
+```
+
+Сгенерируйте Prisma Client:
+
+```bash
 pnpm db:generate
-pnpm dev
 ```
 
-- Web: `http://localhost:5173`
-- API health: `http://localhost:3000/api/v1/health`
-- API docs in development: `http://localhost:3000/api/docs`
-
-The browser development fallback never impersonates a MAX user. Authentication
-accepts only raw `window.WebApp.initData`, validates its signature and freshness
-on the backend, and then returns the verified public profile.
-
-## Quality checks
-
-```bash
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm db:validate
-pnpm build
-```
-
-## Database and migrations
-
-Prisma configuration lives in `prisma.config.ts`; the schema is in `prisma/schema.prisma` and migrations are committed under `prisma/migrations`.
-
-```bash
-pnpm db:migrate          # create/apply a development migration
-pnpm db:migrate:deploy   # apply committed migrations in deployment
-```
-
-No domain tables are created until their product slice is implemented.
-
-## Environment variables
-
-Copy `.env.example` to `.env`. Environment files are ignored by Git.
-
-- `DATABASE_URL`: PostgreSQL connection string. Required for professional guide
-  accounts and global excursion publishing. The rest of the prototype keeps a
-  read-only static fallback when the database is not configured.
-- `PORT`: API port, defaults to `3000`.
-- `CORS_ORIGINS`: comma-separated development origins. Production should prefer a same-origin deployment.
-- `LOG_LEVEL`: structured API log level.
-- `MAX_BOT_TOKEN`: server-only MAX bot token; never expose it to the frontend.
-- `MAX_API_BASE_URL`: MAX API origin; defaults to `https://platform-api2.max.ru`.
-- `MAX_API_TIMEOUT_MS`: timeout for outgoing MAX API calls.
-- `VITE_API_BASE_URL`: public API origin used by the frontend. This value is not
-  a secret.
-
-## Prototype deployment
-
-The current frontend prototype can be deployed to Vercel directly from this
-repository. The `apps/web/vercel.json` file configures the Vite build and the
-single-page application fallback required for direct links such as `/catalog`
-and `/experiences/:id`.
-
-1. Import the GitHub repository into Vercel.
-2. Select `apps/web` as the Vercel Root Directory; the build and output settings
-   are read from `apps/web/vercel.json`.
-3. Deploy and copy the generated `https://...vercel.app` URL.
-4. After the MAX bot passes moderation, open its settings on the MAX partner
-   platform and paste that HTTPS URL into the mini-app URL field.
-
-Never add `MAX_BOT_TOKEN` to Vercel variables exposed to the frontend. The
-frontend sends signed launch data to the API and never receives the bot token.
-
-### API deployment
-
-Create a second Vercel project from the same GitHub repository and select
-`apps/api` as its Root Directory. Vercel detects the standard NestJS
-`src/main.ts` entrypoint automatically, so do not configure a build command or
-an output directory for this project.
-
-Add the following server-side environment variables to the API project:
-
-- `NODE_ENV=production`
-- `CORS_ORIGINS=https://lighthouse-api-one.vercel.app`
-- `MAX_BOT_TOKEN`: a newly issued bot token
-- `DATABASE_URL`: PostgreSQL connection string supplied by the database provider
-
-After connecting PostgreSQL, apply the committed schema once from a trusted
-terminal with access to the production `DATABASE_URL`:
+Примените миграции базы данных:
 
 ```bash
 pnpm db:migrate:deploy
 ```
 
-Professional endpoints authenticate every write with signed MAX launch data.
-The bot token and database URL remain server-only.
+## Запуск приложения
 
-After deployment, verify `/api/v1/health` and
-`/api/v1/integrations/max/status`. The status response exposes only the public
-bot identity and never returns the token.
+После установки зависимостей и подготовки PostgreSQL frontend и backend запускаются одной командой:
 
-The frontend uses `https://lighthouse-api-lwsx.vercel.app` as the current
-production API fallback. Set `VITE_API_BASE_URL` on the frontend Vercel project
-when the API domain changes. Inside MAX, `POST /api/v1/auth/max` verifies the
-signed launch data before the profile is displayed.
+```bash
+pnpm dev
+```
 
-## Repository layout
+Команда одновременно запускает клиентское и серверное приложения.
 
-- `apps/web`: React MAX Mini App.
-- `apps/api`: NestJS modular monolith.
-- `prisma`: PostgreSQL schema and migrations.
-- `docs`: architecture and decisions.
-- `.github/workflows`: CI quality gates.
+## Переменные окружения
 
-See [architecture overview](docs/architecture/overview.md) and [ADR-0001](docs/adr/0001-modular-monolith.md).
+### NODE_ENV
+
+Режим работы приложения.
+
+Возможные значения:
+
+- `development`;
+- `test`;
+- `production`.
+
+Для локальной разработки:
+
+```env
+NODE_ENV=development
+```
+
+### PORT
+
+Порт backend-приложения.
+
+```env
+PORT=3000
+```
+
+### LOG_LEVEL
+
+Уровень журналирования сервера.
+
+```env
+LOG_LEVEL=info
+```
+
+### DATABASE_URL
+
+Строка подключения к PostgreSQL.
+
+```env
+DATABASE_URL=postgresql://marketplace:marketplace@localhost:5432/marketplace?schema=public
+```
+
+### CORS_ORIGINS
+
+Разрешённые адреса клиентского приложения.
+
+```env
+CORS_ORIGINS=http://localhost:5173
+```
+
+Несколько адресов указываются через запятую.
+
+### MAX_BOT_TOKEN
+
+Секретный токен чат-бота MAX.
+
+```env
+MAX_BOT_TOKEN=
+```
+
+Токен должен храниться только на сервере. Его запрещено добавлять в переменные с префиксом `VITE_` или публиковать в Git.
+
+### MAX_API_BASE_URL
+
+Базовый адрес MAX Bot API.
+
+```env
+MAX_API_BASE_URL=https://platform-api2.max.ru
+```
+
+### MAX_API_TIMEOUT_MS
+
+Максимальное время ожидания ответа от MAX Bot API в миллисекундах.
+
+```env
+MAX_API_TIMEOUT_MS=5000
+```
+
+### VITE_API_BASE_URL
+
+Публичный адрес backend API, используемый клиентским приложением.
+
+```env
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+### BLOB_READ_WRITE_TOKEN
+
+Серверный токен Vercel Blob для загрузки фотографий экскурсий.
+
+```env
+BLOB_READ_WRITE_TOKEN=
+```
+
+Для просмотра статического каталога токен не требуется. Он необходим для проверки загрузки пользовательских фотографий.
+
+## Используемые порты
+
+- `5173` — клиентское приложение;
+- `3000` — backend API;
+- `5432` — PostgreSQL.
+
+После запуска доступны:
+
+- frontend: http://localhost:5173
+- проверка API: http://localhost:3000/api/v1/health
+- документация API в development-режиме: http://localhost:3000/api/docs
+
+## Зависимости
+
+Основные клиентские зависимости:
+
+- React;
+- React Router;
+- TanStack Query;
+- TypeScript;
+- Vite.
+
+Основные серверные зависимости:
+
+- NestJS;
+- Fastify;
+- Prisma;
+- PostgreSQL;
+- Zod;
+- Vercel Blob;
+- Swagger;
+- Helmet.
+
+Менеджер пакетов:
+
+```text
+pnpm 11
+```
+
+Точные версии зависимостей зафиксированы в файле `pnpm-lock.yaml`.
+
+## Внешние сервисы и интеграции
+
+### MAX Mini Apps SDK
+
+Используется для запуска приложения внутри MAX, получения подписанных данных пользователя и открытия ссылок MAX.
+
+SDK:
+
+https://st.max.ru/js/max-web-app.js
+
+### MAX Bot API
+
+Используется для:
+
+- проверки подключения бота;
+- получения публичной информации о боте;
+- подтверждения данных запуска;
+- организации связи между гостем и гидом.
+
+Базовый адрес:
+
+https://platform-api2.max.ru
+
+### PostgreSQL
+
+Используется как основное постоянное хранилище данных.
+
+### Vercel Blob
+
+Используется для хранения фотографий, загруженных гидами.
+
+### Vercel
+
+Используется для размещения frontend и backend.
+
+### GitHub
+
+Используется для хранения исходного кода, истории изменений и автоматического развертывания.
+
+Репозиторий:
+
+https://github.com/Artemiy-Till/lighthouse
+
+## Работа с данными
+
+Система использует следующие группы данных:
+
+- данные профиля пользователя MAX;
+- профили гидов;
+- сведения об экскурсиях;
+- фотографии;
+- расписание;
+- бронирования;
+- статусы заказов;
+- оценки и отзывы.
+
+Из профиля MAX могут использоваться:
+
+- уникальный идентификатор;
+- имя;
+- фамилия;
+- username;
+- фотография профиля.
+
+Логины и пароли пользователей не собираются и не хранятся.
+
+Все критичные операции выполняются через backend. Клиентское приложение не подключается к PostgreSQL напрямую.
+
+Подписанные данные запуска MAX проверяются на сервере. Непроверенные данные `initDataUnsafe` не используются для авторизации.
+
+Секретные значения `MAX_BOT_TOKEN`, `DATABASE_URL` и `BLOB_READ_WRITE_TOKEN` не передаются клиенту.
+
+## Тестовые данные
+
+В проекте предусмотрен статический демонстрационный каталог экскурсий для нескольких городов.
+
+Он позволяет проверить:
+
+- главную страницу;
+- выбор города;
+- поиск;
+- фильтрацию;
+- каталог;
+- карточки экскурсий;
+- информацию о гидах;
+- избранное;
+- переключение темы;
+- адаптивный интерфейс.
+
+Для статического каталога не требуется отдельная загрузка тестовых данных.
+
+Пользовательские экскурсии, профили гидов, бронирования и отзывы создаются в PostgreSQL во время работы приложения.
+
+## Порядок работы с тестовыми данными
+
+1. Запустить frontend и backend.
+2. Открыть http://localhost:5173.
+3. Выбрать один из доступных городов.
+4. Открыть демонстрационную экскурсию.
+5. Проверить поиск, фильтры и избранное.
+6. Для проверки авторизованных операций открыть приложение внутри MAX.
+7. Создать профиль гида.
+8. Добавить тестовую экскурсию и расписание.
+9. Открыть экскурсию из другого аккаунта MAX.
+10. Создать тестовое бронирование.
+11. После завершения экскурсии проверить публикацию отзыва.
+
+Тестовые логин и пароль не используются. Авторизация выполняется автоматически через аккаунт MAX.
+
+## Пошаговый сценарий проверки
+
+### Проверка публичной части
+
+1. Открыть приложение.
+2. Убедиться, что отображается главная страница.
+3. Переключить город.
+4. Перейти в каталог.
+5. Выполнить поиск по названию экскурсии.
+6. Применить фильтры.
+7. Открыть карточку экскурсии.
+8. Добавить экскурсию в избранное.
+9. Открыть раздел «Избранное».
+
+### Проверка авторизации MAX
+
+1. Открыть чат-бота https://max.ru/se14377272_bot.
+2. Запустить мини-приложение.
+3. Открыть раздел «Профиль».
+4. Убедиться, что отображаются данные текущего пользователя MAX.
+5. Убедиться, что профиль отмечен как подтверждённый.
+
+### Проверка бронирования
+
+1. Открыть опубликованную экскурсию.
+2. Выбрать доступные дату и время.
+3. Указать количество участников.
+4. Подтвердить бронирование.
+5. Открыть раздел «Заказы».
+6. Убедиться, что заказ появился в списке.
+
+### Проверка кабинета гида
+
+1. Открыть раздел «Профиль».
+2. Перейти в кабинет гида.
+3. Создать профиль гида.
+4. Добавить экскурсию.
+5. Загрузить фотографии.
+6. Добавить будущую дату и время.
+7. Опубликовать экскурсию.
+8. Убедиться, что она появилась в каталоге.
+9. Отредактировать экскурсию.
+10. Проверить список поступивших бронирований.
+
+## Ожидаемое поведение
+
+### Проверка API
+
+Запрос:
+
+```text
+GET /api/v1/health
+```
+
+Ожидаемый ответ:
+
+```json
+{
+  "service": "api",
+  "status": "ok"
+}
+```
+
+### Запуск вне MAX
+
+Приложение показывает демонстрационный каталог.
+
+В профиле отображается сообщение о необходимости открыть мини-приложение внутри MAX.
+
+Операции, требующие подтверждённого пользователя, недоступны.
+
+### Запуск внутри MAX
+
+Профиль пользователя подтверждается автоматически.
+
+Пользователь получает доступ к бронированиям, отзывам и кабинету гида.
+
+### Успешное бронирование
+
+Созданный заказ появляется в разделе «Заказы».
+
+Выбранное количество свободных мест обновляется.
+
+### Недоступный сеанс
+
+Если свободных мест недостаточно или время уже занято, система не создаёт заказ и показывает сообщение с предложением выбрать другой сеанс.
+
+### Публикация экскурсии
+
+После успешного сохранения экскурсия появляется в кабинете гида и общем каталоге.
+
+## Известные ограничения
+
+- полноценная авторизация работает только при запуске внутри MAX;
+- обычная регистрация по логину и паролю отсутствует;
+- онлайн-оплата пока не реализована;
+- статический демонстрационный каталог не редактируется через кабинет гида;
+- для пользовательских данных требуется подключение к PostgreSQL;
+- для загрузки фотографий требуется настроенный Vercel Blob;
+- для интеграции с MAX требуется действующий токен бота;
+- Swagger доступен только в development-режиме;
+- секретные переменные окружения не входят в репозиторий.
+
+## Остановка решения
+
+Для остановки frontend и backend нажмите:
+
+```text
+Ctrl+C
+```
+
+в терминале, где выполняется `pnpm dev`.
+
+PostgreSQL останавливается отдельно способом, соответствующим локальной установке.
+
+## Повторный запуск
+
+Убедитесь, что PostgreSQL запущен, затем выполните:
+
+```bash
+pnpm dev
+```
+
+Повторная установка зависимостей не требуется, если файлы `package.json` и `pnpm-lock.yaml` не изменялись.
+
+Если схема базы данных изменилась, перед запуском примените миграции:
+
+```bash
+pnpm db:migrate:deploy
+```
+```
