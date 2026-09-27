@@ -6069,16 +6069,14 @@ html[data-theme='dark'] .experience-terms li {
   background: #eeeeef;
 }
 
-.date-quick-options button.is-selected,
-.date-dialog__reset {
+.date-quick-options button.is-selected {
   border: 1px solid #252527;
   color: #252527;
   background: transparent;
   box-shadow: none;
 }
 
-html[data-theme='dark'] .date-quick-options button.is-selected,
-html[data-theme='dark'] .date-dialog__reset {
+html[data-theme='dark'] .date-quick-options button.is-selected {
   border-color: #dedee1;
   color: #f5f5f5;
   background: transparent;
@@ -6118,6 +6116,23 @@ html[data-theme='dark'] .date-dialog__apply:disabled {
 .date-dialog__apply {
   color: #fff;
   background: #252527;
+}
+
+.date-dialog__actions .date-dialog__reset,
+.date-dialog__actions .date-dialog__apply,
+.date-dialog__actions .date-dialog__apply:disabled,
+html[data-theme='dark'] .date-dialog__actions .date-dialog__reset,
+html[data-theme='dark'] .date-dialog__actions .date-dialog__apply,
+html[data-theme='dark'] .date-dialog__actions .date-dialog__apply:disabled {
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: transparent;
+  box-shadow: none;
+}
+
+.date-dialog__actions .date-dialog__apply:disabled,
+html[data-theme='dark'] .date-dialog__actions .date-dialog__apply:disabled {
+  color: var(--muted);
 }
 
 html[data-theme='dark'] .section-kicker,
