@@ -6128,6 +6128,9 @@ html[data-theme='dark'] .date-dialog__actions .date-dialog__apply:disabled {
   color: var(--ink);
   background: transparent;
   box-shadow: none;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .date-dialog__actions .date-dialog__apply:disabled,
