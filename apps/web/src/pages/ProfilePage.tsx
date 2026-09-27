@@ -7,7 +7,6 @@ import { Icon } from '../components/Icon';
 import { isUpcomingBooking } from '../features/bookings/booking-status';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
-import { useTheme } from '../features/theme/ThemeContext';
 
 function formatBookingDate(value: string) {
   const [year, month, day] = value.split('-');
@@ -15,10 +14,8 @@ function formatBookingDate(value: string) {
 }
 
 export function ProfilePage() {
-  const { theme, toggleTheme } = useTheme();
   const { t } = useSettings();
   const { platform, session } = useMaxConnection();
-  const isDark = theme === 'dark';
   const hasMaxLaunchData = Boolean(platform.isAvailable && platform.initData);
   const maxUser = session.data?.user;
   const initData = platform.initData ?? '';
@@ -138,24 +135,6 @@ export function ProfilePage() {
                 ›
               </span>
             </Link>
-            <button
-              aria-checked={isDark}
-              className="profile-theme-toggle"
-              onClick={toggleTheme}
-              role="switch"
-              type="button"
-            >
-              <span aria-hidden="true" className="profile-menu__icon">
-                <Icon name="moon" />
-              </span>
-              <span>
-                <strong>{t('profile.theme')}</strong>
-                <small>{isDark ? t('common.on') : t('common.off')}</small>
-              </span>
-              <span aria-hidden="true" className="theme-switch">
-                <span />
-              </span>
-            </button>
             <Link to="/settings">
               <span aria-hidden="true" className="profile-menu__icon">
                 <Icon name="settings" />

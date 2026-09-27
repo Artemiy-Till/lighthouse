@@ -4,7 +4,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { getPublishedExperiences } from '../api/client';
 import { ExperienceCard } from '../components/ExperienceCard';
-import { ThemeToggle } from '../components/ThemeToggle';
 import { cities } from '../data/cities';
 import { experiences } from '../data/experiences';
 import { getGuideById } from '../data/guides';
@@ -93,7 +92,7 @@ export function GuidePage() {
             ←
           </button>
           <strong>Профиль гида</strong>
-          <ThemeToggle />
+          <span aria-hidden="true" />
         </header>
 
         <section className="guide-profile">
@@ -223,7 +222,7 @@ export function GuidePage() {
           ←
         </button>
         <strong>Профиль гида</strong>
-        <ThemeToggle />
+        <span aria-hidden="true" />
       </header>
 
       <section className="guide-profile">

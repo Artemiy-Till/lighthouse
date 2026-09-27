@@ -42,13 +42,14 @@ describe('App navigation', () => {
     renderApp();
 
     fireEvent.click(screen.getByRole('link', { name: 'Профиль' }));
-    fireEvent.click(screen.getByRole('switch', { name: /Тёмная тема/ }));
+    fireEvent.click(screen.getByRole('link', { name: /Настройки/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Тёмная' }));
 
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
     expect(document.documentElement.style.colorScheme).toBe('dark');
     expect(window.localStorage.getItem('marketplace-theme')).toBe('dark');
-    expect(screen.getByRole('switch', { name: /Тёмная тема/ })).toHaveAttribute(
-      'aria-checked',
+    expect(screen.getByRole('button', { name: 'Тёмная' })).toHaveAttribute(
+      'aria-pressed',
       'true',
     );
   });
