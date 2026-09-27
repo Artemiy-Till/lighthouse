@@ -8103,3 +8103,36 @@ html[data-theme='dark'] .order-facts div {
   background: transparent;
   box-shadow: none;
 }
+
+.order-facts {
+  grid-template-columns: minmax(0, 1.35fr) repeat(2, minmax(0, 0.8fr));
+  gap: 8px;
+}
+
+.order-facts div,
+.order-facts div:last-child {
+  display: flex;
+  min-width: 0;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 9px;
+  grid-column: auto;
+  flex-direction: column;
+  text-align: center;
+}
+
+.order-facts dt {
+  margin-bottom: 3px;
+  font-size: 8px;
+  line-height: 1.1;
+}
+
+.order-facts dd {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
