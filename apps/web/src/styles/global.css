@@ -5716,8 +5716,9 @@ html[data-theme='dark'] .booking-card__topline {
 }
 
 html[data-theme='dark'] .booking-card__topline strong {
-  color: #080809;
-  background: #fff;
+  border: 1px solid #4a4a4f;
+  color: #dedee1;
+  background: transparent;
 }
 
 html[data-theme='dark'] .booking-card h2 {
@@ -5725,17 +5726,17 @@ html[data-theme='dark'] .booking-card h2 {
 }
 
 html[data-theme='dark'] .booking-details div {
-  border-color: transparent;
-  color: #080809;
-  background: #f7f7f8;
+  border-color: #4a4a4f;
+  color: #f5f5f5;
+  background: #242426;
 }
 
 html[data-theme='dark'] .booking-details span {
-  color: #77777d;
+  color: #9d9da4;
 }
 
 html[data-theme='dark'] .booking-details strong {
-  color: #080809;
+  color: #f5f5f5;
 }
 
 html[data-theme='dark'] .booking-card__action {
