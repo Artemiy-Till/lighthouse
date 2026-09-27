@@ -8107,16 +8107,18 @@ html[data-theme='dark'] .order-facts div {
 .order-facts {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  margin-right: 8px;
+  margin-left: 8px;
 }
 
 .order-facts div,
 .order-facts div:last-child {
   display: flex;
   min-width: 0;
-  min-height: 52px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
-  padding: 7px 9px;
+  padding: 5px 8px;
   grid-column: auto;
   flex-direction: column;
   text-align: center;
