@@ -3022,6 +3022,11 @@ html[data-theme='dark'] .order-card__chat {
   background: #f7f7ff;
 }
 
+.order-review-summary {
+  border-color: #1d2433;
+  background: transparent;
+}
+
 .order-review-form fieldset {
   padding: 0;
   margin: 0 0 12px;
