@@ -7780,8 +7780,8 @@ html[data-theme='dark']
 }
 
 html[data-theme='dark'] .guide-profile__verification-mark {
-  color: #242426;
-  background: #dedee1;
+  color: #e7e7e9;
+  background: #3a3a3e;
 }
 
 html[data-theme='dark'] .guide-stats {
@@ -7789,12 +7789,23 @@ html[data-theme='dark'] .guide-stats {
 }
 
 html[data-theme='dark'] .guide-stats > div {
-  border-color: #dedee1;
+  border-color: #4a4a50;
 }
 
 html[data-theme='dark'] .guide-credentials span {
-  color: #dedee1;
+  color: #d6d6da;
   background: transparent;
+}
+
+html[data-theme='dark'] .guide-profile__avatar--fallback {
+  color: #dedee1;
+  background: #303034;
+}
+
+html[data-theme='dark'] .guide-page__back,
+html[data-theme='dark'] .guide-page__topbar .theme-toggle {
+  color: #e7e7e9;
+  background: #29292c;
 }
 
 /* Compact settings screen with theme-mirrored segmented controls. */
