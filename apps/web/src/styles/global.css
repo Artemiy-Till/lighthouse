@@ -487,6 +487,8 @@ main {
 
 .date-dialog {
   width: min(100%, 520px);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
   padding: 10px 16px max(18px, env(safe-area-inset-bottom));
   border-radius: 28px 28px 22px 22px;
   background: #fff;
@@ -567,34 +569,114 @@ main {
   font-size: 10px;
 }
 
-.date-input-field {
-  display: block;
+.date-calendar {
   margin-top: 16px;
 }
 
-.date-input-field > span {
-  display: block;
-  margin: 0 2px 7px;
+.date-calendar__intro {
+  margin: 0 2px 8px;
   color: var(--muted);
   font-size: 11px;
   font-weight: 650;
 }
 
-.date-input-field input {
-  width: 100%;
-  min-height: 50px;
-  padding: 0 14px;
+.date-calendar__panel {
+  padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 15px;
-  color: var(--ink);
+  border-radius: 20px;
   background: #f8f9fb;
-  font: inherit;
 }
 
-.date-input-field input:focus {
-  border-color: rgb(71 88 214 / 60%);
-  outline: 0;
-  box-shadow: 0 0 0 3px rgb(71 88 214 / 10%);
+.date-calendar__header {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.date-calendar__header > strong {
+  font-size: 13px;
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
+.date-calendar__header > div {
+  display: flex;
+  gap: 4px;
+}
+
+.date-calendar__header button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink);
+  background: transparent;
+  font-size: 21px;
+  line-height: 1;
+  place-items: center;
+}
+
+.date-calendar__header button:disabled {
+  color: var(--muted);
+  opacity: 0.35;
+}
+
+.date-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px 4px;
+}
+
+.date-calendar__weekday {
+  display: grid;
+  min-height: 24px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 650;
+  place-items: center;
+  text-transform: capitalize;
+}
+
+.date-calendar__day {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  place-self: center;
+  color: #4f5964;
+  background: #e5eaee;
+  font-size: 11px;
+  font-weight: 600;
+  place-items: center;
+}
+
+.date-calendar__day.is-outside {
+  color: var(--muted);
+  background: transparent;
+  opacity: 0.55;
+}
+
+.date-calendar__day:disabled {
+  color: var(--muted);
+  background: transparent;
+  opacity: 0.25;
+}
+
+.date-calendar__day.is-today:not(.is-selected) {
+  border-color: #7b858f;
+  background: transparent;
+}
+
+.date-calendar__day.is-selected {
+  border-color: #263442;
+  color: #fff;
+  background: #263442;
 }
 
 .date-dialog__actions {
@@ -3996,7 +4078,6 @@ html[data-theme='dark'] .search-panel {
 }
 
 html[data-theme='dark'] .search-field,
-html[data-theme='dark'] .date-input-field input,
 html[data-theme='dark'] .order-facts div {
   color: var(--ink);
   background: #20242d;
@@ -6083,16 +6164,10 @@ html[data-theme='dark'] .date-quick-options button.is-selected {
   box-shadow: none;
 }
 
-html[data-theme='dark'] .date-input-field input,
 html[data-theme='dark'] .date-dialog__close,
 html[data-theme='dark'] .date-dialog__apply:disabled {
   border-color: #424246;
   background: #29292c;
-}
-
-html[data-theme='dark'] .date-input-field input:focus {
-  border-color: #dedee1;
-  box-shadow: 0 0 0 2px rgb(222 222 225 / 12%);
 }
 
 html[data-theme='dark'] .date-dialog__close {
@@ -6101,6 +6176,33 @@ html[data-theme='dark'] .date-dialog__close {
 
 html[data-theme='dark'] .date-dialog__apply:disabled {
   color: #8d8d94;
+}
+
+html[data-theme='dark'] .date-calendar__panel {
+  border-color: var(--line);
+  background: transparent;
+}
+
+html[data-theme='dark'] .date-calendar__day {
+  color: #dedee1;
+  background: #343438;
+}
+
+html[data-theme='dark'] .date-calendar__day.is-outside,
+html[data-theme='dark'] .date-calendar__day:disabled {
+  color: var(--muted);
+  background: transparent;
+}
+
+html[data-theme='dark'] .date-calendar__day.is-today:not(.is-selected) {
+  border-color: #dedee1;
+  background: transparent;
+}
+
+html[data-theme='dark'] .date-calendar__day.is-selected {
+  border-color: #f1f1f2;
+  color: #202022;
+  background: #f1f1f2;
 }
 
 .catalog-filter-button > strong,

@@ -42,6 +42,20 @@ function formatDate(value: string, locale: string) {
   }).format(date);
 }
 
+function parseIsoDate(value: string) {
+  const [year, month, day] = value.split('-').map(Number);
+
+  return new Date(year!, month! - 1, day);
+}
+
+function startOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function addMonths(date: Date, months: number) {
+  return new Date(date.getFullYear(), date.getMonth() + months, 1);
+}
+
 export function DateSelector({
   defaultLabel,
   onChange,
@@ -51,6 +65,11 @@ export function DateSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [draftDate, setDraftDate] = useState(value ?? '');
   const today = useMemo(() => new Date(), []);
+  const [visibleMonth, setVisibleMonth] = useState(() =>
+    startOfMonth(value ? parseIsoDate(value) : today),
+  );
+  const locale = language === 'en' ? 'en-US' : 'ru-RU';
+  const minimumDate = toLocalIsoDate(today);
   const quickDates = useMemo(
     () => [
       { label: t('date.today'), value: toLocalIsoDate(today) },
@@ -62,6 +81,35 @@ export function DateSelector({
     ],
     [t, today],
   );
+  const weekdayLabels = useMemo(() => {
+    const firstMonday = new Date(2024, 0, 1);
+
+    return Array.from({ length: 7 }, (_, index) =>
+      new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(
+        addDays(firstMonday, index),
+      ),
+    );
+  }, [locale]);
+  const calendarDays = useMemo(() => {
+    const firstDay = startOfMonth(visibleMonth);
+    const leadingDays = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(
+      visibleMonth.getFullYear(),
+      visibleMonth.getMonth() + 1,
+      0,
+    ).getDate();
+    const cellCount = Math.ceil((leadingDays + daysInMonth) / 7) * 7;
+
+    return Array.from({ length: cellCount }, (_, index) =>
+      addDays(firstDay, index - leadingDays),
+    );
+  }, [visibleMonth]);
+  const monthLabel = new Intl.DateTimeFormat(locale, {
+    month: 'long',
+    year: 'numeric',
+  }).format(visibleMonth);
+  const currentMonth = startOfMonth(today);
+  const canShowPreviousMonth = visibleMonth > currentMonth;
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -81,7 +129,9 @@ export function DateSelector({
   }, [isOpen]);
 
   const openSelector = () => {
-    setDraftDate(value ?? '');
+    const nextDate = value ?? '';
+    setDraftDate(nextDate);
+    setVisibleMonth(startOfMonth(nextDate ? parseIsoDate(nextDate) : today));
     setIsOpen(true);
   };
 
@@ -156,7 +206,12 @@ export function DateSelector({
                         draftDate === option.value ? 'is-selected' : ''
                       }
                       key={option.label}
-                      onClick={() => setDraftDate(option.value)}
+                      onClick={() => {
+                        setDraftDate(option.value);
+                        setVisibleMonth(
+                          startOfMonth(parseIsoDate(option.value)),
+                        );
+                      }}
                       type="button"
                     >
                       <strong>{option.label}</strong>
@@ -170,15 +225,94 @@ export function DateSelector({
                   ))}
                 </div>
 
-                <label className="date-input-field">
-                  <span>{t('date.calendar')}</span>
-                  <input
-                    min={toLocalIsoDate(today)}
-                    onChange={(event) => setDraftDate(event.target.value)}
-                    type="date"
-                    value={draftDate}
-                  />
-                </label>
+                <div className="date-calendar">
+                  <p className="date-calendar__intro">{t('date.calendar')}</p>
+                  <div className="date-calendar__panel">
+                    <div className="date-calendar__header">
+                      <strong>{monthLabel}</strong>
+                      <div>
+                        <button
+                          aria-label={
+                            language === 'en'
+                              ? 'Previous month'
+                              : 'Предыдущий месяц'
+                          }
+                          disabled={!canShowPreviousMonth}
+                          onClick={() =>
+                            setVisibleMonth((month) => addMonths(month, -1))
+                          }
+                          type="button"
+                        >
+                          ‹
+                        </button>
+                        <button
+                          aria-label={
+                            language === 'en' ? 'Next month' : 'Следующий месяц'
+                          }
+                          onClick={() =>
+                            setVisibleMonth((month) => addMonths(month, 1))
+                          }
+                          type="button"
+                        >
+                          ›
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      aria-label={monthLabel}
+                      className="date-calendar__grid"
+                      role="grid"
+                    >
+                      {weekdayLabels.map((weekday, index) => (
+                        <span
+                          className="date-calendar__weekday"
+                          key={`${weekday}-${index}`}
+                          role="columnheader"
+                        >
+                          {weekday}
+                        </span>
+                      ))}
+                      {calendarDays.map((date) => {
+                        const dateValue = toLocalIsoDate(date);
+                        const isOutsideMonth =
+                          date.getMonth() !== visibleMonth.getMonth();
+                        const isSelected = draftDate === dateValue;
+                        const isToday = dateValue === minimumDate;
+
+                        return (
+                          <button
+                            aria-current={isToday ? 'date' : undefined}
+                            aria-label={new Intl.DateTimeFormat(locale, {
+                              dateStyle: 'long',
+                            }).format(date)}
+                            aria-selected={isSelected}
+                            className={[
+                              'date-calendar__day',
+                              isOutsideMonth ? 'is-outside' : '',
+                              isToday ? 'is-today' : '',
+                              isSelected ? 'is-selected' : '',
+                            ]
+                              .filter(Boolean)
+                              .join(' ')}
+                            disabled={dateValue < minimumDate}
+                            key={dateValue}
+                            onClick={() => {
+                              setDraftDate(dateValue);
+                              if (isOutsideMonth) {
+                                setVisibleMonth(startOfMonth(date));
+                              }
+                            }}
+                            role="gridcell"
+                            type="button"
+                          >
+                            {date.getDate()}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
 
                 <div className="date-dialog__actions">
                   <button
