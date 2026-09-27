@@ -26,6 +26,8 @@ export function ProfilePage() {
     enabled: Boolean(initData && session.data?.authenticated),
     queryFn: () => getBookings(initData),
     queryKey: ['bookings'],
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
     retry: false,
   });
   const nextBooking = bookings.data?.items

@@ -115,6 +115,7 @@ export interface Booking {
   readonly cityId: PublishedExperience['cityId'];
   readonly createdAt: string;
   readonly date: string;
+  readonly durationMinutes?: number;
   readonly experienceId: string;
   readonly id: string;
   readonly imageUrl: string;
@@ -152,6 +153,7 @@ export interface ExperienceReview {
 export interface CreateBookingInput {
   readonly cityId: PublishedExperience['cityId'];
   readonly date: string;
+  readonly durationMinutes: number;
   readonly experienceId: string;
   readonly groupSize: number;
   readonly imageUrl: string;

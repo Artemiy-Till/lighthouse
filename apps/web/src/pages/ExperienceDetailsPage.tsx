@@ -131,6 +131,9 @@ export function ExperienceDetailsPage() {
   const groupSize =
     published.data?.groupSize ??
     Number(details.groupSize.match(/\d+/)?.[0] ?? 1);
+  const durationMinutes =
+    published.data?.durationMinutes ??
+    Math.round(Number.parseFloat(experience.duration.replace(',', '.')) * 60);
   const availableSlots = published.data?.availableSlots ?? [];
   const availableDates = [...new Set(availableSlots.map((slot) => slot.date))];
   const timesForDate = availableSlots.filter(
@@ -382,6 +385,7 @@ export function ExperienceDetailsPage() {
                   booking.mutate({
                     cityId: experience.cityId,
                     date: selectedDate!,
+                    durationMinutes,
                     experienceId: experience.id,
                     groupSize,
                     imageUrl: activePhoto,

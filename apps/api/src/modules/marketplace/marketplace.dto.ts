@@ -5,6 +5,7 @@ import {
   IsArray,
   IsIn,
   IsInt,
+  IsOptional,
   Matches,
   IsString,
   IsUrl,
@@ -127,6 +128,12 @@ export class CreateBookingDto {
 
   @Matches(/^([01]\d|2[0-3]):[0-5]\d$/)
   time!: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(30)
+  @Max(720)
+  durationMinutes?: number;
 
   @IsInt()
   @Min(1)

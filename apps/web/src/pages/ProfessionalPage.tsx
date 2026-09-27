@@ -148,6 +148,8 @@ export function ProfessionalPage() {
     enabled: Boolean(initData && profile.data),
     queryFn: () => getGuideSchedule(initData),
     queryKey: ['guide-schedule'],
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
     retry: false,
   });
   const completeSchedule = useMutation({
