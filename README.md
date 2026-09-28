@@ -38,15 +38,19 @@ https://max.ru/se14377272_bot?startapp
 
 Веб-версия:
 
-https://lighthouse-api-one.vercel.app
+https://158-160-6-2.sslip.io
 
 Backend API:
 
-https://lighthouse-api-lwsx.vercel.app/api/v1
+https://158-160-6-2.sslip.io/api/v1
 
 Проверка состояния API:
 
-https://lighthouse-api-lwsx.vercel.app/api/v1/health
+https://158-160-6-2.sslip.io/api/v1/health
+
+Yandex Cloud VM: `lighthouse-max-miniapp`, зона `ru-central1-b`.
+Временный домен `sslip.io` указывает на текущий IP VM; для постоянного адреса
+подключите собственный домен.
 
 ## Основной пользовательский сценарий
 
