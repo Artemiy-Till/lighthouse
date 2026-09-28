@@ -26,7 +26,6 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      BLOB_READ_WRITE_TOKEN: ${BLOB_READ_WRITE_TOKEN:-}
       CORS_ORIGINS: https://${APP_DOMAIN:?Set APP_DOMAIN in .env.production}
       DATABASE_URL: postgresql://marketplace:${POSTGRES_PASSWORD}@postgres:5432/marketplace?schema=public
       LOG_LEVEL: info
@@ -34,7 +33,11 @@ services:
       MAX_API_TIMEOUT_MS: 5000
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:?Set MAX_BOT_TOKEN in .env.production}
       NODE_ENV: production
+      PHOTO_STORAGE_PROVIDER: local
       PORT: 3000
+      UPLOADS_DIR: /data/uploads
+    volumes:
+      - uploaded-photos:/data/uploads
 
   web:
     build:
@@ -67,3 +70,4 @@ volumes:
   caddy-config:
   caddy-data:
   postgres-data:
+  uploaded-photos:

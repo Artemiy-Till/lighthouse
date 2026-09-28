@@ -1,6 +1,8 @@
 import { put } from '@vercel/blob';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 
 import type { UploadExperiencePhotoDto } from './marketplace.dto.js';
 
@@ -33,8 +35,20 @@ export class PhotoStorageService {
     }
 
     const owner = maxUserId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = `${randomUUID()}.${extension}`;
+    if (process.env.PHOTO_STORAGE_PROVIDER === 'local') {
+      const relativePath = `experiences/${owner}/${fileName}`;
+      const destination = join(
+        resolve(process.env.UPLOADS_DIR ?? './uploads'),
+        relativePath,
+      );
+      await mkdir(join(destination, '..'), { recursive: true });
+      await writeFile(destination, body, { flag: 'wx' });
+      return { url: `/uploads/${relativePath}` };
+    }
+
     const blob = await put(
-      `experiences/${owner}/${randomUUID()}.${extension}`,
+      `experiences/${owner}/${fileName}`,
       body,
       {
         access: 'public',
