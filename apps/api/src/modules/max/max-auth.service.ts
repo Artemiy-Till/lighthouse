@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -35,9 +36,12 @@ export interface MaxAuthenticationResult {
 
 @Injectable()
 export class MaxAuthService {
+  private readonly logger = new Logger(MaxAuthService.name);
+
   constructor(private readonly configService: ConfigService) {}
 
   authenticate(initData: string): MaxAuthenticationResult {
+    this.logger.log('MAX launch data verification started');
     const botToken = this.configService.get<string>('MAX_BOT_TOKEN');
 
     if (!botToken) {
@@ -50,12 +54,12 @@ export class MaxAuthService {
     const suppliedHashes = params.getAll('hash');
 
     if (suppliedHashes.length !== 1) {
-      throw new UnauthorizedException('Invalid MAX launch data');
+      return this.reject('Invalid MAX launch data', 'hash_count');
     }
 
     const suppliedHash = suppliedHashes[0] ?? '';
     if (!/^[a-f\d]{64}$/i.test(suppliedHash)) {
-      throw new UnauthorizedException('Invalid MAX launch data');
+      return this.reject('Invalid MAX launch data', 'hash_format');
     }
 
     const dataCheckString = [...params.entries()]
@@ -75,7 +79,7 @@ export class MaxAuthService {
       suppliedHashBuffer.length !== expectedHash.length ||
       !timingSafeEqual(suppliedHashBuffer, expectedHash)
     ) {
-      throw new UnauthorizedException('Invalid MAX launch data');
+      return this.reject('Invalid MAX launch data', 'signature_mismatch');
     }
 
     const authDate = Number(params.get('auth_date'));
@@ -85,26 +89,27 @@ export class MaxAuthService {
       authDate > now + MAX_INIT_DATA_CLOCK_SKEW_SECONDS ||
       now - authDate > MAX_INIT_DATA_TTL_SECONDS
     ) {
-      throw new UnauthorizedException('Expired MAX launch data');
+      return this.reject('Expired MAX launch data', 'auth_date');
     }
 
     const rawUser = params.get('user');
     if (!rawUser) {
-      throw new UnauthorizedException('MAX user is missing');
+      return this.reject('MAX user is missing', 'user_missing');
     }
 
     let parsedUser: unknown;
     try {
       parsedUser = JSON.parse(rawUser);
     } catch {
-      throw new UnauthorizedException('Invalid MAX user');
+      return this.reject('Invalid MAX user', 'user_json');
     }
 
     const user = maxUserSchema.safeParse(parsedUser);
     if (!user.success) {
-      throw new UnauthorizedException('Invalid MAX user');
+      return this.reject('Invalid MAX user', 'user_shape');
     }
 
+    this.logger.log('MAX launch data verified');
     return {
       authenticated: true,
       user: {
@@ -116,5 +121,10 @@ export class MaxAuthService {
         username: user.data.username ?? null,
       },
     };
+  }
+
+  private reject(message: string, reason: string): never {
+    this.logger.warn(`MAX launch data rejected: ${reason}`);
+    throw new UnauthorizedException(message);
   }
 }
