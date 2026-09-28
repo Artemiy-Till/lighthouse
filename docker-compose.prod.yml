@@ -1,0 +1,69 @@
+name: max-travel-marketplace
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: marketplace
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+      POSTGRES_USER: marketplace
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U marketplace -d marketplace']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      BLOB_READ_WRITE_TOKEN: ${BLOB_READ_WRITE_TOKEN:-}
+      CORS_ORIGINS: https://${APP_DOMAIN:?Set APP_DOMAIN in .env.production}
+      DATABASE_URL: postgresql://marketplace:${POSTGRES_PASSWORD}@postgres:5432/marketplace?schema=public
+      LOG_LEVEL: info
+      MAX_API_BASE_URL: https://platform-api2.max.ru
+      MAX_API_TIMEOUT_MS: 5000
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:?Set MAX_BOT_TOKEN in .env.production}
+      NODE_ENV: production
+      PORT: 3000
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+      args:
+        VITE_API_BASE_URL: /
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Set APP_DOMAIN in .env.production}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-config:
+  caddy-data:
+  postgres-data:
