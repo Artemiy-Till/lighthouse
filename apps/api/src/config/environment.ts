@@ -38,8 +38,6 @@ const environmentSchema = z.object({
     .enum(['development', 'test', 'production'])
     .default('development'),
   PORT: z.coerce.number().int().min(1).max(65_535).default(3000),
-  PHOTO_STORAGE_PROVIDER: z.enum(['vercel', 'local']).default('vercel'),
-  UPLOADS_DIR: z.string().min(1).default('./uploads'),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;

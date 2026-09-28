@@ -1,5 +1,4 @@
 import helmet from '@fastify/helmet';
-import fastifyStatic from '@fastify/static';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -7,7 +6,6 @@ import {
   type NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { resolve } from 'node:path';
 
 import { AppModule } from './app.module.js';
 import { parseEnvironment } from './config/environment.js';
@@ -25,13 +23,6 @@ async function bootstrap() {
   );
 
   await app.register(helmet);
-  if (environment.PHOTO_STORAGE_PROVIDER === 'local') {
-    await app.register(fastifyStatic, {
-      root: resolve(environment.UPLOADS_DIR),
-      prefix: '/uploads/',
-      decorateReply: false,
-    });
-  }
   app.enableShutdownHooks();
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(

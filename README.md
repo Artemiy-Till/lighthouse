@@ -38,19 +38,15 @@ https://max.ru/se14377272_bot?startapp
 
 Веб-версия:
 
-https://158-160-6-2.sslip.io
+https://lighthouse-api-one.vercel.app
 
 Backend API:
 
-https://158-160-6-2.sslip.io/api/v1
+https://lighthouse-api-lwsx.vercel.app/api/v1
 
 Проверка состояния API:
 
-https://158-160-6-2.sslip.io/api/v1/health
-
-Yandex Cloud VM: `lighthouse-max-miniapp`, зона `ru-central1-b`.
-Временный домен `sslip.io` указывает на текущий IP VM; для постоянного адреса
-подключите собственный домен.
+https://lighthouse-api-lwsx.vercel.app/api/v1/health
 
 ## Основной пользовательский сценарий
 
@@ -383,42 +379,13 @@ https://platform-api2.max.ru
 
 Используется как основное постоянное хранилище данных.
 
-### Хранение фотографий
+### Vercel Blob
 
-По умолчанию фотографии, загруженные гидами, сохраняются в Vercel Blob. Для
-локального режима задайте `PHOTO_STORAGE_PROVIDER=local` и `UPLOADS_DIR`.
-Production-конфигурация Docker Compose уже использует локальное хранилище в
-постоянном томе `uploaded-photos` и отдаёт изображения через `/uploads/` на том
-же домене, что сайт.
+Используется для хранения фотографий, загруженных гидами.
 
-### Развёртывание на VPS
+### Vercel
 
-Для размещения frontend и backend на собственном сервере используйте
-`docker-compose.prod.yml`. Nginx внутри frontend контейнера проксирует `/api`
-к backend, а Caddy принимает HTTPS и автоматически получает сертификат для
-домена. Приложение и API доступны на одном домене.
-
-1. Установите Docker Engine с Compose plugin на VPS и направьте DNS-запись домена
-   на IPv4-адрес сервера. Откройте входящие TCP-порты 80 и 443 (и UDP 443 для
-   HTTP/3, если он поддерживается провайдером).
-2. Скопируйте репозиторий на сервер, создайте `.env.production` из
-   `.env.production.example` и заполните домен, длинный пароль PostgreSQL и токен
-   MAX-бота. Не добавляйте этот файл в Git. В этой конфигурации фотографии
-   сохраняются на диск сервера, поэтому отдельный токен Vercel Blob не нужен.
-3. Запустите из корня репозитория:
-
-   ```sh
-   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
-   ```
-
-   При первом запуске Caddy выпустит сертификат. Состояние можно посмотреть
-   командой `docker compose --env-file .env.production -f docker-compose.prod.yml ps`.
-4. Проверьте `https://<домен>/api/v1/health`, затем откройте приложение через
-   MAX без VPN. Укажите этот HTTPS-адрес в настройках Mini App бота.
-
-Перед обновлением кода сделайте резервную копию PostgreSQL. Миграции схемы
-запускаются контейнером API при старте. PostgreSQL не публикует порт в интернет;
-его данные сохраняются в Docker volume `postgres-data`.
+Используется для размещения frontend и backend.
 
 ### GitHub
 
