@@ -12,6 +12,7 @@ const environmentSchema = z.object({
             .filter(Boolean)
         : [],
     ),
+  APP_PUBLIC_URL: z.url().optional(),
   DATABASE_URL: z
     .url()
     .refine(
@@ -34,6 +35,11 @@ const environmentSchema = z.object({
     .max(30_000)
     .default(5000),
   MAX_BOT_TOKEN: z.string().min(1).optional(),
+  OBJECT_STORAGE_ACCESS_KEY_ID: z.string().min(1).optional(),
+  OBJECT_STORAGE_BUCKET: z.string().min(1).optional(),
+  OBJECT_STORAGE_ENDPOINT: z.url().default('https://storage.yandexcloud.net'),
+  OBJECT_STORAGE_REGION: z.string().default('ru-central1'),
+  OBJECT_STORAGE_SECRET_ACCESS_KEY: z.string().min(1).optional(),
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),

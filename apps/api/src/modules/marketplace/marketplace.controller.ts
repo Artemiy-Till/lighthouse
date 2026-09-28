@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -42,6 +43,22 @@ export class MarketplaceController {
   @Get('experiences')
   list(@Query('cityId') cityId?: string) {
     return this.marketplace.listExperiences(cityId);
+  }
+
+  @Get('photos/:owner/:filename')
+  async getPhoto(
+    @Param('owner') owner: string,
+    @Param('filename') filename: string,
+    @Res()
+    response: {
+      setHeader(name: string, value: string): void;
+      send(body: Buffer): void;
+    },
+  ) {
+    const photo = await this.photoStorage.download(owner, filename);
+    response.setHeader('Content-Type', photo.contentType);
+    response.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+    response.send(photo.body);
   }
 
   @Get('experiences/:id')

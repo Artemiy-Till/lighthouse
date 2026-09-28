@@ -113,11 +113,15 @@ NestJS, Fastify и TypeScript.
 
 PostgreSQL используется для хранения профилей, экскурсий, расписания, бронирований и отзывов.
 
-Vercel Blob используется для хранения фотографий пользовательских экскурсий.
+Yandex Object Storage используется для хранения фотографий пользовательских экскурсий.
 
 ### Поток данных
 
-Пользователь → бот MAX → React Mini App → NestJS API → PostgreSQL или Vercel Blob.
+Пользователь → бот MAX → React Mini App → NestJS API → PostgreSQL или Yandex Object Storage.
+
+## Развёртывание в Yandex Cloud
+
+Инструкция по переносу на Compute Cloud, PostgreSQL в Docker Compose, HTTPS через Caddy и фотографиям в Object Storage находится в [deploy/yandex/README.md](deploy/yandex/README.md).
 
 ## Требования к окружению
 
@@ -167,7 +171,7 @@ Docker-конфигурация в репозитории:
 - проверка API: http://localhost:3000/api/v1/health
 - PostgreSQL: `localhost:5432`
 
-Публичный каталог запустится без секретов. Для проверки авторизации MAX и загрузки фотографий создайте `.env` и задайте `MAX_BOT_TOKEN` и `BLOB_READ_WRITE_TOKEN`.
+Публичный каталог запустится без секретов. Для проверки авторизации MAX задайте `MAX_BOT_TOKEN`. Для загрузки фотографий задайте ключи Object Storage.
 
 Если Docker Desktop на macOS выдаёт ошибку BuildKit при сборке из папки с кириллическими символами в пути, переместите клон репозитория в папку с латинским названием и повторите команду.
 
@@ -257,7 +261,7 @@ DATABASE_URL=postgresql://marketplace:marketplace@localhost:5432/marketplace?sch
 
 Разрешённые адреса клиентского приложения.
 
-Для production API по умолчанию разрешён frontend `https://lighthouse-api-one.vercel.app`, если переменная не задана. Для другого production-домена укажите его явно. Переменная принимает несколько origin через запятую.
+Для production укажите HTTPS-origin frontend явно. Переменная принимает несколько origin через запятую.
 
 ```env
 CORS_ORIGINS=http://localhost:5173
@@ -301,15 +305,15 @@ VITE_API_BASE_URL=http://localhost:3000
 
 В Docker-сборке frontend обращается к `/api` через Nginx, поэтому задавать эту переменную вручную не требуется.
 
-### BLOB_READ_WRITE_TOKEN
+### OBJECT_STORAGE_BUCKET
 
-Серверный токен Vercel Blob для загрузки фотографий экскурсий.
+Имя бакета Yandex Object Storage для фотографий экскурсий.
 
 ```env
-BLOB_READ_WRITE_TOKEN=
+OBJECT_STORAGE_BUCKET=
 ```
 
-Для просмотра статического каталога токен не требуется. Он необходим для проверки загрузки пользовательских фотографий.
+Для загрузки фотографий также нужны `OBJECT_STORAGE_ACCESS_KEY_ID` и `OBJECT_STORAGE_SECRET_ACCESS_KEY`. Не передавайте их во frontend.
 
 ## Используемые порты
 
@@ -340,7 +344,7 @@ BLOB_READ_WRITE_TOKEN=
 - Prisma;
 - PostgreSQL;
 - Zod;
-- Vercel Blob;
+- AWS S3 SDK (Yandex Object Storage API);
 - Swagger;
 - Helmet.
 
@@ -379,13 +383,13 @@ https://platform-api2.max.ru
 
 Используется как основное постоянное хранилище данных.
 
-### Vercel Blob
+### Yandex Object Storage
 
-Используется для хранения фотографий, загруженных гидами.
+Используется для хранения фотографий, загруженных гидами. Загрузка в API выполняется через S3-совместимый endpoint.
 
-### Vercel
+### Yandex Cloud
 
-Используется для размещения frontend и backend.
+Compute Cloud размещает контейнеры web, API и PostgreSQL; Caddy выдаёт и обновляет HTTPS-сертификат.
 
 ### GitHub
 
@@ -422,7 +426,7 @@ https://github.com/Artemiy-Till/lighthouse
 
 Подписанные данные запуска MAX проверяются на сервере. Непроверенные данные `initDataUnsafe` не используются для авторизации.
 
-Секретные значения `MAX_BOT_TOKEN`, `DATABASE_URL` и `BLOB_READ_WRITE_TOKEN` не передаются клиенту.
+Секретные значения `MAX_BOT_TOKEN`, `DATABASE_URL` и `OBJECT_STORAGE_SECRET_ACCESS_KEY` не передаются клиенту.
 
 ## Тестовые данные
 
@@ -559,7 +563,7 @@ GET /api/v1/health
 - онлайн-оплата пока не реализована;
 - статический демонстрационный каталог не редактируется через кабинет гида;
 - для пользовательских данных требуется подключение к PostgreSQL;
-- для загрузки фотографий требуется настроенный Vercel Blob;
+- для загрузки фотографий требуется бакет и ключ доступа Yandex Object Storage;
 - для интеграции с MAX требуется действующий токен бота;
 - Swagger доступен только в development-режиме;
 - секретные переменные окружения не входят в репозиторий.

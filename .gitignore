@@ -9,6 +9,7 @@ coverage/
 .env
 .env.*
 !.env.example
+/deploy/yandex/secrets/
 
 apps/api/src/generated/prisma/
 
