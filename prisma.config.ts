@@ -10,6 +10,7 @@ export default defineConfig({
     // Client generation and CI validation do not connect to PostgreSQL.
     // Runtime and migration commands still receive the real URL via Vercel/.env.
     url:
+      process.env.DATABASE_URL_UNPOOLED ??
       process.env.DATABASE_URL ??
       'postgresql://marketplace:marketplace@localhost:5432/marketplace',
   },
