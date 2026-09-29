@@ -86,6 +86,8 @@ https://lighthouse-api-lwsx.vercel.app/api/v1/health
 
 ## Архитектура
 
+Границы MVP и приоритет функций описаны в [docs/mvp-scope.md](docs/mvp-scope.md).
+
 Решение построено как модульный монолит и состоит из следующих компонентов:
 
 ### MAX Mini App
