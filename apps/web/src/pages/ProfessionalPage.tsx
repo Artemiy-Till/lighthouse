@@ -23,6 +23,10 @@ import { categories } from '../data/experiences';
 import { cities, type CityId } from '../data/cities';
 import { getMaxUserChatUrl } from '../features/max/max-chat';
 import { useMaxConnection } from '../features/max/useMaxConnection';
+import {
+  experienceSubmissionError,
+  PhotoUploadError,
+} from '../features/marketplace/experienceSubmissionError';
 import { prepareExperiencePhoto } from '../features/marketplace/prepareExperiencePhoto';
 
 interface SelectedPhoto {
@@ -181,10 +185,14 @@ export function ProfessionalPage() {
       value: Omit<CreateExperienceInput, 'photoUrls'>;
     }) => {
       const photoUrls = [...existingUrls];
-      for (const file of files) {
-        const prepared = await prepareExperiencePhoto(file);
-        const uploaded = await uploadExperiencePhoto(initData, prepared);
-        photoUrls.push(uploaded.url);
+      for (const [index, file] of files.entries()) {
+        try {
+          const prepared = await prepareExperiencePhoto(file);
+          const uploaded = await uploadExperiencePhoto(initData, prepared);
+          photoUrls.push(uploaded.url);
+        } catch (error) {
+          throw new PhotoUploadError(index + 1, error);
+        }
       }
       const payload = { ...value, photoUrls };
       return id
@@ -249,6 +257,7 @@ export function ProfessionalPage() {
 
   function handleExperience(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    saveExperience.reset();
     if (photos.length + existingPhotoUrls.length === 0) {
       setPhotoError('Добавьте хотя бы одну фотографию экскурсии.');
       return;
@@ -314,6 +323,7 @@ export function ProfessionalPage() {
   }
 
   function resetEditor() {
+    saveExperience.reset();
     photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
     setPhotos([]);
     setExistingPhotoUrls([]);
@@ -1064,11 +1074,8 @@ export function ProfessionalPage() {
                 ) : null}
               </div>
               {saveExperience.isError ? (
-                <p className="form-error">
-                  {saveExperience.error.message ===
-                  'Schedule dates must be in the future'
-                    ? 'Выбранное время уже прошло. Удалите его и добавьте будущее.'
-                    : 'Не удалось сохранить экскурсию. Проверьте поля и повторите.'}
+                <p className="form-error" role="alert">
+                  {experienceSubmissionError(saveExperience.error)}
                 </p>
               ) : null}
               <button

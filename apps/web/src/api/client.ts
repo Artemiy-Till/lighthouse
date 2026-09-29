@@ -164,6 +164,17 @@ export interface CreateBookingInput {
   readonly title: string;
 }
 
+export class ApiRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly details: readonly string[],
+  ) {
+    super(message);
+    this.name = 'ApiRequestError';
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}/api/v1${path}`, {
     ...init,
@@ -181,12 +192,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         ? (payload as { readonly message?: unknown }).message
         : undefined;
     const details = Array.isArray(message)
-      ? message.find((item): item is string => typeof item === 'string')
+      ? message.filter((item): item is string => typeof item === 'string')
       : typeof message === 'string'
-        ? message
-        : undefined;
-    throw new Error(
-      details ?? `API request failed with status ${response.status}`,
+        ? [message]
+        : [];
+    throw new ApiRequestError(
+      details[0] ?? `API request failed with status ${response.status}`,
+      response.status,
+      details,
     );
   }
 

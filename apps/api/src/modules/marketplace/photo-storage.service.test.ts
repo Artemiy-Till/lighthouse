@@ -8,9 +8,15 @@ import { PhotoStorageService } from './photo-storage.service.js';
 const { send } = vi.hoisted(() => ({ send: vi.fn() }));
 
 vi.mock('@aws-sdk/client-s3', () => ({
-  GetObjectCommand: vi.fn((input) => ({ input })),
-  PutObjectCommand: vi.fn((input) => ({ input })),
-  S3Client: vi.fn(() => ({ send })),
+  GetObjectCommand: vi.fn(function (input: unknown) {
+    return { input };
+  }),
+  PutObjectCommand: vi.fn(function (input: unknown) {
+    return { input };
+  }),
+  S3Client: vi.fn(function () {
+    return { send };
+  }),
 }));
 
 const config = {
@@ -31,16 +37,13 @@ describe('PhotoStorageService', () => {
   it('uploads a supported image to a random object storage path', async () => {
     const service = new PhotoStorageService(config);
 
-    await expect(
-      service.upload('42', {
-        dataUrl: `data:image/jpeg;base64,${Buffer.from('photo').toString('base64')}`,
-        filename: 'photo.jpg',
-      }),
-    ).resolves.toMatchObject({
-      url: expect.stringMatching(
-        /^https:\/\/app\.example\.ru\/api\/v1\/photos\/42\/[0-9a-f-]+\.jpg$/,
-      ),
+    const uploaded = await service.upload('42', {
+      dataUrl: `data:image/jpeg;base64,${Buffer.from('photo').toString('base64')}`,
+      filename: 'photo.jpg',
     });
+    expect(uploaded.url).toMatch(
+      /^https:\/\/app\.example\.ru\/api\/v1\/photos\/42\/[0-9a-f-]+\.jpg$/,
+    );
 
     expect(S3Client).toHaveBeenCalledWith({
       credentials: {
@@ -51,14 +54,11 @@ describe('PhotoStorageService', () => {
       forcePathStyle: true,
       region: 'ru-central1',
     });
-    expect(PutObjectCommand).toHaveBeenCalledWith(
-      expect.objectContaining({
-        Bucket: 'marketplace-photos',
-        Body: expect.any(Buffer),
-        ContentType: 'image/jpeg',
-        Key: expect.stringMatching(/^experiences\/42\/.+\.jpg$/),
-      }),
-    );
+    const commandInput = vi.mocked(PutObjectCommand).mock.calls[0]?.[0];
+    expect(commandInput?.Bucket).toBe('marketplace-photos');
+    expect(commandInput?.Body).toBeInstanceOf(Buffer);
+    expect(commandInput?.ContentType).toBe('image/jpeg');
+    expect(commandInput?.Key).toMatch(/^experiences\/42\/.+\.jpg$/);
     expect(send).toHaveBeenCalledOnce();
   });
 

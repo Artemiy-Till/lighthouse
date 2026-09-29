@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { ConfigService } from '@nestjs/config';
 
 import { type MaxApiClient, MaxApiError } from './max-api.client.js';
 import { MaxIntegrationService } from './max-integration.service.js';
@@ -10,7 +11,7 @@ describe('MaxIntegrationService', () => {
     } as MaxApiClient;
 
     await expect(
-      new MaxIntegrationService(client).getStatus(),
+      new MaxIntegrationService(client, {} as ConfigService).getStatus(),
     ).resolves.toEqual({
       configured: false,
       connected: false,
@@ -30,7 +31,7 @@ describe('MaxIntegrationService', () => {
     } as unknown as MaxApiClient;
 
     await expect(
-      new MaxIntegrationService(client).getStatus(),
+      new MaxIntegrationService(client, {} as ConfigService).getStatus(),
     ).resolves.toEqual({
       bot: { id: '123', name: 'Маяк', username: 'mayak_bot' },
       configured: true,
@@ -47,7 +48,7 @@ describe('MaxIntegrationService', () => {
     } as unknown as MaxApiClient;
 
     await expect(
-      new MaxIntegrationService(client).getStatus(),
+      new MaxIntegrationService(client, {} as ConfigService).getStatus(),
     ).resolves.toEqual({
       configured: true,
       connected: false,

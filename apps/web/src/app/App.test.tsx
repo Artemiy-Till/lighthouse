@@ -713,7 +713,7 @@ describe('App navigation', () => {
                       ...savedReview,
                     }
                   : null,
-                status: 'confirmed',
+                status: 'completed',
                 time: '12:00',
                 title: 'Петербург: первое знакомство',
                 totalPriceRub: 2580,
