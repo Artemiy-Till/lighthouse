@@ -37,6 +37,12 @@ interface SelectedPhoto {
 
 const durationOptions = [60, 90, 120, 150, 180, 240, 300];
 const formatOptions = ['Пешком', 'По воде', 'На транспорте'];
+const hourOptions = Array.from({ length: 24 }, (_, hour) =>
+  String(hour).padStart(2, '0'),
+);
+const minuteOptions = Array.from({ length: 60 }, (_, minute) =>
+  String(minute).padStart(2, '0'),
+);
 const childrenOptions = [
   'Можно с детьми любого возраста',
   'Можно с детьми от 7 лет',
@@ -60,11 +66,6 @@ function todayInputValue() {
 
 function isFutureScheduleSlot(slot: string) {
   return new Date(`${slot}:00`).getTime() > Date.now();
-}
-
-function currentTimeInputValue() {
-  const now = new Date();
-  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 function formatScheduleDate(date: string, time: string) {
@@ -1008,23 +1009,42 @@ export function ProfessionalPage() {
                       />
                     </span>
                   </label>
-                  <label>
+                  <div className="professional-availability__time-row">
                     <span>Время:</span>
-                    <span className="professional-availability__control">
-                      <input
-                        min={
-                          scheduleDate === todayInputValue()
-                            ? currentTimeInputValue()
-                            : undefined
-                        }
-                        onChange={(event) =>
-                          setScheduleTime(event.target.value)
-                        }
-                        type="time"
-                        value={scheduleTime}
-                      />
-                    </span>
-                  </label>
+                    <div className="professional-availability__time-controls">
+                      <select
+                        aria-label="Часы экскурсии"
+                        onChange={(event) => {
+                          const hour = event.target.value;
+                          setScheduleTime((time) => `${hour}:${time.slice(3)}`);
+                        }}
+                        value={scheduleTime.slice(0, 2)}
+                      >
+                        {hourOptions.map((hour) => (
+                          <option key={hour} value={hour}>
+                            {hour}
+                          </option>
+                        ))}
+                      </select>
+                      <span aria-hidden="true">:</span>
+                      <select
+                        aria-label="Минуты экскурсии"
+                        onChange={(event) => {
+                          const minute = event.target.value;
+                          setScheduleTime(
+                            (time) => `${time.slice(0, 2)}:${minute}`,
+                          );
+                        }}
+                        value={scheduleTime.slice(3)}
+                      >
+                        {minuteOptions.map((minute) => (
+                          <option key={minute} value={minute}>
+                            {minute}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                   <button
                     onClick={() => {
                       if (!scheduleDate) {

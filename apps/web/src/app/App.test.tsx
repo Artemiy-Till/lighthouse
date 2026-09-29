@@ -384,6 +384,20 @@ describe('App navigation', () => {
     expect(
       screen.getByRole('heading', { name: 'Создайте экскурсию' }),
     ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Дата:'), {
+      target: { value: '2099-09-19' },
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Часы экскурсии' }), {
+      target: { value: '08' },
+    });
+    fireEvent.change(
+      screen.getByRole('combobox', { name: 'Минуты экскурсии' }),
+      {
+        target: { value: '37' },
+      },
+    );
+    fireEvent.click(screen.getByRole('button', { name: '+ Добавить' }));
+    expect(screen.getByText('19 сентября, 08:37')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }));
     expect(
       screen.queryByRole('heading', { name: 'Создайте экскурсию' }),

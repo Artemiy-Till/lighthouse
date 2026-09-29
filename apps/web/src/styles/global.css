@@ -2428,8 +2428,37 @@ html[data-theme='dark'] .professional-success a {
   border-radius: 14px;
 }
 
-.professional-availability__picker input[type='date'],
-.professional-availability__picker input[type='time'] {
+.professional-availability__time-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.professional-availability__time-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.professional-availability__time-controls select {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.professional-availability__time-controls > span {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.professional-availability__picker input[type='date'] {
   box-sizing: border-box;
   width: 100%;
   height: 44px;
@@ -2444,9 +2473,7 @@ html[data-theme='dark'] .professional-success a {
 }
 
 .professional-availability__picker
-  input[type='date']::-webkit-date-and-time-value,
-.professional-availability__picker
-  input[type='time']::-webkit-date-and-time-value {
+  input[type='date']::-webkit-date-and-time-value {
   width: 100%;
   min-width: 0;
   height: 44px;
@@ -2454,8 +2481,7 @@ html[data-theme='dark'] .professional-success a {
   text-align: center;
 }
 
-.professional-availability__picker input[type='date']::-webkit-datetime-edit,
-.professional-availability__picker input[type='time']::-webkit-datetime-edit {
+.professional-availability__picker input[type='date']::-webkit-datetime-edit {
   display: flex;
   width: 100%;
   min-width: 0;
@@ -6078,8 +6104,7 @@ html[data-theme='dark'] .experience-terms li {
     border-radius: 12px;
   }
 
-  .professional-availability__picker input[type='date'],
-  .professional-availability__picker input[type='time'] {
+  .professional-availability__picker input[type='date'] {
     width: 100%;
     inline-size: 100%;
     min-width: 0;
@@ -6092,9 +6117,7 @@ html[data-theme='dark'] .experience-terms li {
   }
 
   .professional-availability__picker
-    input[type='date']::-webkit-date-and-time-value,
-  .professional-availability__picker
-    input[type='time']::-webkit-date-and-time-value {
+    input[type='date']::-webkit-date-and-time-value {
     width: 100%;
     min-width: 0;
     text-align: center;
@@ -6450,29 +6473,20 @@ body * {
 
 #professional-experience-editor
   .professional-availability__picker
-  input[type='date'],
-#professional-experience-editor
-  .professional-availability__picker
-  input[type='time'] {
+  input[type='date'] {
   line-height: 38px;
 }
 
 #professional-experience-editor
   .professional-availability__picker
-  input[type='date']::-webkit-date-and-time-value,
-#professional-experience-editor
-  .professional-availability__picker
-  input[type='time']::-webkit-date-and-time-value {
+  input[type='date']::-webkit-date-and-time-value {
   height: 38px;
   line-height: 38px;
 }
 
 #professional-experience-editor
   .professional-availability__picker
-  input[type='date']::-webkit-datetime-edit,
-#professional-experience-editor
-  .professional-availability__picker
-  input[type='time']::-webkit-datetime-edit {
+  input[type='date']::-webkit-datetime-edit {
   min-height: 38px;
 }
 
