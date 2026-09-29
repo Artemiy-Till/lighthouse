@@ -77,7 +77,11 @@ export class MaxApiClient {
     }
   }
 
-  async sendUserMessage(userId: string, text: string): Promise<void> {
+  async sendUserMessage(
+    userId: string,
+    text: string,
+    options: { openAppButton?: boolean } = {},
+  ): Promise<void> {
     const token = this.configService.get<string>('MAX_BOT_TOKEN');
     if (!token) throw new MaxApiError('invalid_credentials');
 
@@ -100,7 +104,33 @@ export class MaxApiClient {
         },
         timeout,
         {
-          body: JSON.stringify({ format: 'markdown', text }),
+          body: JSON.stringify({
+            format: 'markdown',
+            text,
+            ...(options.openAppButton
+              ? {
+                  attachments: [
+                    {
+                      type: 'inline_keyboard',
+                      payload: {
+                        buttons: [
+                          [
+                            {
+                              type: 'open_app',
+                              text: 'Открыть Маяк',
+                              web_app:
+                                this.configService.get<string>(
+                                  'MAX_BOT_USERNAME',
+                                ),
+                            },
+                          ],
+                        ],
+                      },
+                    },
+                  ],
+                }
+              : {}),
+          }),
           method: 'POST',
         },
       );

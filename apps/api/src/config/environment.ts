@@ -35,6 +35,11 @@ const environmentSchema = z.object({
     .max(30_000)
     .default(5000),
   MAX_BOT_TOKEN: z.string().min(1).optional(),
+  MAX_BOT_USERNAME: z.string().min(1).optional(),
+  MAX_WEBHOOK_SECRET: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]{5,256}$/)
+    .optional(),
   OBJECT_STORAGE_ACCESS_KEY_ID: z.string().min(1).optional(),
   OBJECT_STORAGE_BUCKET: z.string().min(1).optional(),
   OBJECT_STORAGE_ENDPOINT: z.url().default('https://storage.yandexcloud.net'),

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import {
@@ -17,5 +17,14 @@ export class MaxIntegrationController {
   })
   getStatus(): Promise<MaxIntegrationStatus> {
     return this.maxIntegrationService.getStatus();
+  }
+
+  @Post('webhook')
+  @HttpCode(200)
+  receiveWebhook(
+    @Headers('x-max-bot-api-secret') secret: string | undefined,
+    @Body() update: unknown,
+  ): Promise<{ success: true }> {
+    return this.maxIntegrationService.receiveWebhook(secret, update);
   }
 }
