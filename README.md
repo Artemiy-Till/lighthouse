@@ -30,23 +30,23 @@
 
 Чат-бот в MAX:
 
-https://max.ru/se14377272_bot
+https://max.ru/t501_hakaton_max_bot
 
 Прямая ссылка на мини-приложение:
 
-https://max.ru/se14377272_bot?startapp
+https://max.ru/t501_hakaton_max_bot?startapp
 
 Веб-версия:
 
-https://lighthouse-api-one.vercel.app
+https://111-88-243-251.sslip.io
 
 Backend API:
 
-https://lighthouse-api-lwsx.vercel.app/api/v1
+https://111-88-243-251.sslip.io/api/v1
 
 Проверка состояния API:
 
-https://lighthouse-api-lwsx.vercel.app/api/v1/health
+https://111-88-243-251.sslip.io/api/v1/health
 
 ## Основной пользовательский сценарий
 
@@ -281,6 +281,16 @@ MAX_BOT_TOKEN=
 
 Токен должен храниться только на сервере. Его запрещено добавлять в переменные с префиксом `VITE_` или публиковать в Git.
 
+Используйте токен того же бота, через которого запускается мини-приложение. Для хакатона это `@t501_hakaton_max_bot`: MAX подписывает данные запуска его токеном, и сервер проверяет подпись этим же токеном.
+
+### MAX_BOT_USERNAME
+
+Имя бота без `@` для кнопки открытия мини-приложения в сообщениях бота.
+
+```env
+MAX_BOT_USERNAME=t501_hakaton_max_bot
+```
+
 ### MAX_API_BASE_URL
 
 Базовый адрес MAX Bot API.
@@ -483,7 +493,7 @@ https://github.com/Artemiy-Till/lighthouse
 
 ### Проверка авторизации MAX
 
-1. Открыть чат-бота https://max.ru/se14377272_bot.
+1. Открыть чат-бота https://max.ru/t501_hakaton_max_bot.
 2. Запустить мини-приложение.
 3. Открыть раздел «Профиль».
 4. Убедиться, что отображаются данные текущего пользователя MAX.
