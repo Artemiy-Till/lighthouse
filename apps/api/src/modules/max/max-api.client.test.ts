@@ -96,4 +96,24 @@ describe('MaxApiClient', () => {
       method: 'POST',
     });
   });
+
+  it('adds a fresh launch parameter to the mini app button', async () => {
+    const requestMock = vi.fn().mockResolvedValue({ body: '{}', status: 200 });
+
+    await createClient(
+      { MAX_BOT_TOKEN: 'secret-token', MAX_BOT_USERNAME: 'mayak_bot' },
+      { request: requestMock },
+    ).sendUserMessage('42', 'Открой приложение', { openAppButton: true });
+
+    const options = requestMock.mock.calls[0]?.[3] as { body: string };
+    const message = JSON.parse(options.body) as {
+      attachments: {
+        payload: { buttons: { payload: string; web_app: string }[][] };
+      }[];
+    };
+    expect(message.attachments[0]?.payload.buttons[0]?.[0]).toMatchObject({
+      payload: 'refresh_20260930_0245',
+      web_app: 'mayak_bot',
+    });
+  });
 });

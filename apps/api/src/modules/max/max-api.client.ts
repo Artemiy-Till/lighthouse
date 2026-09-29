@@ -118,6 +118,7 @@ export class MaxApiClient {
                             {
                               type: 'open_app',
                               text: 'Открыть Маяк',
+                              payload: 'refresh_20260930_0245',
                               web_app:
                                 this.configService.get<string>(
                                   'MAX_BOT_USERNAME',
