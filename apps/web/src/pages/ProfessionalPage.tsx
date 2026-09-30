@@ -17,6 +17,7 @@ import {
   updatePublishedExperience,
 } from '../api/client';
 import { AppLayout } from '../components/AppLayout';
+import { DateSelector } from '../components/DateSelector';
 import { Icon } from '../components/Icon';
 import { ProfileBackLink } from '../components/ProfileBackLink';
 import { categories } from '../data/experiences';
@@ -57,11 +58,6 @@ function formatDurationOption(minutes: number) {
 function formValue(form: FormData, key: string) {
   const value = form.get(key);
   return typeof value === 'string' ? value.trim() : '';
-}
-
-function todayInputValue() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
 function isFutureScheduleSlot(slot: string) {
@@ -996,19 +992,19 @@ export function ProfessionalPage() {
                   <strong>Доступные даты и время</strong>
                 </div>
                 <div className="professional-availability__picker">
-                  <label>
+                  <div className="professional-availability__date-row">
                     <span>Дата:</span>
                     <span className="professional-availability__control">
-                      <input
-                        min={todayInputValue()}
-                        onChange={(event) =>
-                          setScheduleDate(event.target.value)
-                        }
-                        type="date"
-                        value={scheduleDate}
+                      <DateSelector
+                        mode="schedule"
+                        onChange={(date) => {
+                          setScheduleDate(date ?? '');
+                          setScheduleError(null);
+                        }}
+                        value={scheduleDate || null}
                       />
                     </span>
-                  </label>
+                  </div>
                   <div className="professional-availability__time-row">
                     <span>Время:</span>
                     <div className="professional-availability__time-controls">

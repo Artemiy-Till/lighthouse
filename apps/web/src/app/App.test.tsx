@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -384,9 +390,15 @@ describe('App navigation', () => {
     expect(
       screen.getByRole('heading', { name: 'Создайте экскурсию' }),
     ).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Дата:'), {
-      target: { value: '2099-09-19' },
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Дата экскурсии' }));
+    const dateDialog = screen.getByRole('dialog', { name: 'Выберите дату' });
+    expect(within(dateDialog).getByRole('grid')).toBeInTheDocument();
+    fireEvent.click(within(dateDialog).getByRole('button', { name: /Завтра/ }));
+    fireEvent.click(
+      within(dateDialog).getByRole('button', { name: 'Выбрать дату' }),
+    );
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
     fireEvent.change(screen.getByRole('combobox', { name: 'Часы экскурсии' }), {
       target: { value: '08' },
     });
@@ -397,7 +409,11 @@ describe('App navigation', () => {
       },
     );
     fireEvent.click(screen.getByRole('button', { name: '+ Добавить' }));
-    expect(screen.getByText('19 сентября, 08:37')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(tomorrow)}, 08:37`,
+      ),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }));
     expect(
       screen.queryByRole('heading', { name: 'Создайте экскурсию' }),

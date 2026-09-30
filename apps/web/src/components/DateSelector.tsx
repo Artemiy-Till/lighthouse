@@ -6,6 +6,7 @@ import { Icon } from './Icon';
 
 interface DateSelectorProps {
   readonly defaultLabel?: string;
+  readonly mode?: 'filter' | 'schedule';
   readonly onChange: (date: string | null) => void;
   readonly value: string | null;
 }
@@ -58,6 +59,7 @@ function addMonths(date: Date, months: number) {
 
 export function DateSelector({
   defaultLabel,
+  mode = 'filter',
   onChange,
   value,
 }: DateSelectorProps) {
@@ -69,6 +71,7 @@ export function DateSelector({
     startOfMonth(value ? parseIsoDate(value) : today),
   );
   const locale = language === 'en' ? 'en-US' : 'ru-RU';
+  const isSchedule = mode === 'schedule';
   const minimumDate = toLocalIsoDate(today);
   const quickDates = useMemo(
     () => [
@@ -150,17 +153,24 @@ export function DateSelector({
   return (
     <>
       <button
+        aria-label={isSchedule ? 'Дата экскурсии' : undefined}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
-        className={`date-button${value ? ' date-button--selected' : ''}`}
+        className={`date-button${value ? ' date-button--selected' : ''}${isSchedule ? ' date-button--schedule' : ''}`}
         onClick={openSelector}
         type="button"
       >
-        <Icon name="calendar" />
+        {isSchedule ? null : <Icon name="calendar" />}
         <span>
           {value
-            ? formatDate(value, language === 'en' ? 'en-US' : 'ru-RU')
-            : (defaultLabel ?? t('date.any'))}
+            ? isSchedule
+              ? new Intl.DateTimeFormat(locale, {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                }).format(parseIsoDate(value))
+              : formatDate(value, locale)
+            : (defaultLabel ?? (isSchedule ? 'Выберите дату' : t('date.any')))}
         </span>
       </button>
 
@@ -182,7 +192,9 @@ export function DateSelector({
                 <div className="date-dialog__handle" />
                 <header>
                   <div>
-                    <p className="section-kicker">{t('date.kicker')}</p>
+                    <p className="section-kicker">
+                      {isSchedule ? 'Дата экскурсии' : t('date.kicker')}
+                    </p>
                     <h2 id="date-dialog-title">{t('date.title')}</h2>
                   </div>
                   <button
@@ -317,10 +329,10 @@ export function DateSelector({
                 <div className="date-dialog__actions">
                   <button
                     className="date-dialog__reset"
-                    onClick={clearDate}
+                    onClick={isSchedule ? () => setIsOpen(false) : clearDate}
                     type="button"
                   >
-                    {t('date.any')}
+                    {isSchedule ? 'Отмена' : t('date.any')}
                   </button>
                   <button
                     className="date-dialog__apply"
@@ -328,7 +340,7 @@ export function DateSelector({
                     onClick={applyDate}
                     type="button"
                   >
-                    {t('date.show')}
+                    {isSchedule ? 'Выбрать дату' : t('date.show')}
                   </button>
                 </div>
               </section>
