@@ -1,0 +1,132 @@
+# Схема пакета проверок Маяк API, версия 1.
+configVersion: '1'
+solution: 'Маяк'
+baseUrl: 'https://111-88-243-251.sslip.io/api/v1'
+openapi: './openapi.json'
+testData: './test-data.json'
+authentication:
+  scheme: maxInitData
+  header: x-max-init-data
+  description: 'Подписанное initData из MAX Mini App; действительно не более 1 часа. Роли гостя и гида определяются аккаунтом и созданным профилем гида.'
+checks:
+  - id: health
+    required: true
+    method: GET
+    path: /health
+    request: {}
+    role: anonymous
+    expectedStatus: [200]
+    expectedResponse:
+      contentType: application/json
+      required: [service, status]
+      values: { service: api, status: ok }
+  - id: list-experiences
+    required: true
+    method: GET
+    path: /experiences
+    request:
+      query: { cityId: saint-petersburg }
+    role: anonymous
+    expectedStatus: [200]
+    expectedResponse:
+      contentType: application/json
+      required: [items]
+      properties: { items: array }
+  - id: get-experience
+    required: true
+    method: GET
+    path: /experiences/{experienceId}
+    request:
+      path: { experienceId: '$createdExperience.id' }
+    role: anonymous
+    expectedStatus: [200]
+    expectedResponse:
+      contentType: application/json
+      required: [id, title, cityId, guide, availableSlots, priceRub, status]
+      values: { status: published }
+  - id: authenticate-guide
+    required: true
+    method: POST
+    path: /auth/max
+    request:
+      body: { initData: '$guide.initData' }
+    role: guide
+    expectedStatus: [200]
+    expectedResponse:
+      contentType: application/json
+      required: [authenticated, user]
+      values: { authenticated: true }
+  - id: save-guide-profile
+    required: true
+    method: PUT
+    path: /professional/profile
+    request:
+      headers: { x-max-init-data: '$guide.initData' }
+      body: '$testData.guideProfile'
+    role: guide
+    expectedStatus: [200]
+    expectedResponse:
+      contentType: application/json
+      required: [id, displayName, bio]
+  - id: create-experience
+    required: true
+    method: POST
+    path: /professional/experiences
+    request:
+      headers: { x-max-init-data: '$guide.initData' }
+      body: '$testData.experience'
+    role: guide
+    expectedStatus: [201]
+    expectedResponse:
+      contentType: application/json
+      required: [id, title, cityId, availableSlots, status]
+      values: { status: published }
+  - id: create-booking
+    required: true
+    method: POST
+    path: /bookings
+    request:
+      headers: { x-max-init-data: '$guest.initData' }
+      body: '$testData.bookingWithCreatedExperience'
+    role: guest
+    expectedStatus: [201]
+    expectedResponse:
+      contentType: application/json
+      required:
+        [id, experienceId, date, time, participants, status, totalPriceRub]
+      values: { status: confirmed }
+  - id: list-bookings
+    required: true
+    method: GET
+    path: /bookings
+    request:
+      headers: { x-max-init-data: '$guest.initData' }
+    role: guest
+    expectedStatus: [200]
+    expectedResponse:
+      contentType: application/json
+      required: [items]
+      properties: { items: array }
+  - id: cancel-booking
+    required: true
+    method: DELETE
+    path: /bookings/{bookingId}
+    request:
+      headers: { x-max-init-data: '$guest.initData' }
+      path: { bookingId: '$createdBooking.id' }
+    role: guest
+    expectedStatus: [200]
+    expectedResponse:
+      contentType: application/json
+      required: [cancelled, id]
+      values: { cancelled: true }
+  - id: reject-unauthorized-booking
+    required: true
+    method: GET
+    path: /bookings
+    request: {}
+    role: anonymous
+    expectedStatus: [401]
+    expectedResponse:
+      contentType: application/json
+      required: [statusCode, message]

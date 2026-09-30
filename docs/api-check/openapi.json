@@ -1,0 +1,1201 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "operationId": "HealthController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": { "service": "api", "status": "ok" },
+                  "properties": {
+                    "service": { "type": "string" },
+                    "status": { "type": "string" }
+                  },
+                  "required": ["service", "status"],
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["system"]
+      }
+    },
+    "/api/v1/auth/max": {
+      "post": {
+        "operationId": "MaxAuthController_authenticate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuthenticateMaxDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authenticated": { "type": "boolean" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "firstName": { "type": "string" }
+                      },
+                      "required": ["id", "firstName"]
+                    }
+                  },
+                  "required": ["authenticated", "user"]
+                }
+              }
+            }
+          }
+        },
+        "tags": ["authentication"]
+      }
+    },
+    "/api/v1/integrations/max/status": {
+      "get": {
+        "operationId": "MaxIntegrationController_getStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "MAX connection state without exposing credentials"
+          }
+        },
+        "tags": ["integrations"]
+      }
+    },
+    "/api/v1/integrations/max/webhook": {
+      "post": {
+        "operationId": "MaxIntegrationController_receiveWebhook",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-max-bot-api-secret",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["integrations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "additionalProperties": true }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/experiences": {
+      "get": {
+        "operationId": "MarketplaceController_list",
+        "parameters": [
+          {
+            "name": "cityId",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "cityId": { "type": "string" },
+                          "title": { "type": "string" },
+                          "intro": { "type": "string" },
+                          "description": { "type": "string" },
+                          "category": { "type": "string" },
+                          "priceRub": { "type": "integer" },
+                          "status": { "type": "string", "enum": ["published"] },
+                          "guide": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string" },
+                              "displayName": { "type": "string" },
+                              "bio": { "type": "string" }
+                            },
+                            "required": ["id", "displayName", "bio"]
+                          },
+                          "availableSlots": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "date": { "type": "string" },
+                                "time": { "type": "string" },
+                                "remaining": { "type": "integer" },
+                                "status": { "type": "string" }
+                              },
+                              "required": [
+                                "date",
+                                "time",
+                                "remaining",
+                                "status"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "cityId",
+                          "title",
+                          "intro",
+                          "description",
+                          "category",
+                          "priceRub",
+                          "status",
+                          "guide",
+                          "availableSlots"
+                        ]
+                      }
+                    }
+                  },
+                  "required": ["items"]
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"]
+      }
+    },
+    "/api/v1/photos/{owner}/{filename}": {
+      "get": {
+        "operationId": "MarketplaceController_getPhoto",
+        "parameters": [
+          {
+            "name": "owner",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "filename",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Бинарное изображение",
+            "content": {
+              "image/*": { "schema": { "type": "string", "format": "binary" } }
+            }
+          }
+        },
+        "tags": ["marketplace"]
+      }
+    },
+    "/api/v1/experiences/{id}": {
+      "get": {
+        "operationId": "MarketplaceController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "cityId": { "type": "string" },
+                    "title": { "type": "string" },
+                    "intro": { "type": "string" },
+                    "description": { "type": "string" },
+                    "category": { "type": "string" },
+                    "priceRub": { "type": "integer" },
+                    "status": { "type": "string", "enum": ["published"] },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "displayName": { "type": "string" },
+                        "bio": { "type": "string" }
+                      },
+                      "required": ["id", "displayName", "bio"]
+                    },
+                    "availableSlots": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": { "type": "string" },
+                          "time": { "type": "string" },
+                          "remaining": { "type": "integer" },
+                          "status": { "type": "string" }
+                        },
+                        "required": ["date", "time", "remaining", "status"]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "cityId",
+                    "title",
+                    "intro",
+                    "description",
+                    "category",
+                    "priceRub",
+                    "status",
+                    "guide",
+                    "availableSlots"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"]
+      }
+    },
+    "/api/v1/experiences/{id}/reviews": {
+      "get": {
+        "operationId": "MarketplaceController_reviews",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["marketplace"]
+      }
+    },
+    "/api/v1/bookings": {
+      "post": {
+        "operationId": "MarketplaceController_createBooking",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateBookingDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "experienceId": { "type": "string" },
+                    "date": { "type": "string" },
+                    "time": { "type": "string" },
+                    "participants": { "type": "integer" },
+                    "totalPriceRub": { "type": "integer" },
+                    "status": {
+                      "type": "string",
+                      "enum": ["confirmed", "completed", "cancelled"]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "experienceId",
+                    "date",
+                    "time",
+                    "participants",
+                    "totalPriceRub",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      },
+      "get": {
+        "operationId": "MarketplaceController_listBookings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "experienceId": { "type": "string" },
+                          "date": { "type": "string" },
+                          "time": { "type": "string" },
+                          "participants": { "type": "integer" },
+                          "totalPriceRub": { "type": "integer" },
+                          "status": {
+                            "type": "string",
+                            "enum": ["confirmed", "completed", "cancelled"]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "experienceId",
+                          "date",
+                          "time",
+                          "participants",
+                          "totalPriceRub",
+                          "status"
+                        ]
+                      }
+                    }
+                  },
+                  "required": ["items"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/bookings/{id}/contact": {
+      "post": {
+        "operationId": "MarketplaceController_sendGuideContact",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "201": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/bookings/{id}": {
+      "delete": {
+        "operationId": "MarketplaceController_cancelBooking",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cancelled": { "type": "boolean" },
+                    "id": { "type": "string" }
+                  },
+                  "required": ["cancelled", "id"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/bookings/{id}/review": {
+      "post": {
+        "operationId": "MarketplaceController_createReview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateReviewDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/professional/profile": {
+      "get": {
+        "operationId": "MarketplaceController_profile",
+        "parameters": [],
+        "responses": {
+          "200": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      },
+      "put": {
+        "operationId": "MarketplaceController_saveProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpsertGuideProfileDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "displayName": { "type": "string" },
+                    "bio": { "type": "string" }
+                  },
+                  "required": ["id", "displayName", "bio"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/professional/experiences": {
+      "post": {
+        "operationId": "MarketplaceController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateExperienceDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "cityId": { "type": "string" },
+                    "title": { "type": "string" },
+                    "intro": { "type": "string" },
+                    "description": { "type": "string" },
+                    "category": { "type": "string" },
+                    "priceRub": { "type": "integer" },
+                    "status": { "type": "string", "enum": ["published"] },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "displayName": { "type": "string" },
+                        "bio": { "type": "string" }
+                      },
+                      "required": ["id", "displayName", "bio"]
+                    },
+                    "availableSlots": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": { "type": "string" },
+                          "time": { "type": "string" },
+                          "remaining": { "type": "integer" },
+                          "status": { "type": "string" }
+                        },
+                        "required": ["date", "time", "remaining", "status"]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "cityId",
+                    "title",
+                    "intro",
+                    "description",
+                    "category",
+                    "priceRub",
+                    "status",
+                    "guide",
+                    "availableSlots"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      },
+      "get": {
+        "operationId": "MarketplaceController_listOwnExperiences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "cityId": { "type": "string" },
+                          "title": { "type": "string" },
+                          "intro": { "type": "string" },
+                          "description": { "type": "string" },
+                          "category": { "type": "string" },
+                          "priceRub": { "type": "integer" },
+                          "status": { "type": "string", "enum": ["published"] },
+                          "guide": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string" },
+                              "displayName": { "type": "string" },
+                              "bio": { "type": "string" }
+                            },
+                            "required": ["id", "displayName", "bio"]
+                          },
+                          "availableSlots": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "date": { "type": "string" },
+                                "time": { "type": "string" },
+                                "remaining": { "type": "integer" },
+                                "status": { "type": "string" }
+                              },
+                              "required": [
+                                "date",
+                                "time",
+                                "remaining",
+                                "status"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "cityId",
+                          "title",
+                          "intro",
+                          "description",
+                          "category",
+                          "priceRub",
+                          "status",
+                          "guide",
+                          "availableSlots"
+                        ]
+                      }
+                    }
+                  },
+                  "required": ["items"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/professional/schedule": {
+      "get": {
+        "operationId": "MarketplaceController_listGuideSchedule",
+        "parameters": [],
+        "responses": {
+          "200": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/professional/bookings/{id}/contact": {
+      "post": {
+        "operationId": "MarketplaceController_sendGuestContact",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "201": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/professional/schedule/complete": {
+      "post": {
+        "operationId": "MarketplaceController_completeGuideSchedule",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteScheduleSlotDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/professional/experiences/{id}": {
+      "put": {
+        "operationId": "MarketplaceController_updateExperience",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateExperienceDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "cityId": { "type": "string" },
+                    "title": { "type": "string" },
+                    "intro": { "type": "string" },
+                    "description": { "type": "string" },
+                    "category": { "type": "string" },
+                    "priceRub": { "type": "integer" },
+                    "status": { "type": "string", "enum": ["published"] },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "displayName": { "type": "string" },
+                        "bio": { "type": "string" }
+                      },
+                      "required": ["id", "displayName", "bio"]
+                    },
+                    "availableSlots": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": { "type": "string" },
+                          "time": { "type": "string" },
+                          "remaining": { "type": "integer" },
+                          "status": { "type": "string" }
+                        },
+                        "required": ["date", "time", "remaining", "status"]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "cityId",
+                    "title",
+                    "intro",
+                    "description",
+                    "category",
+                    "priceRub",
+                    "status",
+                    "guide",
+                    "availableSlots"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      },
+      "delete": {
+        "operationId": "MarketplaceController_deleteExperience",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    },
+    "/api/v1/professional/photos": {
+      "post": {
+        "operationId": "MarketplaceController_uploadPhoto",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadExperiencePhotoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "" },
+          "401": {
+            "description": "Отсутствуют или недействительны данные запуска MAX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statusCode", "message"],
+                  "properties": {
+                    "statusCode": { "type": "integer", "enum": [401] },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["marketplace"],
+        "security": [{ "maxInitData": [] }]
+      }
+    }
+  },
+  "info": {
+    "title": "Маяк API",
+    "description": "API маркетплейса экскурсий в MAX",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "https://111-88-243-251.sslip.io",
+      "description": "Публичный адрес из README"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "AuthenticateMaxDto": {
+        "type": "object",
+        "properties": {
+          "initData": {
+            "type": "string",
+            "description": "Signed launch data received from window.WebApp.initData"
+          }
+        },
+        "required": ["initData"]
+      },
+      "CreateBookingDto": {
+        "type": "object",
+        "properties": {
+          "experienceId": { "type": "string" },
+          "date": { "type": "string" },
+          "time": { "type": "string" },
+          "durationMinutes": { "type": "number" },
+          "participants": { "type": "number" },
+          "title": { "type": "string" },
+          "cityId": {
+            "type": "string",
+            "enum": ["saint-petersburg", "moscow", "kazan", "kostroma"]
+          },
+          "imageUrl": { "type": "string" },
+          "meetingPoint": { "type": "string" },
+          "priceRub": { "type": "number" },
+          "groupSize": { "type": "number" }
+        },
+        "required": [
+          "experienceId",
+          "date",
+          "time",
+          "participants",
+          "title",
+          "cityId",
+          "imageUrl",
+          "meetingPoint",
+          "priceRub",
+          "groupSize"
+        ]
+      },
+      "CreateReviewDto": {
+        "type": "object",
+        "properties": {
+          "rating": { "type": "number" },
+          "comment": { "type": "string" }
+        },
+        "required": ["rating", "comment"]
+      },
+      "UpsertGuideProfileDto": {
+        "type": "object",
+        "properties": {
+          "displayName": { "type": "string" },
+          "bio": { "type": "string" }
+        },
+        "required": ["displayName", "bio"]
+      },
+      "CreateExperienceDto": {
+        "type": "object",
+        "properties": {
+          "cityId": {
+            "type": "string",
+            "enum": ["saint-petersburg", "moscow", "kazan", "kostroma"]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "Обзорные",
+              "Музеи",
+              "По воде",
+              "Вечерние",
+              "Гастро",
+              "С детьми"
+            ]
+          },
+          "title": { "type": "string" },
+          "intro": { "type": "string" },
+          "description": { "type": "string" },
+          "durationMinutes": { "type": "number" },
+          "format": { "type": "string" },
+          "groupSize": { "type": "number" },
+          "childrenPolicy": { "type": "string" },
+          "meetingPoint": { "type": "string" },
+          "priceRub": { "type": "number" },
+          "photoUrls": { "type": "array", "items": { "type": "string" } },
+          "scheduleSlots": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": [
+          "cityId",
+          "category",
+          "title",
+          "intro",
+          "description",
+          "durationMinutes",
+          "format",
+          "groupSize",
+          "childrenPolicy",
+          "meetingPoint",
+          "priceRub",
+          "photoUrls",
+          "scheduleSlots"
+        ]
+      },
+      "CompleteScheduleSlotDto": {
+        "type": "object",
+        "properties": {
+          "experienceId": { "type": "string" },
+          "date": { "type": "string" },
+          "time": { "type": "string" }
+        },
+        "required": ["experienceId", "date", "time"]
+      },
+      "UploadExperiencePhotoDto": {
+        "type": "object",
+        "properties": {
+          "filename": { "type": "string" },
+          "dataUrl": { "type": "string" }
+        },
+        "required": ["filename", "dataUrl"]
+      }
+    },
+    "securitySchemes": {
+      "maxInitData": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-max-init-data",
+        "description": "Свежие подписанные данные запуска MAX Mini App"
+      }
+    }
+  }
+}

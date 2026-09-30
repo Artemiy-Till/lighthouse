@@ -1,0 +1,36 @@
+{
+  "guideProfile": {
+    "displayName": "Тестовый гид Маяка",
+    "bio": "Тестовый профиль гида для воспроизводимой проверки публикации экскурсий через API."
+  },
+  "experience": {
+    "cityId": "saint-petersburg",
+    "category": "Обзорные",
+    "title": "Тестовая прогулка по центру Петербурга",
+    "intro": "Тестовый маршрут по центральным улицам и набережным города.",
+    "description": "Тестовая экскурсия для проверки создания карточки, публикации в каталоге и бронирования. Прогулка проходит по центру города с остановками у основных достопримечательностей.",
+    "durationMinutes": 120,
+    "format": "Пешая прогулка",
+    "groupSize": 6,
+    "childrenPolicy": "Дети от 10 лет",
+    "meetingPoint": "У выхода из метро Адмиралтейская",
+    "priceRub": 1500,
+    "photoUrls": [
+      "https://111-88-243-251.sslip.io/images/saint-petersburg-hero.webp"
+    ],
+    "scheduleSlots": ["<будущая дата YYYY-MM-DD>T12:00"]
+  },
+  "booking": {
+    "experienceId": "<id созданной экскурсии>",
+    "date": "<та же будущая дата YYYY-MM-DD>",
+    "time": "12:00",
+    "durationMinutes": 120,
+    "participants": 1,
+    "title": "Тестовая прогулка по центру Петербурга",
+    "cityId": "saint-petersburg",
+    "imageUrl": "https://111-88-243-251.sslip.io/images/saint-petersburg-hero.webp",
+    "meetingPoint": "У выхода из метро Адмиралтейская",
+    "priceRub": 1500,
+    "groupSize": 6
+  }
+}

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { AuthenticateMaxDto } from './max-auth.dto.js';
@@ -13,6 +13,7 @@ export class MaxAuthController {
   constructor(private readonly maxAuthService: MaxAuthService) {}
 
   @Post()
+  @HttpCode(200)
   @ApiOkResponse({ description: 'Verified MAX user profile' })
   authenticate(@Body() body: AuthenticateMaxDto): MaxAuthenticationResult {
     return this.maxAuthService.authenticate(body.initData);

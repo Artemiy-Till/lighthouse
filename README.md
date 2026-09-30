@@ -44,6 +44,8 @@ Backend API:
 
 https://111-88-243-251.sslip.io/api/v1
 
+Пакет для проверки API (OpenAPI, тестовые данные и сценарии): [docs/api-check/README.md](docs/api-check/README.md).
+
 Проверка состояния API:
 
 https://111-88-243-251.sslip.io/api/v1/health
