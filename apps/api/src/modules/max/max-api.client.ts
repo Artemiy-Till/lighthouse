@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
 import { MaxApiTransport } from './max-api.transport.js';
@@ -118,7 +119,7 @@ export class MaxApiClient {
                             {
                               type: 'open_app',
                               text: 'Открыть Маяк',
-                              payload: 'refresh_20260930_0245',
+                              payload: `refresh_${randomUUID()}`,
                               web_app:
                                 this.configService.get<string>(
                                   'MAX_BOT_USERNAME',
