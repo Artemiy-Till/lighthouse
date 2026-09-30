@@ -5531,11 +5531,6 @@ html[data-theme='dark'] .experience-details-hero__favorite.is-favorite {
   backdrop-filter: blur(10px);
 }
 
-.experience-details-hero__previous,
-.experience-details-hero__next {
-  display: none;
-}
-
 .experience-details-content {
   padding: 18px 28px 46px;
 }
