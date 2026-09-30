@@ -51,13 +51,13 @@ export class MarketplaceController {
     @Param('filename') filename: string,
     @Res()
     response: {
-      setHeader(name: string, value: string): void;
+      header(name: string, value: string): void;
       send(body: Buffer): void;
     },
   ) {
     const photo = await this.photoStorage.download(owner, filename);
-    response.setHeader('Content-Type', photo.contentType);
-    response.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+    response.header('Content-Type', photo.contentType);
+    response.header('Cache-Control', 'public, max-age=86400, immutable');
     response.send(photo.body);
   }
 
