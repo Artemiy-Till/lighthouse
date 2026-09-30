@@ -87,7 +87,8 @@ checks:
     path: /bookings
     request:
       headers: { x-max-init-data: '$guest.initData' }
-      body: '$testData.bookingWithCreatedExperience'
+      # Перед отправкой подставить id созданной экскурсии и дату из её scheduleSlots.
+      body: '$testData.booking'
     role: guest
     expectedStatus: [201]
     expectedResponse:
