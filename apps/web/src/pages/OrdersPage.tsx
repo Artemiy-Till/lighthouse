@@ -11,6 +11,7 @@ import {
 import { AppLayout } from '../components/AppLayout';
 import { cities } from '../data/cities';
 import { isUpcomingBooking } from '../features/bookings/booking-status';
+import { getMaxUserChatUrl } from '../features/max/max-chat';
 import { useMaxConnection } from '../features/max/useMaxConnection';
 import { useSettings } from '../features/settings/SettingsContext';
 
@@ -227,14 +228,35 @@ export function OrdersPage() {
                             <span aria-hidden="true">×</span>
                           </button>
                           {order.guideContact ? (
-                            <button
-                              className="order-card__chat"
-                              disabled={guideContact.isPending}
-                              onClick={() => guideContact.mutate(order.id)}
-                              type="button"
-                            >
-                              {t('orders.chatGuide')}
-                            </button>
+                            order.guideContact.username ? (
+                              <a
+                                className="order-card__chat"
+                                href={getMaxUserChatUrl(
+                                  order.guideContact.maxUserId,
+                                  order.guideContact.username,
+                                )}
+                                onClick={(event) => {
+                                  if (
+                                    platform.openMaxLink(
+                                      event.currentTarget.href,
+                                    )
+                                  ) {
+                                    event.preventDefault();
+                                  }
+                                }}
+                              >
+                                {t('orders.chatGuide')}
+                              </a>
+                            ) : (
+                              <button
+                                className="order-card__chat"
+                                disabled={guideContact.isPending}
+                                onClick={() => guideContact.mutate(order.id)}
+                                type="button"
+                              >
+                                {t('orders.chatGuide')}
+                              </button>
+                            )
                           ) : null}
                         </>
                       ) : null}

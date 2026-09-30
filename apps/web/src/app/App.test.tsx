@@ -726,13 +726,17 @@ describe('App navigation', () => {
 
     renderApp('/orders');
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Написать гиду в MAX' }),
-    );
+    const guideChat = await screen.findByRole('link', {
+      name: 'Написать гиду в MAX',
+    });
+    expect(guideChat).toHaveAttribute('href', 'https://max.ru/artemiy');
+    fireEvent.click(guideChat);
     await waitFor(() =>
-      expect(openMaxLink).toHaveBeenCalledWith(
-        'https://max.ru/mayak_bot?start=guide-contact',
-      ),
+      expect(openMaxLink).toHaveBeenCalledWith('https://max.ru/artemiy'),
+    );
+    expect(fetch).not.toHaveBeenCalledWith(
+      expect.stringContaining('/bookings/booking-1/contact'),
+      expect.anything(),
     );
   });
 
