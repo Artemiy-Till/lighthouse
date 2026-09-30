@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cities, type CityId } from '../data/cities';
-import { formatOfferCount, getExperiencesForCity } from '../data/experiences';
+import { formatOfferCount } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
 import { usePublishedExperiences } from '../features/marketplace/usePublishedExperiences';
 import { useSettings } from '../features/settings/SettingsContext';
@@ -88,9 +88,7 @@ export function CitySelector() {
                       publishedExperiences.data?.items.filter(
                         (experience) => experience.cityId === item.id,
                       ).length ?? 0;
-                    const offerCount =
-                      getExperiencesForCity(item.id).length +
-                      publishedOfferCount;
+                    const offerCount = publishedOfferCount;
 
                     return (
                       <button

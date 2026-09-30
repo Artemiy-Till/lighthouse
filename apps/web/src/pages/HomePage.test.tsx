@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CityProvider } from '../features/city/CityContext';
 import { ThemeProvider } from '../features/theme/ThemeContext';
@@ -27,9 +27,17 @@ function TestProviders({ children }: { readonly children: ReactNode }) {
 describe('HomePage', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ items: [] }), { status: 200 }),
+        ),
+      ),
+    );
   });
 
-  it('shows the selected city and popular experiences', () => {
+  it('shows the selected city without invented experiences', async () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     expect(
@@ -57,10 +65,14 @@ describe('HomePage', () => {
     expect(
       screen.queryByRole('link', { name: /Смотреть все экскурсии/i }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText('Разводные мосты с воды')).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        'Пока нет опубликованных экскурсий в этом городе.',
+      ),
+    ).toBeInTheDocument();
   });
 
-  it('changes the large image when another city is selected', () => {
+  it('changes the large image when another city is selected', async () => {
     render(<HomePage />, { wrapper: TestProviders });
 
     fireEvent.click(screen.getByRole('button', { name: 'Москва' }));
@@ -78,7 +90,45 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('heading', { name: 'Популярное в Москве' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Москва: первое знакомство')).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        'Пока нет опубликованных экскурсий в этом городе.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('shows excursions published by users', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            items: [
+              {
+                category: 'Обзорные',
+                cityId: 'saint-petersburg',
+                durationMinutes: 120,
+                format: 'Пешком',
+                id: 'published-tour',
+                photos: ['/published.jpg'],
+                priceRub: 1500,
+                rating: 0,
+                reviewCount: 0,
+                title: 'Маршрут пользователя',
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    render(<HomePage />, { wrapper: TestProviders });
+
+    expect(await screen.findByText('Маршрут пользователя')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /Маршрут пользователя/ }),
+    ).toHaveAttribute('href', '/experiences/published-tour');
   });
 
   it('shows a single full-width search action', () => {

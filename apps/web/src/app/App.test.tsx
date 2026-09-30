@@ -27,6 +27,150 @@ function renderApp(initialEntry = '/') {
   return { ...view, queryClient };
 }
 
+const publishedCatalogExperiences = [
+  {
+    availableSlots: [],
+    category: 'Обзорные',
+    children: 'Можно с детьми от 7 лет',
+    cityId: 'saint-petersburg',
+    createdAt: '2026-09-19T09:00:00.000Z',
+    description: 'Прогулка по центру Санкт-Петербурга.',
+    durationMinutes: 120,
+    format: 'Пешком',
+    groupSize: 12,
+    groupType: 'Мини-группа',
+    guide: {
+      bio: 'Гид по Петербургу.',
+      displayName: 'Алексей Смирнов',
+      id: 'guide-1',
+      photoUrl: null,
+    },
+    highlights: ['Дворцовая площадь'],
+    id: 'published-first-meeting',
+    intro: 'Знакомство с городом.',
+    meetingPoint: 'Дворцовая площадь',
+    photos: ['/images/saint-petersburg-hero.webp'],
+    priceRub: 1290,
+    rating: 4.96,
+    reviewCount: 328,
+    status: 'published',
+    title: 'Петербург: первое знакомство',
+  },
+  {
+    availableSlots: [],
+    category: 'Музеи',
+    children: 'Только взрослые',
+    cityId: 'saint-petersburg',
+    createdAt: '2026-09-19T09:00:00.000Z',
+    description: 'Архитектура и история старого города.',
+    durationMinutes: 90,
+    format: 'Пешком',
+    groupSize: 8,
+    groupType: 'Авторская экскурсия',
+    guide: {
+      bio: 'Гид по Петербургу.',
+      displayName: 'Алексей Смирнов',
+      id: 'guide-1',
+      photoUrl: null,
+    },
+    highlights: ['Парадные'],
+    id: 'published-courtyards',
+    intro: 'Дворы и парадные.',
+    meetingPoint: 'Невский проспект',
+    photos: ['/images/hidden-courtyards.webp'],
+    priceRub: 1800,
+    rating: 4.91,
+    reviewCount: 184,
+    status: 'published',
+    title: 'Дворы, парадные и старые истории',
+  },
+  {
+    availableSlots: [],
+    category: 'Вечерние',
+    children: 'Можно с детьми от 5 лет',
+    cityId: 'saint-petersburg',
+    createdAt: '2026-09-19T09:00:00.000Z',
+    description: 'Вечерняя экскурсия по рекам и каналам.',
+    durationMinutes: 90,
+    format: 'На катере',
+    groupSize: 10,
+    groupType: 'Групповая экскурсия',
+    guide: {
+      bio: 'Гид по Петербургу.',
+      displayName: 'Алексей Смирнов',
+      id: 'guide-1',
+      photoUrl: null,
+    },
+    highlights: ['Разводные мосты'],
+    id: 'published-bridges',
+    intro: 'Мосты с воды.',
+    meetingPoint: 'Причал',
+    photos: ['/images/drawbridges.webp'],
+    priceRub: 1590,
+    rating: 4.88,
+    reviewCount: 517,
+    status: 'published',
+    title: 'Разводные мосты с воды',
+  },
+  {
+    availableSlots: [],
+    category: 'По воде',
+    children: 'Можно с детьми от 8 лет',
+    cityId: 'saint-petersburg',
+    createdAt: '2026-09-19T09:00:00.000Z',
+    description: 'Форты и маяки Кронштадта.',
+    durationMinutes: 300,
+    format: 'На автобусе',
+    groupSize: 10,
+    groupType: 'Групповая экскурсия',
+    guide: {
+      bio: 'Гид по Петербургу.',
+      displayName: 'Алексей Смирнов',
+      id: 'guide-1',
+      photoUrl: null,
+    },
+    highlights: ['Маяки'],
+    id: 'published-kronstadt',
+    intro: 'Поездка в Кронштадт.',
+    meetingPoint: 'В центре города',
+    photos: ['/images/kronstadt.webp'],
+    priceRub: 3200,
+    rating: 4.94,
+    reviewCount: 96,
+    status: 'published',
+    title: 'Форты и маяки Кронштадта',
+  },
+] as const;
+
+function stubPublishedCatalog() {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((input: RequestInfo | URL) => {
+      const requestUrl =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url;
+      const detailId = requestUrl.match(/\/experiences\/([^/?]+)$/)?.[1];
+      const payload = requestUrl.endsWith('/reviews')
+        ? { items: [] }
+        : detailId
+          ? publishedCatalogExperiences.find((item) => item.id === detailId)
+          : requestUrl.includes('/experiences')
+            ? { items: publishedCatalogExperiences }
+            : {
+                bot: { id: '1', name: 'Маяк', username: 'mayak_bot' },
+                configured: true,
+                connected: true,
+              };
+      return Promise.resolve(
+        new Response(JSON.stringify(payload), { status: 200 }),
+      );
+    }),
+  );
+}
+
 describe('App navigation', () => {
   beforeEach(() => {
     vi.stubGlobal(
@@ -793,19 +937,8 @@ describe('App navigation', () => {
     });
   });
 
-  it('removes saved experiences and shows the empty state', () => {
+  it('starts favorites without invented experiences', () => {
     renderApp('/favorites');
-
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Удалить «Дворы, парадные и старые истории» из избранного',
-      }),
-    );
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Удалить «Разводные мосты с воды» из избранного',
-      }),
-    );
 
     expect(screen.getByText('Здесь пока пусто')).toBeInTheDocument();
     expect(
@@ -1044,19 +1177,20 @@ describe('App navigation', () => {
     expect(screen.getByText('Петербург глазами местного')).toBeInTheDocument();
   });
 
-  it('opens an experience card and shows its complete details', () => {
+  it('opens a user-published experience and its guide', async () => {
+    stubPublishedCatalog();
     renderApp();
 
     fireEvent.click(screen.getByRole('link', { name: 'Все' }));
 
     fireEvent.click(
-      screen.getByRole('link', {
+      await screen.findByRole('link', {
         name: 'Подробнее об экскурсии «Петербург: первое знакомство»',
       }),
     );
 
     expect(
-      screen.getByRole('heading', {
+      await screen.findByRole('heading', {
         name: 'Петербург: первое знакомство',
         level: 1,
       }),
@@ -1067,13 +1201,8 @@ describe('App navigation', () => {
     expect(screen.getByText('Санкт-Петербург')).toBeInTheDocument();
     expect(screen.queryByText(/⌖/)).not.toBeInTheDocument();
     expect(screen.getByText('Условия бронирования')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('Не подойдёт для'));
-    expect(
-      screen.getByText('Гости на инвалидных колясках'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Дети младше 7 лет')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Что вас ожидает'));
-    expect(screen.getByText('Дворцовая площадь')).toBeInTheDocument();
+    expect(screen.getAllByText('Дворцовая площадь').length).toBeGreaterThan(0);
 
     fireEvent.click(
       screen.getByRole('link', {
@@ -1081,9 +1210,14 @@ describe('App navigation', () => {
       }),
     );
     expect(
-      screen.getByRole('heading', { name: 'Алексей Смирнов', level: 1 }),
+      await screen.findByRole('heading', {
+        name: 'Алексей Смирнов',
+        level: 1,
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Личность подтверждена')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Личность подтверждена через MAX'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Опыт и квалификация')).toBeInTheDocument();
     expect(screen.getByText('МАРШРУТЫ ГИДА')).toBeInTheDocument();
     expect(
@@ -1091,10 +1225,11 @@ describe('App navigation', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('filters and sorts catalog experiences', () => {
+  it('filters and sorts user-published catalog experiences', async () => {
+    stubPublishedCatalog();
     renderApp('/catalog');
 
-    expect(screen.getByText('4 предложения')).toBeInTheDocument();
+    expect(await screen.findByText('4 предложения')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Фильтры/ }));
     fireEvent.click(screen.getByLabelText('Подходит с детьми'));
     fireEvent.click(screen.getByRole('button', { name: 'Показать варианты' }));
@@ -1144,14 +1279,15 @@ describe('App navigation', () => {
     );
   });
 
-  it('searches the catalog by URL, details and small typos', () => {
+  it('searches user-published experiences by URL, details and small typos', async () => {
+    stubPublishedCatalog();
     renderApp('/catalog?query=парадние');
 
     const search = screen.getByRole('searchbox', {
       name: 'Найти экскурсию',
     });
     expect(search).toHaveValue('парадние');
-    expect(screen.getByText('1 предложение')).toBeInTheDocument();
+    expect(await screen.findByText('1 предложение')).toBeInTheDocument();
     expect(
       screen.getByText('Дворы, парадные и старые истории'),
     ).toBeInTheDocument();

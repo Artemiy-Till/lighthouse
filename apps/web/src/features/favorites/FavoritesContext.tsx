@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 const storageKey = 'marketplace-favorites';
-const defaultFavorites = ['hidden-courtyards', 'drawbridges'];
+const defaultFavorites: string[] = [];
 
 interface FavoritesContextValue {
   readonly favoriteIds: ReadonlySet<string>;

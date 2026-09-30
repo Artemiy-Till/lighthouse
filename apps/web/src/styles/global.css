@@ -7290,6 +7290,15 @@ html[data-theme='dark'] .profile-page .theme-switch {
   gap: 12px;
 }
 
+.home-discovery__popular-empty {
+  margin: 0;
+  padding: 20px;
+  border-radius: 16px;
+  color: var(--muted);
+  background: var(--soft-background);
+  font-size: 13px;
+}
+
 .home-popular-card {
   position: relative;
   display: block;

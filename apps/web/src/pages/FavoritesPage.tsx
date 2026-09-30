@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 
 import { AppLayout } from '../components/AppLayout';
 import { ExperienceCard } from '../components/ExperienceCard';
-import { experiences } from '../data/experiences';
 import { useFavorites } from '../features/favorites/FavoritesContext';
 import {
   toExperience,
@@ -15,10 +14,8 @@ export function FavoritesPage() {
   const { t } = useSettings();
   const published = usePublishedExperiences();
   const publishedExperiences = (published.data?.items ?? []).map(toExperience);
-  const favoriteExperiences = [...publishedExperiences, ...experiences].filter(
-    (experience, index, allExperiences) =>
-      favoriteIds.has(experience.id) &&
-      allExperiences.findIndex((item) => item.id === experience.id) === index,
+  const favoriteExperiences = publishedExperiences.filter((experience) =>
+    favoriteIds.has(experience.id),
   );
 
   return (

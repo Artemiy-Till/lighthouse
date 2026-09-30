@@ -4,8 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/AppLayout';
 import { Icon } from '../components/Icon';
 import { cities } from '../data/cities';
-import { experiences } from '../data/experiences';
 import { useCity } from '../features/city/CityContext';
+import {
+  toExperience,
+  usePublishedExperiences,
+} from '../features/marketplace/usePublishedExperiences';
 import { useSettings } from '../features/settings/SettingsContext';
 
 function ratingValue(value: string) {
@@ -17,8 +20,9 @@ export function HomePage() {
   const navigate = useNavigate();
   const { city, selectCity } = useCity();
   const { t } = useSettings();
-  const popularExperiences = experiences
-    .filter((experience) => experience.cityId === city.id)
+  const published = usePublishedExperiences(city.id);
+  const popularExperiences = (published.data?.items ?? [])
+    .map(toExperience)
     .sort(
       (left, right) =>
         ratingValue(right.rating) * right.reviews -
@@ -90,31 +94,45 @@ export function HomePage() {
             <h2>Популярное в {city.prepositionalName}</h2>
             <Link to="/catalog">Все</Link>
           </header>
-          <div className="home-discovery__popular-list">
-            {popularExperiences.map((experience) => (
-              <Link
-                className="home-popular-card"
-                key={experience.id}
-                to={`/experiences/${experience.id}`}
-              >
-                <img alt="" src={experience.image} />
-                <span className="home-popular-card__scrim" />
-                <span className="home-popular-card__rating">
-                  ★ {experience.rating}
-                </span>
-                {experience.badge ? (
-                  <span className="home-popular-card__badge">
-                    {experience.badge}
+          {published.isPending ? (
+            <p className="home-discovery__popular-empty" role="status">
+              Загрузка экскурсий…
+            </p>
+          ) : published.isError ? (
+            <p className="home-discovery__popular-empty" role="alert">
+              Не удалось загрузить экскурсии.
+            </p>
+          ) : popularExperiences.length === 0 ? (
+            <p className="home-discovery__popular-empty">
+              Пока нет опубликованных экскурсий в этом городе.
+            </p>
+          ) : (
+            <div className="home-discovery__popular-list">
+              {popularExperiences.map((experience) => (
+                <Link
+                  className="home-popular-card"
+                  key={experience.id}
+                  to={`/experiences/${experience.id}`}
+                >
+                  <img alt="" src={experience.image} />
+                  <span className="home-popular-card__scrim" />
+                  <span className="home-popular-card__rating">
+                    ★ {experience.rating}
                   </span>
-                ) : null}
-                <span className="home-popular-card__copy">
-                  <small>{experience.duration}</small>
-                  <strong>{experience.title}</strong>
-                  <span>{experience.price}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
+                  {experience.badge ? (
+                    <span className="home-popular-card__badge">
+                      {experience.badge}
+                    </span>
+                  ) : null}
+                  <span className="home-popular-card__copy">
+                    <small>{experience.duration}</small>
+                    <strong>{experience.title}</strong>
+                    <span>{experience.price}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </AppLayout>

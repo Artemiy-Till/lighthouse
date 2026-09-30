@@ -12,12 +12,9 @@ import { Icon } from '../components/Icon';
 import {
   categories,
   formatOfferCount,
-  getExperienceDetails,
-  getExperiencesForCity,
   type Experience,
   type ExperienceDetails,
 } from '../data/experiences';
-import { getGuideForCity } from '../data/guides';
 import {
   scoreCatalogSearch,
   type CatalogSearchDocument,
@@ -33,7 +30,7 @@ import { useSettings } from '../features/settings/SettingsContext';
 type CatalogSort = 'popular' | 'price' | 'rating';
 
 interface CatalogEntry {
-  readonly details: ExperienceDetails | undefined;
+  readonly details: ExperienceDetails;
   readonly experience: Experience;
   readonly searchDocument: CatalogSearchDocument;
 }
@@ -68,21 +65,12 @@ function getFormatFromDetails(value: string): CatalogFilterState['format'] {
   return 'transport';
 }
 
-function getFormat(id: string): CatalogFilterState['format'] {
-  return getFormatFromDetails(getExperienceDetails(id)?.format ?? '');
-}
-
 function isChildrenTextSuitable(children: string) {
   return (
     children.startsWith('Можно с детьми') ||
     children.includes('детям') ||
     children.includes('для детей')
   );
-}
-
-function isSuitableForChildren(id: string) {
-  const children = getExperienceDetails(id)?.children ?? '';
-  return isChildrenTextSuitable(children);
 }
 
 function matchesChildrenFilter(
@@ -112,15 +100,11 @@ function matchesEntryFilters(
       selectedFilters.duration,
     ) &&
     (selectedFilters.format === 'any' ||
-      (details
-        ? getFormatFromDetails(details.format)
-        : getFormat(experience.id)) === selectedFilters.format) &&
+      getFormatFromDetails(details.format) === selectedFilters.format) &&
     (selectedFilters.minRating === null ||
       getRating(experience.rating) >= selectedFilters.minRating) &&
     matchesChildrenFilter(
-      details
-        ? isChildrenTextSuitable(details.children)
-        : isSuitableForChildren(experience.id),
+      isChildrenTextSuitable(details.children),
       selectedFilters.children,
     )
   );
@@ -138,8 +122,7 @@ export function CatalogPage() {
   const published = usePublishedExperiences(city.id);
 
   const catalogEntries = useMemo<CatalogEntry[]>(() => {
-    const remoteItems = published.data?.items ?? [];
-    const remoteEntries = remoteItems.map((item) => {
+    return (published.data?.items ?? []).map((item) => {
       const details = toExperienceDetails(item);
       return {
         details,
@@ -161,37 +144,7 @@ export function CatalogPage() {
         },
       };
     });
-    const guide = getGuideForCity(city.id);
-    const localEntries = getExperiencesForCity(city.id).map((experience) => {
-      const details = getExperienceDetails(experience.id);
-      return {
-        details,
-        experience,
-        searchDocument: {
-          category: experience.category,
-          city: city.name,
-          details: details
-            ? [
-                details.intro,
-                details.description,
-                details.format,
-                details.children,
-                details.groupSize,
-                details.groupType,
-                details.meetingPoint,
-                ...details.highlights,
-              ]
-            : [experience.duration],
-          guide: guide
-            ? `${guide.name} ${guide.tagline} ${guide.about} ${guide.languages.join(' ')}`
-            : '',
-          title: experience.title,
-        },
-      };
-    });
-
-    return [...remoteEntries, ...localEntries];
-  }, [city.id, city.name, published.data]);
+  }, [city.name, published.data]);
 
   const filteredExperiences = useMemo(() => {
     return catalogEntries
@@ -391,7 +344,15 @@ export function CatalogPage() {
           </div>
         ) : null}
 
-        {filteredExperiences.length > 0 ? (
+        {published.isPending ? (
+          <p className="compact-loading" role="status">
+            Загрузка
+          </p>
+        ) : published.isError ? (
+          <p className="form-error" role="alert">
+            Не удалось загрузить экскурсии.
+          </p>
+        ) : filteredExperiences.length > 0 ? (
           <div className="catalog-grid">
             {filteredExperiences.map((experience) => (
               <ExperienceCard experience={experience} key={experience.id} />
