@@ -390,6 +390,9 @@ describe('App navigation', () => {
     expect(
       screen.getByRole('heading', { name: 'Создайте экскурсию' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Дата экскурсии' }),
+    ).toHaveTextContent('Выберите дату');
     fireEvent.click(screen.getByRole('button', { name: 'Дата экскурсии' }));
     const dateDialog = screen.getByRole('dialog', { name: 'Выберите дату' });
     expect(within(dateDialog).getByRole('grid')).toBeInTheDocument();
@@ -399,6 +402,15 @@ describe('App navigation', () => {
     );
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
+    expect(
+      screen.getByRole('button', { name: 'Дата экскурсии' }),
+    ).toHaveTextContent(
+      new Intl.DateTimeFormat('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }).format(tomorrow),
+    );
     fireEvent.change(screen.getByRole('combobox', { name: 'Часы экскурсии' }), {
       target: { value: '08' },
     });

@@ -5846,7 +5846,7 @@ html[data-theme='dark'] .experience-terms li {
     margin: 0;
   }
 
-  .date-button span {
+  .date-button:not(.date-button--schedule) span {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -6124,7 +6124,7 @@ html[data-theme='dark'] .experience-terms li {
   box-shadow: none;
 }
 
-.date-button span {
+.date-button:not(.date-button--schedule) span {
   position: absolute;
   width: 1px;
   height: 1px;
